@@ -3,7 +3,7 @@
 
 #include <string>
 #include <map>
-#include <vector>
+#include <set>
 
 namespace spreadsheet {
 
@@ -20,9 +20,20 @@ namespace spreadsheet {
 
     private:
 
-        std::map<std::string, std::vector<std::string>> dependents;
+        /**
+         * Maps a node to a set of nodes which depend upon it.
+         */
+        std::map <std::string, std::set<std::string>> dependents;
 
-        std::map<std::string, std::vector<std::string>> dependees;
+        /**
+         * Maps a node to a set of nodes which it depends upon.
+         */
+        std::map <std::string, std::set<std::string>> dependees;
+
+        /**
+         * The number of pairs in the graph.
+         */
+        int size;
 
     public:
 
@@ -36,14 +47,14 @@ namespace spreadsheet {
          * @param node The node.
          * @return Dependents of the node (Those nodes which depend on the given node).
          */
-        std::vector<std::string> getDependents(std::string node);
+        std::set <std::string> getDependents(std::string node);
 
         /**
          * Finds all dependees of the given node.
          * @param node The node.
          * @return Dependees of the node (Those nodes which the given node depends on).
          */
-        std::vector<std::string> getDependees(std::string node);
+        std::set <std::string> getDependees(std::string node);
 
         /**
          * Adds a dependency based on the given nodes.

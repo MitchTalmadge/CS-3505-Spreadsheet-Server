@@ -10,7 +10,7 @@ std::vector<std::string> spreadsheet::DependencyGraph::getDependees(std::string 
     return dependees.at(node);
 }
 
-std::vector<std::string> spreadsheet::DependencyGraph::getDependees(std::string node) {
+std::vector<std::string> spreadsheet::DependencyGraph::getDependents(std::string node) {
     //TODO
     return dependents.at(node);
 }

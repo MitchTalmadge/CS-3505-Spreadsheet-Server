@@ -16,59 +16,57 @@ namespace spreadsheet {
      * For example, in the case of a spreadsheet, one cell may depend on the value of another cell,
      * in which case the latter cell must be evaluated before the former.
      */
-    class DependencyGraph {
+    class dependency_graph {
 
-    private:
-
-        /**
+	    /**
          * Maps a node to a set of nodes which depend upon it.
          */
-        std::map <std::string, std::set<std::string>> dependents;
+        std::map <std::string, std::set<std::string>> dependents_;
 
         /**
          * Maps a node to a set of nodes which it depends upon.
          */
-        std::map <std::string, std::set<std::string>> dependees;
+        std::map <std::string, std::set<std::string>> dependees_;
 
         /**
          * The number of pairs in the graph.
          */
-        int pairsCount;
+        int size_ = 0;
 
     public:
 
         /**
          * @return The number of ordered pairs in the graph.
          */
-        int size();
+        int size() const;
 
         /**
          * Finds all dependents of the given node.
          * @param node The node.
          * @return Dependents of the node (Those nodes which depend on the given node).
          */
-        std::set <std::string> getDependents(std::string node);
+        std::set <std::string> get_dependents(const std::string& node);
 
         /**
          * Finds all dependees of the given node.
          * @param node The node.
          * @return Dependees of the node (Those nodes which the given node depends on).
          */
-        std::set <std::string> getDependees(std::string node);
+        std::set <std::string> get_dependees(const std::string& node);
 
         /**
          * Adds a dependency based on the given nodes.
          * @param node The reference node.
-         * @param dependentNode The node that depends upon the reference node.
+         * @param dependent_node The node that depends upon the reference node.
          */
-        void addDependency(std::string node, std::string dependentNode);
+        void add_dependency(const std::string& node, const std::string& dependent_node);
 
         /**
          * Removes a dependency based on the given nodes.
          * @param node The reference node.
-         * @param dependentNode The node that depends on the reference node.
+         * @param dependent_node The node that depends on the reference node.
          */
-        void removeDependency(std::string node, std::string dependentNode);
+        void remove_dependency(const std::string& node, const std::string& dependent_node);
 
     };
 

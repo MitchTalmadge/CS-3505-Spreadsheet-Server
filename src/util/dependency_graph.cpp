@@ -1,52 +1,52 @@
 #include "dependency_graph.h"
 
-int spreadsheet::DependencyGraph::size() {
-    return pairsCount;
+int spreadsheet::dependency_graph::size() const {
+    return size_;
 }
 
-std::set <std::string> spreadsheet::DependencyGraph::getDependees(std::string node) {
-    return std::set<std::string>(dependees[node]);
+std::set <std::string> spreadsheet::dependency_graph::get_dependees(const std::string& node) {
+    return std::set<std::string>(dependees_[node]);
 }
 
-std::set <std::string> spreadsheet::DependencyGraph::getDependents(std::string node) {
-    return std::set<std::string>(dependents[node]);
+std::set <std::string> spreadsheet::dependency_graph::get_dependents(const std::string& node) {
+    return std::set<std::string>(dependents_[node]);
 }
 
-void spreadsheet::DependencyGraph::addDependency(std::string node, std::string dependentNode) {
-    std::set <std::string> nodeDependees = dependees[dependentNode];
-    std::set <std::string> nodeDependents = dependents[node];
+void spreadsheet::dependency_graph::add_dependency(const std::string& node, const std::string& dependent_node) {
+    std::set <std::string> node_dependees = dependees_[dependent_node];
+    std::set <std::string> node_dependents = dependents_[node];
 
     // Attempt insertion of the node and its dependent.
-    bool inserted = nodeDependees.insert(node).second;
-    inserted &= nodeDependents.insert(dependentNode).second;
+    bool inserted = node_dependees.insert(node).second;
+    inserted &= node_dependents.insert(dependent_node).second;
 
     // Increase number of pairs if insertion was successful.
     if (inserted)
-        pairsCount++;
+        size_++;
 }
 
-void spreadsheet::DependencyGraph::removeDependency(std::string node, std::string dependentNode) {
-    std::set <std::string> nodeDependees = dependees[dependentNode];
-    std::set <std::string> nodeDependents = dependents[node];
+void spreadsheet::dependency_graph::remove_dependency(const std::string& node, const std::string& dependent_node) {
+    std::set <std::string> node_dependees = dependees_[dependent_node];
+    std::set <std::string> node_dependents = dependents_[node];
 
-    bool removed = false;
+	auto removed = false;
 
     // Remove node
-    std::set<std::string>::iterator nodeToRemove = nodeDependees.find(node);
-    if (nodeToRemove != nodeDependees.end()) {
-        nodeDependees.erase(nodeToRemove);
+    std::set<std::string>::iterator nodeToRemove = node_dependees.find(node);
+    if (nodeToRemove != node_dependees.end()) {
+        node_dependees.erase(nodeToRemove);
         removed = true;
     }
 
     // Remove node's dependent
-    nodeToRemove = nodeDependents.find(dependentNode);
-    if (nodeToRemove != nodeDependents.end()) {
-        nodeDependees.erase(nodeToRemove);
+    nodeToRemove = node_dependents.find(dependent_node);
+    if (nodeToRemove != node_dependents.end()) {
+        node_dependees.erase(nodeToRemove);
         removed = true;
     }
 
     // Decrease number of pairs if removal was successful.
     if(removed) {
-        pairsCount--;
+        size_--;
     }
 }

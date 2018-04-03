@@ -2,3 +2,5 @@
 *.iml
 *.ipw
 .vs
+bin
+lib

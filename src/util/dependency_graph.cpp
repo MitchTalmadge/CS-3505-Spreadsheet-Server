@@ -2,16 +2,17 @@
 
 int spreadsheet::DependencyGraph::size() {
     //TODO
+    return 0;
 }
 
 std::vector<std::string> spreadsheet::DependencyGraph::getDependees(std::string node) {
     //TODO
-    return NULL;
+    return dependees.at(node);
 }
 
 std::vector<std::string> spreadsheet::DependencyGraph::getDependees(std::string node) {
     //TODO
-    return NULL;
+    return dependents.at(node);
 }
 
 void spreadsheet::DependencyGraph::addDependency(std::string node, std::string dependentNode) {

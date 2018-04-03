@@ -4,12 +4,12 @@ int spreadsheet::DependencyGraph::size() {
     //TODO
 }
 
-std::vector<string> spreadsheet::DependencyGraph::getDependees(std::string node) {
+std::vector<std::string> spreadsheet::DependencyGraph::getDependees(std::string node) {
     //TODO
     return NULL;
 }
 
-std::vector<string> spreadsheet::DependencyGraph::getDependees(std::string node) {
+std::vector<std::string> spreadsheet::DependencyGraph::getDependees(std::string node) {
     //TODO
     return NULL;
 }

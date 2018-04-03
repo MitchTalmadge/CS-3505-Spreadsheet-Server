@@ -33,7 +33,7 @@ namespace spreadsheet {
         /**
          * The number of pairs in the graph.
          */
-        int size;
+        int pairsCount;
 
     public:
 

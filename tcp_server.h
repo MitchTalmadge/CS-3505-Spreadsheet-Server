@@ -12,13 +12,16 @@ class tcp_server
 {
  private:
   // Main controller that handles the network/model components for connected clients.
-  main_controller main_control;
+  //main_controller main_control;
   
   // TCP Port to listen on.
-  int port = 2112;
+  int port;
+
+  // Server socket file descriptor. Identifies our TCP server socket.
+  int server_fd;
 
   // Work loop for our server - listen for new clients.
-  void listen();
+  void server_work();
 
  public:
   tcp_server();
@@ -28,6 +31,6 @@ class tcp_server
 
   // Shut down the server and it's components.
   void shut_down();
-}
+};
 
 #endif

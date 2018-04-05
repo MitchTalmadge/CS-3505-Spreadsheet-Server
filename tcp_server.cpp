@@ -10,6 +10,20 @@ which handles setting up the network/model components for connected clients.
 #include <netinet/in.h>
 #include <iostream>
 
+/*
+Create a new TCP Server. Here we set the port number and can handle any other setup required.
+ */
+tcp_server::tcp_server()
+{
+  // Set our port according to the communication protocol.
+  this->port = 2112;
+}
+
+/*
+Startup has two main roles:
+1. Setup our Main Controller which handles coordination between model and active network connections.
+2. Setup the listening socket that listens for new connections.
+ */
 void tcp_server::startup()
 {
   // TODO: Setup main_controller.
@@ -43,19 +57,36 @@ void tcp_server::startup()
   }
 
   std::cout << "Set up socket to listen for new connections." << std::endl;
+
+  // Start a thread to handle continuously checking for new connections.
+  worker_thread = boost::thread(&tcp_server::server_work, this); // this is the implicit first argument for any member function.
 }
 
+/*
+This is the work loop the tcp_server object will run continuously. It basically keeps checking
+for new connections and forwards them on as necessary.
+ */
 void tcp_server::server_work()
 {
-  // Nothing for now. Eventually move the actually listening for connections here.
+  // Check for new connections to the listening socket.
+  while (true) {
+    // Grab a connection from the top of the server listener queue.
+    int new_socket = accept(server_fd, NULL, NULL);
+
+    // For now just announce the new connection.
+    if (new_socket != -1)
+    {
+      std::cout << "New connection received." << std::endl;
+    }
+    
+    // TODO: Forward the new connection to the main controller who can handle it.
+  }
 }
 
-tcp_server::tcp_server()
-{
-  // Set our port according to the communication protocol.
-  this->port = 2112;
-}
-
+/*
+Shut down the tcp_server, that is, the listening socket. Then forward the shutdown to the main
+controller.
+ */
 void tcp_server::shut_down()
 {
   // Shutdown our socket.

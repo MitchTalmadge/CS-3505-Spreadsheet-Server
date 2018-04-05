@@ -8,6 +8,8 @@ which handles setting up the network/model components for connected clients.
 #ifndef TCP_SERVER
 #define TCP_SERVER
 
+#include <boost/thread/thread.hpp>
+
 class tcp_server 
 {
  private:
@@ -19,6 +21,9 @@ class tcp_server
 
   // Server socket file descriptor. Identifies our TCP server socket.
   int server_fd;
+
+  // Thread to do all the listening work.
+  boost::thread worker_thread;
 
   // Work loop for our server - listen for new clients.
   void server_work();

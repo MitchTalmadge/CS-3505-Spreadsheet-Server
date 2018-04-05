@@ -8,33 +8,35 @@ clients.
 #ifndef NETWORK_CONTROLLER
 #define NETWORK_CONTROLLER
 
-#include <boost/unordered_map.hpp>
+#include "network_controller.h"
 #include <vector>
 #include <string>
-#include <queue>
+#include <boost/thread/thread.hpp>
+#include "data_container.h"
 
 class network_controller
 {
 
  private:
-  // Queue messages for a given spreadsheet.
-  boost::unordered_map<std::string, std::queue<string>> in_messages;
+  // Data container is where messages should be written to and where outgoing
+  // messages are read from.
+  data_container data;
 
-  // Convert from socket id to corresponding spreadsheet.
-  boost::unordered_map<int, std::string> socket_spreadsheet;
+  // Vector containing all threads being used to handle socket communciations.
+  std::vector<boost::thread> active_threads;
+
+  // Work loop for the network controller, where it listens in on a socket for incoming
+  // messages and listens for new sockets to send from the model.
+  void socket_work_loop(int socket_id, std::string spreadsheet);
 
  public:
-  network_controller();
+  network_controller(data_container& data);
 
   // Handle network communication for a newly connected socket.
   void handle_new_client(int socket_id, std::string spreadsheet);
 
-  // Get a message for a given spreadsheet.
-  std::string get_message(std::string spreadsheet);
-
-  // Send a message to the given socket.
-  void send_message(int socket_id, std::string message);
-
   // Shut down self and components.
   void shut_down();
-}
+};
+
+#endif

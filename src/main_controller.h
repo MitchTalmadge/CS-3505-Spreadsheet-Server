@@ -12,27 +12,31 @@ Coordinate model/client activity, specifically:
 
 #include <vector>
 #include <string>
+#include "network_controller.h"
+#include "data_container.h"
 
 class main_controller
 {
 
  private:
+  // Data Container holds the data involved in communication between
+  // the network controller and the models.
+  data_container data;
+
   // Network Controller handles network interactions with clients.
   network_controller network_control;
   
-  // Vector of active model ids.
-  std::vector<std::string> active_models;
-  // Vector of actual active models.
-  //std::vector<spreadsheet> spreadsheets;
-
-  // Handle a new client connecting.
-  void handle_client(string spreadsheet, int socket_id);
-
-  // Shutdown the controller and it's components.
-  void shut_down();
+  // Map from spreadsheet id to associated model.
+  //  boost::unordered_map<std::string, spreadsheet> models;
 
  public:
   main_controller();
+
+  // Handle a new client connecting.
+  void handle_client(std::string spreadsheet, int socket_id);
+
+  // Shutdown the controller and it's components.
+  void shut_down();
 };
 
 #endif

@@ -9,12 +9,13 @@ which handles setting up the network/model components for connected clients.
 #define TCP_SERVER
 
 #include <boost/thread/thread.hpp>
+#include "main_controller.h"
 
 class tcp_server 
 {
  private:
   // Main controller that handles the network/model components for connected clients.
-  //main_controller main_control;
+  main_controller main_control;
   
   // TCP Port to listen on.
   int port;

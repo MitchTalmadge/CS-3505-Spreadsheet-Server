@@ -77,6 +77,7 @@ void tcp_server::server_work()
     if (new_socket != -1)
     {
       std::cout << "New connection received." << std::endl;
+      main_control.handle_client("not available", new_socket);
     }
     
     // TODO: Forward the new connection to the main controller who can handle it.

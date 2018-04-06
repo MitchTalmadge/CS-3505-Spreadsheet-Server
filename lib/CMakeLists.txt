@@ -62,7 +62,7 @@ else ()
             GIT_TAG "boost-1.57.0"
 
             SOURCE_DIR ${BOOST_INSTALL_DIR}/src
-            BINARY_DIR ${BOOST_INSTALL_DIR}/bin
+            BUILD_IN_SOURCE 1
 
             UPDATE_COMMAND ""
             CONFIGURE_COMMAND ${BOOST_BOOTSTRAP_COMMAND} --prefix=${BOOST_INSTALL_DIR}/lib
@@ -71,7 +71,7 @@ else ()
     )
 
     # Link libraries.
-    include_directories(server ${BOOST_INSTALL_DIR}/bin/boost/)
+    include_directories(server ${BOOST_INSTALL_DIR}/src/boost/)
     link_libraries(server ${BOOST_INSTALL_DIR}/lib)
     add_dependencies(server boost)
 endif ()

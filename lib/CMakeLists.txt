@@ -25,6 +25,8 @@ set(LIB_INSTALL_DIR ${CMAKE_BINARY_DIR}/lib)
 # ==================== Boost Libraries ==================== #
 
 set(BOOST_INSTALL_DIR ${LIB_INSTALL_DIR}/boost)
+
+set(BOOST_BOOTSTRAP_COMMAND)
 if (UNIX)
     set(BOOST_BOOTSTRAP_COMMAND ./bootstrap.sh)
     set(BOOST_B2_COMMAND ./b2)
@@ -56,6 +58,6 @@ ExternalProject_Add(
         BUILD_COMMAND ${BOOST_B2_COMMAND} install -j8 --prefix=${BOOST_INSTALL_DIR} --with-thread --with-filesystem --with-system --with-date_time --with-program_options --with-atomic address-model=${BOOST_ADDRESS_MODEL} link=static,shared
         INSTALL_COMMAND ""
 )
-add_dependencies(server boost)
-include_directories(server ${BOOST_INSTALL_DIR}/include/boost-1_66)
+include_directories(server ${BOOST_INSTALL_DIR}/include/boost-1_66/)
 link_libraries(server ${BOOST_INSTALL_DIR}/lib)
+add_dependencies(server boost)

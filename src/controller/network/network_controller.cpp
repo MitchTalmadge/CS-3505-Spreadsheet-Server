@@ -9,7 +9,7 @@ void network_controller::handle_new_client(int socket_id, std::string spreadshee
 }
 
 std::string network_controller::get_message(std::string spreadsheet) {
-    return std::__cxx11::string();
+    return std::string();
 }
 
 void network_controller::send_message(int socket_id, std::string message) {

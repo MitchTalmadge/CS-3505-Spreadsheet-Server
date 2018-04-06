@@ -22,7 +22,7 @@ add_dependencies(server googletest)]]
 # Attempt to locate system-installed libraries.
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
-find_package(Boost 1.45.0 COMPONENTS system filesystem thread date_time atomic regex serialization)
+find_package(Boost 1.57.0 COMPONENTS system filesystem thread date_time atomic regex serialization)
 if (Boost_FOUND)
     # Boost was located on the system.
     message("Boost libraries found. Using system-installed libraries.")
@@ -58,9 +58,12 @@ else ()
     ExternalProject_Add(
             boost
 
-            BUILD_IN_SOURCE 1
             GIT_REPOSITORY "https://github.com/boostorg/boost.git"
-            GIT_TAG "boost-1.45.0"
+            GIT_TAG "boost-1.57.0"
+
+            SOURCE_DIR ${BOOST_INSTALL_DIR}/src
+            BINARY_DIR ${BOOST_INSTALL_DIR}/bin
+
             UPDATE_COMMAND ""
             CONFIGURE_COMMAND ${BOOST_BOOTSTRAP_COMMAND} --prefix=${BOOST_INSTALL_DIR}/lib
             BUILD_COMMAND ${BOOST_B2_COMMAND} install -j8 --prefix=${BOOST_INSTALL_DIR} --with-system --with-filesystem --with-thread --with-date_time --with-atomic --with-regex --with-serialization address-model=${BOOST_ADDRESS_MODEL} link=static
@@ -68,7 +71,7 @@ else ()
     )
 
     # Link libraries.
-    include_directories(server ${CMAKE_BINARY_DIR}/boost-prefix/src/boost/)
+    include_directories(server ${BOOST_INSTALL_DIR}/bin/boost/)
     link_libraries(server ${BOOST_INSTALL_DIR}/lib)
     add_dependencies(server boost)
 endif ()

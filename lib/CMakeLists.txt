@@ -58,6 +58,6 @@ ExternalProject_Add(
         BUILD_COMMAND ${BOOST_B2_COMMAND} install -j8 --prefix=${BOOST_INSTALL_DIR} --with-thread --with-filesystem --with-system --with-date_time --with-program_options --with-atomic address-model=${BOOST_ADDRESS_MODEL} link=static,shared
         INSTALL_COMMAND ""
 )
-include_directories(server ${BOOST_INSTALL_DIR}/include/boost-1_66/)
+include_directories(server ${CMAKE_BINARY_DIR}/boost-prefix/src/boost/)
 link_libraries(server ${BOOST_INSTALL_DIR}/lib)
 add_dependencies(server boost)

@@ -5,6 +5,6 @@
 
 int main(int argc, char **argv);
 
-boost::date_time::date test();
+boost::gregorian::date test();
 
 #endif //PIGRAMMERS_SPREADSHEET_SERVER_MAIN_H

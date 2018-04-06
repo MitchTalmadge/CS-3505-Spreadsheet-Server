@@ -1,6 +1,7 @@
 cmake_minimum_required (VERSION 2.8.11)
 project(Pigrammers_Spreadsheet_Server)
 set(CMAKE_CXX_STANDARD 11)  # enable C++11 standard
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # Add source code
 include_directories(src)

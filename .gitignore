@@ -2,4 +2,5 @@
 *.iml
 *.ipw
 .vs
+*.log
 cmake-build-debug

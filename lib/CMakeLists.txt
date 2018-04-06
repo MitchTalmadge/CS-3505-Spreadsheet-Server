@@ -1,26 +1,21 @@
-#[[
 include(ExternalProject)
+set(LIB_INSTALL_DIR ${CMAKE_BINARY_DIR}/lib)
 
-set(EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external)
+# ==================== Google Test Libraries ==================== #
 
-# Google Test Framework
+#[[set(GTEST_INSTALL_DIR ${LIB_INSTALL_DIR}/googletest)
+
 ExternalProject_Add(
         googletest
 
-        DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/lib/googletest
         GIT_REPOSITORY https://github.com/google/googletest.git
         TIMEOUT 10
-        LOG_CONFIGURE ON
-        LOG_DOWNLOAD ON
         CONFIGURE_COMMAND ""
-        BUILD_COOMMAND ""
+        BUILD_COMMAND ""
         INSTALL_COMMAND ""
 )
-add_dependencies(server googletest)
-target_link_libraries(server gtest gtest_main pthread)]]
-
-include(ExternalProject)
-set(LIB_INSTALL_DIR ${CMAKE_BINARY_DIR}/lib)
+target_link_libraries(server gtest gtest_main pthread)
+add_dependencies(server googletest)]]
 
 # ==================== Boost Libraries ==================== #
 

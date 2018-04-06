@@ -7,7 +7,7 @@ input to handle input from the console.
 */
 
 #include "main.h"
-#include "tcp_server.h"
+#include <controller/network/tcp_server.h>
 #include <iostream>
 #include <string>
 

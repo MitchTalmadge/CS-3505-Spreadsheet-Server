@@ -1,18 +1,18 @@
 #include "dependency_graph.h"
 
-int spreadsheet::dependency_graph::size() const {
+int dependency_graph::size() const {
     return size_;
 }
 
-std::set <std::string> spreadsheet::dependency_graph::get_dependees(const std::string& node) {
+std::set <std::string> dependency_graph::get_dependees(const std::string& node) {
     return std::set<std::string>(dependees_[node]);
 }
 
-std::set <std::string> spreadsheet::dependency_graph::get_dependents(const std::string& node) {
+std::set <std::string> dependency_graph::get_dependents(const std::string& node) {
     return std::set<std::string>(dependents_[node]);
 }
 
-void spreadsheet::dependency_graph::add_dependency(const std::string& node, const std::string& dependent_node) {
+void dependency_graph::add_dependency(const std::string& node, const std::string& dependent_node) {
     std::set <std::string> node_dependees = dependees_[dependent_node];
     std::set <std::string> node_dependents = dependents_[node];
 
@@ -25,14 +25,14 @@ void spreadsheet::dependency_graph::add_dependency(const std::string& node, cons
         size_++;
 }
 
-void spreadsheet::dependency_graph::remove_dependency(const std::string& node, const std::string& dependent_node) {
+void dependency_graph::remove_dependency(const std::string& node, const std::string& dependent_node) {
     std::set <std::string> node_dependees = dependees_[dependent_node];
     std::set <std::string> node_dependents = dependents_[node];
 
 	auto removed = false;
 
     // Remove node
-    std::set<std::string>::iterator nodeToRemove = node_dependees.find(node);
+    auto nodeToRemove = node_dependees.find(node);
     if (nodeToRemove != node_dependees.end()) {
         node_dependees.erase(nodeToRemove);
         removed = true;

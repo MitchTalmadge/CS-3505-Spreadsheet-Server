@@ -22,13 +22,13 @@ add_dependencies(server googletest)]]
 # Attempt to locate system-installed libraries.
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
-find_package(Boost 1.57.0 COMPONENTS system filesystem thread date_time atomic regex serialization)
+find_package(Boost 1.57.0 COMPONENTS system filesystem thread date_time)
 if (Boost_FOUND)
     # Boost was located on the system.
     message("Boost libraries found. Using system-installed libraries.")
 
     # Link libraries.
-    include_directories(${Boost_INCLUDE_DIRS})
+    include_directories(server ${Boost_INCLUDE_DIRS})
     target_link_libraries(server ${Boost_LIBRARIES})
 else ()
     # Boost could not be found, and will be downloaded instead.
@@ -65,8 +65,8 @@ else ()
             BUILD_IN_SOURCE 1
 
             UPDATE_COMMAND ""
-            CONFIGURE_COMMAND ${BOOST_BOOTSTRAP_COMMAND}
-            BUILD_COMMAND ${BOOST_B2_COMMAND} -j8 install headers --prefix=${BOOST_INSTALL_DIR}/bin --with-system --with-filesystem --with-thread --with-date_time --with-atomic --with-regex --with-serialization address-model=${BOOST_ADDRESS_MODEL} link=static
+            CONFIGURE_COMMAND ${BOOST_BOOTSTRAP_COMMAND} gcc
+            BUILD_COMMAND ${BOOST_B2_COMMAND} -j8 install headers --prefix=${BOOST_INSTALL_DIR}/bin --with-system --with-filesystem --with-thread --with-date_time address-model=${BOOST_ADDRESS_MODEL} link=static toolset=gcc
             INSTALL_COMMAND ""
     )
 

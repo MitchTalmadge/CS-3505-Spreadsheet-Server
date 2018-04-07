@@ -71,7 +71,7 @@ else ()
     )
 
     # Link libraries.
-    include_directories(server ${BOOST_INSTALL_DIR}/bin/include/boost-1_66/)
+    include_directories(server ${BOOST_INSTALL_DIR}/src/)
     link_libraries(server ${BOOST_INSTALL_DIR}/bin/lib/)
     add_dependencies(server boost)
 endif ()

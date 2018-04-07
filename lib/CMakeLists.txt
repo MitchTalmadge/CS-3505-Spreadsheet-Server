@@ -59,19 +59,19 @@ else ()
             boost
 
             GIT_REPOSITORY "https://github.com/boostorg/boost.git"
-            GIT_TAG "boost-1.57.0"
+            GIT_TAG "boost-1.66.0"
 
             SOURCE_DIR ${BOOST_INSTALL_DIR}/src
             BUILD_IN_SOURCE 1
 
             UPDATE_COMMAND ""
-            CONFIGURE_COMMAND ${BOOST_BOOTSTRAP_COMMAND} --prefix=${BOOST_INSTALL_DIR}/lib
-            BUILD_COMMAND ${BOOST_B2_COMMAND} install -j8 --prefix=${BOOST_INSTALL_DIR} --with-system --with-filesystem --with-thread --with-date_time --with-atomic --with-regex --with-serialization address-model=${BOOST_ADDRESS_MODEL} link=static
+            CONFIGURE_COMMAND ${BOOST_BOOTSTRAP_COMMAND}
+            BUILD_COMMAND ${BOOST_B2_COMMAND} -j8 install headers --prefix=${BOOST_INSTALL_DIR}/bin --with-system --with-filesystem --with-thread --with-date_time --with-atomic --with-regex --with-serialization address-model=${BOOST_ADDRESS_MODEL} link=static
             INSTALL_COMMAND ""
     )
 
     # Link libraries.
-    include_directories(server ${BOOST_INSTALL_DIR}/src/boost/)
-    link_libraries(server ${BOOST_INSTALL_DIR}/lib)
+    include_directories(server ${BOOST_INSTALL_DIR}/bin/include/boost-1_66/)
+    link_libraries(server ${BOOST_INSTALL_DIR}/bin/lib/)
     add_dependencies(server boost)
 endif ()

@@ -31,47 +31,5 @@ if (Boost_FOUND)
     include_directories(server ${Boost_INCLUDE_DIRS})
     target_link_libraries(server ${Boost_LIBRARIES})
 else ()
-    # Boost could not be found, and will be downloaded instead.
-    message("Boost libraries not found. Boost will be downloaded and compiled.")
-
-    # The location that Boost will be installed into.
-    set(BOOST_INSTALL_DIR ${LIB_INSTALL_DIR}/boost)
-
-    # Decide whether to use Windows or Unix install scripts.
-    set(BOOST_BOOTSTRAP_COMMAND)
-    if (UNIX)
-        set(BOOST_BOOTSTRAP_COMMAND ./bootstrap.sh)
-        set(BOOST_B2_COMMAND ./b2)
-    else ()
-        set(BOOST_BOOTSTRAP_COMMAND cmd /C bootstrap.bat gcc)
-        set(BOOST_B2_COMMAND b2.exe)
-    endif ()
-
-    # Decide whether to compile as 32 or 64 bit.
-    if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-        set(BOOST_ADDRESS_MODEL 64)
-    else ()
-        set(BOOST_ADDRESS_MODEL 32)
-    endif ()
-
-    # Download and install from git.
-    ExternalProject_Add(
-            boost
-
-            GIT_REPOSITORY "https://github.com/boostorg/boost.git"
-            GIT_TAG "boost-1.66.0"
-
-            SOURCE_DIR ${BOOST_INSTALL_DIR}/src
-            BUILD_IN_SOURCE 1
-
-            UPDATE_COMMAND ""
-            CONFIGURE_COMMAND ${BOOST_BOOTSTRAP_COMMAND} gcc
-            BUILD_COMMAND ${BOOST_B2_COMMAND} -j8 install headers --prefix=${BOOST_INSTALL_DIR}/bin --with-system --with-filesystem --with-thread --with-date_time address-model=${BOOST_ADDRESS_MODEL} link=static toolset=gcc
-            INSTALL_COMMAND ""
-    )
-
-    # Link libraries.
-    include_directories(server ${BOOST_INSTALL_DIR}/src/)
-    link_libraries(server ${BOOST_INSTALL_DIR}/bin/lib/)
-    add_dependencies(server boost)
+    message("Boost libraries not found. Compilation may fail.")
 endif ()

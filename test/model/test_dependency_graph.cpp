@@ -7,5 +7,5 @@
 TEST(DependencyGraphTest, GraphStartsEmpty) {
     dependency_graph graph;
 
-    EXPECT_EQ(1, graph.size());
+    EXPECT_EQ(0, graph.size());
 }

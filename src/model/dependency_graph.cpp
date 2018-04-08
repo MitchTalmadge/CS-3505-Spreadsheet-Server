@@ -13,11 +13,11 @@ std::set <std::string> dependency_graph::get_dependents(const std::string& node)
 }
 
 void dependency_graph::add_dependency(const std::string& node, const std::string& dependent_node) {
-    std::set <std::string> node_dependees = dependees_[dependent_node];
+    std::set <std::string> dependent_node_dependees = dependees_[dependent_node];
     std::set <std::string> node_dependents = dependents_[node];
 
     // Attempt insertion of the node and its dependent.
-    bool inserted = node_dependees.insert(node).second;
+    bool inserted = dependent_node_dependees.insert(node).second;
     inserted &= node_dependents.insert(dependent_node).second;
 
     // Increase number of pairs if insertion was successful.

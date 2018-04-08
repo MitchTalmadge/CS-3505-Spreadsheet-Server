@@ -1,6 +1,7 @@
 # Add source code.
 include_directories(src)
 file(GLOB_RECURSE SOURCES "src/*.cpp")
+list(FILTER SOURCES EXCLUDE REGEX ".*/main\\.(h|cpp)")
 
 # Add test code.
 include_directories(test)

@@ -31,7 +31,7 @@ class dependency_graph {
      */
     int size_ = 0;
 
-public:+
+public:
 
     /**
      * @return The number of ordered pairs in the graph.

@@ -1,3 +1,4 @@
+#include <gtest/gtest.h>
 #include <model/dependency_graph.h>
 
 TEST(DependencyGraphTest, GraphStartsEmpty) {

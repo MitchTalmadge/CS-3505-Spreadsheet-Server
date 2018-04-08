@@ -10,6 +10,3 @@ file(GLOB_RECURSE TEST_SOURCES "test/*.cpp")
 # Define executable.
 add_executable(server_test ${SOURCES} ${TEST_SOURCES})
 add_dependencies(server_test server)
-
-# Add tests to CTest.
-add_test(server_test server_test)

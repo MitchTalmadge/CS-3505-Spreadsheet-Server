@@ -4,7 +4,6 @@ set(LIB_INSTALL_DIR ${CMAKE_BINARY_DIR}/lib)
 # ==================== Google Test Libraries ==================== #
 
 # Attempt to locate system-installed libraries.
-enable_testing()
 find_package(GTest)
 
 if (GTEST_FOUND)

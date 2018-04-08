@@ -21,8 +21,8 @@ TEST(DependencyGraphTest, AddOneDependency) {
     graph.add_dependency("A1", "A2");
 
     EXPECT_EQ(1, graph.get_dependees("A2").size());
-    EXPECT_EQ("A1", graph.get_dependees("A2").begin());
+    EXPECT_EQ("A1", (*graph.get_dependees("A2").begin()));
 
     EXPECT_EQ(1, graph.get_dependents("A1").size());
-    EXPECT_EQ("A2", graph.get_dependents("A1").begin());
+    EXPECT_EQ("A2", (*graph.get_dependents("A1").begin()));
 }

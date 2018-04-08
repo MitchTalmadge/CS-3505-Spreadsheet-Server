@@ -6,8 +6,8 @@ compile:
 	cmake ../; \
 	make
 
-# Runs unit tests
+# Runs unit tests with xml output
 .PHONY: test
 test: compile
 	cd bin; \
-	./server_test
+	./server_test --gtest_output=xml

@@ -1,4 +1,4 @@
-# This makefile creates the bin directory as needed, and then executes cmake and make within it.
+# Creates the bin directory, then executes cmake and make.
 .PHONY: compile
 compile:
 	mkdir -p bin; \
@@ -6,7 +6,15 @@ compile:
 	cmake ../; \
 	make
 
-# Runs unit tests with xml output
+# Same as compile, except with debugging enabled.
+.PHONY: debug
+debug:
+	mkdir -p bin; \
+	cd bin; \
+	cmake -DCMAKE_BUILD_TYPE=Debug ../; \
+	make
+
+# Runs unit tests with xml output.
 .PHONY: test
 test: compile
 	-cd bin; \

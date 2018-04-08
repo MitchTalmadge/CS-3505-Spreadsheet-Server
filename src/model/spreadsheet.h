@@ -19,7 +19,7 @@ class spreadsheet {
      * Contains relations between cells in the spreadsheet.
      * Each node in the graph is the name of a cell.
      */
-    dependency_graph dependency_graph_;
+    dependency_graph dependencies_;
 
     /**
      * Contains the contents of each cell in the spreadsheet.

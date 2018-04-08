@@ -5,11 +5,11 @@ int dependency_graph::size() const {
 }
 
 std::set <std::string> dependency_graph::get_dependees(const std::string& node) {
-    return std::set<std::string>(dependees_[node]);
+    return dependees_[node];
 }
 
 std::set <std::string> dependency_graph::get_dependents(const std::string& node) {
-    return std::set<std::string>(dependents_[node]);
+    return dependents_[node];
 }
 
 void dependency_graph::add_dependency(const std::string& node, const std::string& dependent_node) {

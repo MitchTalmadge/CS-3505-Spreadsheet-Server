@@ -2,12 +2,6 @@
 
 ## Compilation
 
-### Automatically:
-
-- Run the `Makefile` located in the root directory.
-
-### Manually:
-
-1. Create a directory where cmake will be run, such as `mkdir -p bin`.
-2. Enter the directory and run cmake: `cd bin` -> `cmake ../`
-3. If cmake is successful, run `make`
+- Run `make` to compile normally. Executables will be output to `bin/server` and `bin/server_test`
+- Run `make debug` to compile with debugging symbols included, for use with `gdb`.
+- Run `make test` to run tests.

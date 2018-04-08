@@ -26,7 +26,7 @@ TEST(DependencyGraphTest, AddOneDependency) {
     EXPECT_EQ(1, dependent_node_dependees.size());
     EXPECT_TRUE(dependent_node_dependees.find("A1") != dependent_node_dependees.end());
 
-    auto node_dependents = graph.get_dependees("A1");
+    auto node_dependents = graph.get_dependents("A1");
     EXPECT_EQ(1, node_dependents.size());
     EXPECT_TRUE(node_dependents.find("A2") != node_dependents.end());
 }

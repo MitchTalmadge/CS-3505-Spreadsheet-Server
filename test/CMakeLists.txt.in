@@ -11,7 +11,3 @@ add_executable(server_test ${SOURCES})
 
 # Add tests to CTest
 add_test(server_test server_test)
-
-# Require threads
-find_package(Threads)
-target_link_libraries(server_test ${CMAKE_THREAD_LIBS_INIT})

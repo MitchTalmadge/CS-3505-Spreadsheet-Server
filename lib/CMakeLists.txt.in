@@ -18,11 +18,14 @@ endif ()
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 find_package(Boost 1.57.0 COMPONENTS system filesystem thread date_time)
-if (Boost_FOUND)
-    # Boost was located on the system.
-    message("Boost libraries found. Using system-installed libraries.")
 
-    # Link libraries.
+if (Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
     link_libraries(${Boost_LIBRARIES})
 endif ()
+
+# ==================== Thread Support ==================== #
+
+find_package(Threads)
+target_link_libraries(server ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(server_test ${CMAKE_THREAD_LIBS_INIT})

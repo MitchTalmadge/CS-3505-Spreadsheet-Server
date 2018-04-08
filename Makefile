@@ -9,5 +9,5 @@ compile:
 # Runs unit tests with xml output
 .PHONY: test
 test: compile
-	cd bin; \
+	-cd bin; \
 	./server_test --gtest_output=xml

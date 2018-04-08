@@ -108,10 +108,10 @@ TEST(DependencyGraphTest, RemoveOneDependency) {
     EXPECT_EQ(0, graph.size());
 
     auto a2_dependees = graph.get_dependees("A2");
-    EXPECT_EQ(1, a2_dependees.size());
+    EXPECT_EQ(0, a2_dependees.size());
     EXPECT_TRUE(a2_dependees.find("A1") == a2_dependees.end());
 
     auto a1_dependents = graph.get_dependents("A1");
-    EXPECT_EQ(1, a1_dependents.size());
+    EXPECT_EQ(0, a1_dependents.size());
     EXPECT_TRUE(a1_dependents.find("A2") == a1_dependents.end());
 }

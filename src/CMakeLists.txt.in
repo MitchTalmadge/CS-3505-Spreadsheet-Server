@@ -1,0 +1,10 @@
+# Add source code
+include_directories(src)
+file(GLOB_RECURSE SOURCES "src/*.cpp")
+
+# Define executable
+add_executable(server ${SOURCES})
+
+# Require threads
+find_package(Threads)
+target_link_libraries(server ${CMAKE_THREAD_LIBS_INIT})

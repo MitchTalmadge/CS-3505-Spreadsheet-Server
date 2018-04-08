@@ -1,0 +1,17 @@
+# Add source code.
+include_directories(src)
+file(GLOB_RECURSE SOURCES "src/*.cpp")
+
+# Add test code.
+include_directories(test)
+file(GLOB_RECURSE SOURCES "test/*.cpp")
+
+# Define executable
+add_executable(server_test ${SOURCES})
+
+# Add tests to CTest
+GTEST_ADD_TESTS(server_test "" AUTO)
+
+# Require threads
+find_package(Threads)
+target_link_libraries(server_test ${CMAKE_THREAD_LIBS_INIT})

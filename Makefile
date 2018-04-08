@@ -5,3 +5,9 @@ compile:
 	cd bin; \
 	cmake ../; \
 	make
+
+# Runs unit tests
+.PHONY: test
+test: compile
+	cd bin; \
+	./server_test

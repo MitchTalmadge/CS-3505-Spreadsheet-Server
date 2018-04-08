@@ -1,8 +1,11 @@
 #include <gtest/gtest.h>
 #include <model/dependency_graph.h>
 
+/**
+ * Tests that the dependency graph starts empty.
+ */
 TEST(DependencyGraphTest, GraphStartsEmpty) {
-    dependency_graph graph;
+    dependency_graph * graph = new dependency_graph();
 
-    EXPECT_EQ(0, graph.size());
+    EXPECT_EQ(0, graph->size());
 }

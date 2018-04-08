@@ -41,7 +41,9 @@ find_package(Boost 1.57.0 COMPONENTS system filesystem thread date_time)
 
 if (Boost_FOUND)
     include_directories(server ${Boost_INCLUDE_DIRS})
+    include_directories(server_test ${Boost_INCLUDE_DIRS})
     target_link_libraries(server ${Boost_LIBRARIES})
+    target_link_libraries(server_test ${Boost_LIBRARIES})
 endif ()
 
 # ==================== Thread Support ==================== #

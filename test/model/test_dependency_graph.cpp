@@ -5,7 +5,7 @@
  * Tests that the dependency graph starts empty.
  */
 TEST(DependencyGraphTest, GraphStartsEmpty) {
-    dependency_graph * graph = new dependency_graph();
+    dependency_graph graph;
 
-    EXPECT_EQ(0, graph->size());
+    EXPECT_EQ(0, graph.size());
 }

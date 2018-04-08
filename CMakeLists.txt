@@ -3,6 +3,7 @@ project(Pigrammers_Spreadsheet_Server)
 
 # Enable C++11 standard.
 set(CMAKE_CXX_STANDARD 11)
+SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Add server source configuration.
 include(src/CMakeLists.txt.in)

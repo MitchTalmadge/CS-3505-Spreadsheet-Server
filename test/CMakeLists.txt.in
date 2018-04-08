@@ -4,10 +4,10 @@ file(GLOB_RECURSE SOURCES "src/*.cpp")
 
 # Add test code.
 include_directories(test)
-file(GLOB_RECURSE SOURCES "test/*.cpp")
+file(GLOB_RECURSE TEST_SOURCES "test/*.cpp")
 
 # Define executable
-add_executable(server_test ${SOURCES})
+add_executable(server_test ${SOURCES} ${TEST_SOURCES})
 
 # Add tests to CTest
 add_test(server_test server_test)

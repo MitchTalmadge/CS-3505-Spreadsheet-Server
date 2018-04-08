@@ -41,7 +41,7 @@ void dependency_graph::remove_dependency(const std::string &node, const std::str
     // Remove node's dependent
     nodeToRemove = node_dependents->find(dependent_node);
     if (nodeToRemove != node_dependents->end()) {
-        dependent_node_dependees->erase(nodeToRemove);
+        node_dependents->erase(nodeToRemove);
         removed = true;
     }
 

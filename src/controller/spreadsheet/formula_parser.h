@@ -14,6 +14,13 @@ class formula_parser {
      */
     static std::vector<std::string> extract_tokens(const std::string &formula);
 
+    /**
+     * Parses a formula, checking for validity and finding all dependents.
+     * @param formula The formula to parse.
+     * @return A pair containing a boolean for whether this formula is valid or not, and a set containing the names of all cells which depend on this formula.
+     */
+    static std::pair<bool, std::set<std::string> > parse_formula(std::string formula);
+
 public:
 
     /**
@@ -21,7 +28,7 @@ public:
      * @param formula The formula to check, such as "=A1 + 10"
      * @return True if the formula is formatted correctly, false otherwise.
      */
-    static bool is_valid(std::string formula);
+    static bool is_valid(const std::string &formula);
 
     /**
      * Finds the names of all cells that depend on this formula.

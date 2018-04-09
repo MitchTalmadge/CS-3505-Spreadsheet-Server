@@ -20,4 +20,14 @@ bool is_valid_variable(const std::string &variable);
  */
 bool is_double(const std::string &str);
 
+/**
+ * Normalizes the given cell name for consistency.
+ *
+ * All cell names will be converted to uppercase.
+ *
+ * @param cellName The name of the cell to normalize.
+ * @return The normalized cell name.
+ */
+std::string normalize_cell_name(std::string cellName);
+
 #endif //PIGRAMMERS_SPREADSHEET_SERVER_SPREADSHEET_UTILS_H

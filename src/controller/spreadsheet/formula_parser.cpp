@@ -25,13 +25,13 @@ std::vector<std::string> formula_parser::extract_tokens(const std::string &formu
     return tokens;
 }
 
-bool formula_parser::is_valid(std::string formula) {
+std::pair<bool, std::set<std::string> > formula_parser::parse_formula(std::string formula) {
     // Remove all spaces.
     std::remove(formula.begin(), formula.end(), ' ');
 
     // Empty formulas are invalid.
     if (formula.empty())
-        return false;
+        return std::make_pair(false, {});
 
     // Extract tokens from formula
     auto tokens = extract_tokens(formula);
@@ -39,21 +39,53 @@ bool formula_parser::is_valid(std::string formula) {
     // Check the first token for syntax errors.
     auto firstToken = tokens.front();
     if (firstToken != "(" && !is_double(firstToken) && !is_valid_variable(firstToken)) {
-        return false;
+        return std::make_pair(false, {});
     }
 
     // Check the last token for syntax errors.
     auto lastToken = tokens.back();
-    if(lastToken != ")" && !is_double(lastToken) && !is_valid_variable(lastToken)) {
-        return false;
+    if (lastToken != ")" && !is_double(lastToken) && !is_valid_variable(lastToken)) {
+        return std::make_pair(false, {});
     }
 
+    // The number of left and right parentheses encountered, respectively.
+    int *parentheses_count = int[]{0, 0};
+
+    // The dependents of this formula.
+    std::set<std::string> dependents;
+
+    // Iterate over each token
+    std::string previous_token;
+    for (const auto &token : tokens) {
+
+        if (!previous_token.empty()) {
+            //TODO: Check tokens which follow opening parentheses or operators.
+            //TODO: Check tokens which follow closing parentheses, numbers, or variables.
+        }
+
+        // Count parentheses.
+        if (token == "(")
+            parentheses_count[0]++;
+        else if (token == ")") {
+            parentheses_count[1]++;
+        } else if (is_valid_variable(token)) {
+            dependents.insert(token);
+        }
+
+        previous_token = token;
+    }
+
+    // Ensure parentheses are balanced.
+    if (parentheses_count[0] != parentheses_count[1])
+        return std::make_pair(false, {});
+
+    return std::make_pair(true, dependents);
+}
+
+bool formula_parser::is_valid(const std::string &formula) {
+    return parse_formula(formula).first;
 }
 
 std::set<std::string> formula_parser::find_dependents(const std::string &formula) {
-    // Invalid formulas always return an empty set.
-    if (!is_valid(formula))
-        return std::set<std::string>();
-
-    return std::set<std::string>();
+    return parse_formula(formula).second;
 }

@@ -20,3 +20,8 @@ bool is_double(const std::string &str) {
         return false;
     }
 }
+
+std::string normalize_cell_name(std::string cellName) {
+    std::transform(cellName.begin(), cellName.end(), cellName.begin(), ::toupper);
+    return cellName;
+}

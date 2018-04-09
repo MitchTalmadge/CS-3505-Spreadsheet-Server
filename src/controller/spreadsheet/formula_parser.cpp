@@ -2,7 +2,7 @@
 #include <algorithm>
 
 bool formula_parser::is_valid(std::string formula) {
-    if(formula == NULL)
+    if(formula == nullptr)
         return false;
 
     // Remove all spaces.

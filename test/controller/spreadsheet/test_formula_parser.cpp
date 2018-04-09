@@ -24,10 +24,10 @@ TEST(FormulaParserTest, EmptyFormula) {
 }
 
 /**
- * Tests the case when a NULL formula is validated.
+ * Tests the case when a null formula is validated.
  */
 TEST(FormulaParserTest, NullFormula) {
-    EXPECT_FALSE(formula_parser::is_valid(NULL));
+    EXPECT_FALSE(formula_parser::is_valid(nullptr));
 }
 
 /**
@@ -207,10 +207,10 @@ TEST(FormulaParserTest, FindDependents) {
 }
 
 /**
- * Tests that a NULL formula will have no dependents.
+ * Tests that a null formula will have no dependents.
  */
 TEST(FormulaParserTest, FindDependentsOfNull) {
-    compare_set(formula_parser::find_dependents(NULL), {});
+    compare_set(formula_parser::find_dependents(nullptr), {});
 }
 
 /**

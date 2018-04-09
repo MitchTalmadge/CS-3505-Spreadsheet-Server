@@ -49,7 +49,7 @@ std::pair<bool, std::set<std::string> > formula_parser::parse_formula(std::strin
     }
 
     // The number of left and right parentheses encountered, respectively.
-    int *parentheses_count = int[]{0, 0};
+    int parentheses_count[2] = {0, 0};
 
     // The dependents of this formula.
     std::set<std::string> dependents;

@@ -1,14 +1,14 @@
 #include "formula_parser.h"
 #include "spreadsheet_utils.h"
 #include <algorithm>
-#include <regex>
+#include <boost/regex>
 
 std::vector<std::string> formula_parser::extract_tokens(const std::string &formula) {
     // Create vector for returning.
     std::vector<std::string> tokens;
 
     // Define search pattern
-    static const std::regex pattern(
+    static const boost::regex pattern(
             R"((\())" // Left Parenthesis
             R"(|(\)))" // Right Parenthesis
             R"(|([\+\-*/]))" // Operator
@@ -17,8 +17,8 @@ std::vector<std::string> formula_parser::extract_tokens(const std::string &formu
     );
 
     // Split formula with pattern
-    std::sregex_token_iterator iterator(formula.begin(), formula.end(), pattern, -1);
-    std::sregex_token_iterator end;
+    boost::sregex_token_iterator iterator(formula.begin(), formula.end(), pattern, -1);
+    boost::sregex_token_iterator end;
     for (; iterator != end; iterator++)
         tokens.push_back(*iterator);
 

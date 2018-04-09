@@ -1,7 +1,7 @@
 #include "formula_parser.h"
 #include "spreadsheet_utils.h"
 #include <algorithm>
-#include <boost/regex>
+#include <boost/regex.hpp>
 
 std::vector<std::string> formula_parser::extract_tokens(const std::string &formula) {
     // Create vector for returning.

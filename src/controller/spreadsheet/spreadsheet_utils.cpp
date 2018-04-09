@@ -1,6 +1,6 @@
 #include "spreadsheet_utils.h"
 #include <algorithm>
-#include <boost/regex>
+#include <boost/regex.hpp>
 
 bool is_valid_variable(const std::string &variable) {
 

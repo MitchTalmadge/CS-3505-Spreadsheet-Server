@@ -17,7 +17,7 @@ std::vector<std::string> formula_parser::extract_tokens(const std::string &formu
     );
 
     // Split formula with pattern
-    boost::sregex_token_iterator iterator(formula.begin(), formula.end(), pattern, -1);
+    boost::sregex_token_iterator iterator(formula.begin(), formula.end(), pattern);
     boost::sregex_token_iterator end;
     for (; iterator != end; iterator++)
         tokens.push_back(*iterator);

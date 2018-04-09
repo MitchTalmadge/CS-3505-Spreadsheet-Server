@@ -13,7 +13,7 @@ public:
      * @param formula The formula to check, such as "=A1 + 10"
      * @return True if the formula is formatted correctly, false otherwise.
      */
-    static bool is_valid(const std::string &formula);
+    static bool is_valid(std::string formula);
 
     /**
      * Finds the names of all cells that depend on this formula.

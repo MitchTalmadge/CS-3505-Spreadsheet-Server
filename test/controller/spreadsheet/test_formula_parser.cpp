@@ -24,6 +24,13 @@ TEST(FormulaParserTest, EmptyFormula) {
 }
 
 /**
+ * Tests the case when a NULL formula is validated.
+ */
+TEST(FormulaParserTest, NullFormula) {
+    EXPECT_FALSE(formula_parser::is_valid(NULL));
+}
+
+/**
  * Tests the rule that formulas may allow floating point numbers.
  */
 TEST(FormulaParserTest, FloatingPoint) {
@@ -197,13 +204,29 @@ TEST(FormulaParserTest, FindDependents) {
     compare_set(formula_parser::find_dependents("a - A + b - B * c / C * d - D + a - c + d + e / B"),
                 {"A", "B", "C", "D", "E"});
     compare_set(formula_parser::find_dependents("A10 + 15 - (10 * B6) / a4 - a10"), {"A10", "B6", "A4"});
+}
 
-    // Invalid formulas
+/**
+ * Tests that a NULL formula will have no dependents.
+ */
+TEST(FormulaParserTest, FindDependentsOfNull) {
+    compare_set(formula_parser::find_dependents(NULL), {});
+}
+
+/**
+ * Tests that an invalid formula will have no dependents.
+ */
+TEST(FormulaParserTest, FindDependentsOfInvalid) {
     compare_set(formula_parser::find_dependents(""), {});
     compare_set(formula_parser::find_dependents("+ 5 * 10"), {});
+}
 
-    // No dependents
+/**
+ * Tests that a formula with no variables will have no dependents.
+ */
+TEST(FormulaParserTest, FindDependentsOfNumbersOnly) {
     compare_set(formula_parser::find_dependents("11.123456 - 1.23445 * (150.3984 / 1082.43434)"), {});
     compare_set(formula_parser::find_dependents("(10 * 5) + 11 / 42 - 1000"), {});
 }
+
 

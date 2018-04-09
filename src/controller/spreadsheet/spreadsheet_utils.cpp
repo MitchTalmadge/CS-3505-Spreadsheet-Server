@@ -1,7 +1,7 @@
 #include "spreadsheet_utils.h"
 #include <regex>
 
-static bool is_valid_variable(const std::string &variable) {
+bool is_valid_variable(const std::string &variable) {
 
     // Define variable regex pattern.
     static const std::regex pattern(R"(^[a-zA-Z_](?:[a-zA-Z_]|\d)*$)");
@@ -11,7 +11,7 @@ static bool is_valid_variable(const std::string &variable) {
     return std::regex_search(variable.begin(), variable.end(), match, pattern);
 }
 
-static bool is_double(const std::string &str) {
+bool is_double(const std::string &str) {
     try {
         // Attempt conversion
         std::stod(str);

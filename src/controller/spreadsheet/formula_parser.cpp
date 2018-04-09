@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <regex>
 
-static std::vector<std::string> formula_parser::extract_tokens(const std::string &formula) {
+std::vector<std::string> formula_parser::extract_tokens(const std::string &formula) {
     // Create vector for returning.
     std::vector<std::string> tokens;
 
@@ -25,7 +25,7 @@ static std::vector<std::string> formula_parser::extract_tokens(const std::string
     return tokens;
 }
 
-static bool formula_parser::is_valid(std::string formula) {
+bool formula_parser::is_valid(std::string formula) {
     // Remove all spaces.
     std::remove(formula.begin(), formula.end(), ' ');
 
@@ -50,7 +50,7 @@ static bool formula_parser::is_valid(std::string formula) {
 
 }
 
-static std::set<std::string> formula_parser::find_dependents(const std::string &formula) {
+std::set<std::string> formula_parser::find_dependents(const std::string &formula) {
     // Invalid formulas always return an empty set.
     if (!is_valid(formula))
         return std::set<std::string>();

@@ -3,8 +3,16 @@
 
 #include <string>
 #include <set>
+#include <vector>
 
 class formula_parser {
+
+    /**
+     * Extracts all tokens from the given formula.
+     * @param formula The formula.
+     * @return The tokens extracted in the order they were encountered.
+     */
+    static std::vector<std::string> extract_tokens(const std::string &formula);
 
 public:
 

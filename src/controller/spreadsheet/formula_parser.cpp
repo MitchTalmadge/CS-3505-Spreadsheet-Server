@@ -12,7 +12,7 @@ std::vector<std::string> formula_parser::extract_tokens(const std::string &formu
             R"((\())" // Left Parenthesis
             R"(|(\)))" // Right Parenthesis
             R"(|([\+\-*/]))" // Operator
-            R"(|([a-zA-Z_](?:[a-zA-Z_]|\d)*))" // Variable
+            R"(|([a-zA-Z_](?:[a-zA-Z_]|\d)*))" // Cell name
             R"(|((?:\d+\.\d*|\d*\.\d+|\d+)(?:[eE][\+-]?\d+)?))" // Double
             R"(|[^\s])" // All others, except spaces
     );
@@ -40,13 +40,13 @@ std::pair<bool, std::set<std::string> > formula_parser::parse_formula(std::strin
 
     // Check the first token for syntax errors.
     auto firstToken = tokens.front();
-    if (firstToken != "(" && !is_double(firstToken) && !is_valid_variable(firstToken)) {
+    if (firstToken != "(" && !is_double(firstToken) && !is_valid_cell_name(firstToken)) {
         return std::pair<bool, std::set<std::string> >(false, {});
     }
 
     // Check the last token for syntax errors.
     auto lastToken = tokens.back();
-    if (lastToken != ")" && !is_double(lastToken) && !is_valid_variable(lastToken)) {
+    if (lastToken != ")" && !is_double(lastToken) && !is_valid_cell_name(lastToken)) {
         return std::pair<bool, std::set<std::string> >(false, {});
     }
 
@@ -62,16 +62,16 @@ std::pair<bool, std::set<std::string> > formula_parser::parse_formula(std::strin
 
         if (!previous_token.empty()) {
             // Ensure that any token immediately following an opening parenthesis or operator
-            // is either another opening parenthesis, a number, or a variable.
+            // is either another opening parenthesis, a number, or a cell name.
             if (previous_token == "(" || previous_token == "+" || previous_token == "-" || previous_token == "*" ||
                 previous_token == "/") {
-                if (token != "(" && !is_double(token) && !is_valid_variable(token))
+                if (token != "(" && !is_double(token) && !is_valid_cell_name(token))
                     return std::pair<bool, std::set<std::string> >(false, {});
             }
 
-            // Ensure that any token immediately following a closing parenthesis, number, or variable
+            // Ensure that any token immediately following a closing parenthesis, number, or cell name
             // is either another closing parenthesis or an operator.
-            if (previous_token == ")" || is_double(previous_token) || is_valid_variable(previous_token)) {
+            if (previous_token == ")" || is_double(previous_token) || is_valid_cell_name(previous_token)) {
                 if (token != ")" && token != "+" && token != "-" && token != "*" &&
                     token != "/") {
                     return std::pair<bool, std::set<std::string> >(false, {});
@@ -84,8 +84,8 @@ std::pair<bool, std::set<std::string> > formula_parser::parse_formula(std::strin
             parentheses_count[0]++;
         else if (token == ")") {
             parentheses_count[1]++;
-        } else if (is_valid_variable(token)) {
-            dependents.insert(token);
+        } else if (is_valid_cell_name(token)) {
+            dependents.insert(normalize_cell_name(token));
         }
 
         previous_token = token;

@@ -2,15 +2,21 @@
 #include <algorithm>
 #include <boost/regex.hpp>
 
-bool is_valid_variable(const std::string &variable) {
+bool is_valid_cell_name(const std::string &cell_name) {
 
-    // Define variable regex pattern.
+    // Define cell name regex pattern.
     static const boost::regex pattern(R"(^[a-zA-Z_](?:[a-zA-Z_]|\d)*$)");
 
-    // Compare variable to regex.
+    // Compare cell name to regex.
     boost::smatch match;
-    return boost::regex_search(variable.begin(), variable.end(), match, pattern);
+    return boost::regex_search(cell_name.begin(), cell_name.end(), match, pattern);
 }
+
+std::string normalize_cell_name(std::string cellName) {
+    std::transform(cellName.begin(), cellName.end(), cellName.begin(), ::toupper);
+    return cellName;
+}
+
 
 bool is_double(const std::string &str) {
     try {
@@ -20,9 +26,4 @@ bool is_double(const std::string &str) {
     } catch (...) {
         return false;
     }
-}
-
-std::string normalize_cell_name(std::string cellName) {
-    std::transform(cellName.begin(), cellName.end(), cellName.begin(), ::toupper);
-    return cellName;
 }

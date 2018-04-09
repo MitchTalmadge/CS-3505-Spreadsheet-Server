@@ -63,12 +63,12 @@ TEST(FormulaParserTest, BalancedParentheses) {
 }
 
 /**
- * Tests the rule that the first token of a formula must be a number, a variable, or an opening parenthesis.
+ * Tests the rule that the first token of a formula must be a number, a cell name, or an opening parenthesis.
  */
 TEST(FormulaParserTest, StartingToken) {
     EXPECT_TRUE(formula_parser::is_valid("(10 + 5)")); // Start with opening parenthesis
     EXPECT_TRUE(formula_parser::is_valid("10 - 5")); // Start with number
-    EXPECT_TRUE(formula_parser::is_valid("A5 * 5")); // Start with variable
+    EXPECT_TRUE(formula_parser::is_valid("A5 * 5")); // Start with cell name
 
     EXPECT_FALSE(formula_parser::is_valid(")10 + 5("));
     EXPECT_FALSE(formula_parser::is_valid("/ 10 / 5"));
@@ -79,12 +79,12 @@ TEST(FormulaParserTest, StartingToken) {
 }
 
 /**
- * Tests the rule that the last token of an expression must be a number, a variable, or a closing parenthesis.
+ * Tests the rule that the last token of an expression must be a number, a cell name, or a closing parenthesis.
  */
 TEST(FormulaParserTest, EndingToken) {
     EXPECT_TRUE(formula_parser::is_valid("(10 + 5)")); // End with closing parenthesis.
     EXPECT_TRUE(formula_parser::is_valid("10 - 5")); // End with number.
-    EXPECT_TRUE(formula_parser::is_valid("5 * A5")); // End with variable.
+    EXPECT_TRUE(formula_parser::is_valid("5 * A5")); // End with cell name.
 
     EXPECT_FALSE(formula_parser::is_valid("(10 - 5("));
     EXPECT_FALSE(formula_parser::is_valid("10 + 5 %"));
@@ -95,18 +95,18 @@ TEST(FormulaParserTest, EndingToken) {
 
 /**
  * Tests the rule that any token that immediately follows an opening parenthesis
- * or an operator must be either a number, a variable, or an opening parenthesis.
+ * or an operator must be either a number, a cell name, or an opening parenthesis.
  */
 TEST(FormulaParserTest, TokenFollowingParenthesis) {
     // Parenthesis
     EXPECT_TRUE(formula_parser::is_valid("(10 + 5)")); // Number.
-    EXPECT_TRUE(formula_parser::is_valid("(A5 / 5)")); // Variable.
+    EXPECT_TRUE(formula_parser::is_valid("(A5 / 5)")); // Cell name.
     EXPECT_TRUE(formula_parser::is_valid("((10 * 5))")); // Opening Parenthesis.
     EXPECT_TRUE(formula_parser::is_valid("((((((((((10 - 5))))))))))")); // Opening Parenthesis.
 
     // Operator
     EXPECT_TRUE(formula_parser::is_valid("10 + 5")); // Number.
-    EXPECT_TRUE(formula_parser::is_valid("10 * A5")); // Variable.
+    EXPECT_TRUE(formula_parser::is_valid("10 * A5")); // Cell name.
     EXPECT_TRUE(formula_parser::is_valid("10 - (10 + 5)")); // Opening Parenthesis.
 
     // Parenthesis
@@ -122,7 +122,7 @@ TEST(FormulaParserTest, TokenFollowingParenthesis) {
 }
 
 /**
- * Tests the rule that any token that immediately follows a number, a variable,
+ * Tests the rule that any token that immediately follows a number, a cell name,
  * or a closing parenthesis must be either an operator or a closing parenthesis.
  */
 TEST(FormulaParserTest, TokenFollowingNumber) {
@@ -132,7 +132,7 @@ TEST(FormulaParserTest, TokenFollowingNumber) {
     EXPECT_TRUE(formula_parser::is_valid("10 - 5")); // Operator.
     EXPECT_TRUE(formula_parser::is_valid("10 * 5")); // Operator.
     EXPECT_TRUE(formula_parser::is_valid("10 / 5")); // Operator.
-    // Variable
+    // Cell name
     EXPECT_TRUE(formula_parser::is_valid("(10 + A5)")); // Closing Parenthesis.
     EXPECT_TRUE(formula_parser::is_valid("A5 + 10")); // Operator.
     EXPECT_TRUE(formula_parser::is_valid("A5 - 10")); // Operator.
@@ -150,7 +150,7 @@ TEST(FormulaParserTest, TokenFollowingNumber) {
     EXPECT_FALSE(formula_parser::is_valid("10 = 5"));
     EXPECT_FALSE(formula_parser::is_valid("10 ... 5"));
     EXPECT_FALSE(formula_parser::is_valid("10 5"));
-    // Variable
+    // Cell name
     EXPECT_FALSE(formula_parser::is_valid("A5 AB 5"));
     EXPECT_FALSE(formula_parser::is_valid("A5 = 5"));
     EXPECT_FALSE(formula_parser::is_valid("A5 ... 5"));
@@ -164,9 +164,9 @@ TEST(FormulaParserTest, TokenFollowingNumber) {
 }
 
 /**
- * Tests the validity of variables within formulas.
+ * Tests the validity of cell names within formulas.
  */
-TEST(FormulaParserTest, VariableValidity) {
+TEST(FormulaParserTest, CellNameValidity) {
     EXPECT_TRUE(formula_parser::is_valid("A + 1")); // One letter
     EXPECT_TRUE(formula_parser::is_valid("a + 1")); // One letter, lowercase
     EXPECT_TRUE(formula_parser::is_valid("A1 + 1")); // One letter and one number
@@ -208,7 +208,7 @@ TEST(FormulaParserTest, FindDependentsOfInvalid) {
 }
 
 /**
- * Tests that a formula with no variables will have no dependents.
+ * Tests that a formula with no cell names will have no dependents.
  */
 TEST(FormulaParserTest, FindDependentsOfNumbersOnly) {
     compare_set(formula_parser::find_dependents("11.123456 - 1.23445 * (150.3984 / 1082.43434)"), {});

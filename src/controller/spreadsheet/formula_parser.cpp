@@ -2,11 +2,8 @@
 #include <algorithm>
 
 bool formula_parser::is_valid(std::string formula) {
-    if(formula == nullptr)
-        return false;
-
     // Remove all spaces.
-    std::replace(formula.begin(), formula.end(), ' ', '');
+    std::remove(formula.begin(), formula.end(), ' ');
 
     // Empty formulas are invalid.
     if(formula.empty())

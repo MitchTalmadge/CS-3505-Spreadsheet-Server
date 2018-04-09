@@ -24,13 +24,6 @@ TEST(FormulaParserTest, EmptyFormula) {
 }
 
 /**
- * Tests the case when a null formula is validated.
- */
-TEST(FormulaParserTest, NullFormula) {
-    EXPECT_FALSE(formula_parser::is_valid(nullptr));
-}
-
-/**
  * Tests the rule that formulas may allow floating point numbers.
  */
 TEST(FormulaParserTest, FloatingPoint) {
@@ -204,13 +197,6 @@ TEST(FormulaParserTest, FindDependents) {
     compare_set(formula_parser::find_dependents("a - A + b - B * c / C * d - D + a - c + d + e / B"),
                 {"A", "B", "C", "D", "E"});
     compare_set(formula_parser::find_dependents("A10 + 15 - (10 * B6) / a4 - a10"), {"A10", "B6", "A4"});
-}
-
-/**
- * Tests that a null formula will have no dependents.
- */
-TEST(FormulaParserTest, FindDependentsOfNull) {
-    compare_set(formula_parser::find_dependents(nullptr), {});
 }
 
 /**

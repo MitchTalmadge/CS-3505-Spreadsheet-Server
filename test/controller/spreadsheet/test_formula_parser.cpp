@@ -1,5 +1,16 @@
+#include "test_formula_parser.h"
 #include <controller/spreadsheet/formula_parser.h>
 #include <gtest/gtest.h>
+
+void compare_set(const std::set<std::string> &set, const std::set<std::string> &correctSet) {
+    // Make sure the set is the correct size.
+    EXPECT_EQ(correctSet.size(), set.size());
+
+    // Iterate over each entry in the correct set and try to find it in the comparison set.
+    for (auto item : correctSet) {
+        EXPECT_TRUE(set.find(item) != set.end());
+    }
+}
 
 /**
  * Tests the rule that formulas must contain at least one token.
@@ -64,6 +75,7 @@ TEST(FormulaParserTest, StartingToken) {
     EXPECT_FALSE(formula_parser::is_valid("+ 5 * 10"));
     EXPECT_FALSE(formula_parser::is_valid("$10 - 5"));
     EXPECT_FALSE(formula_parser::is_valid("+(10 + 5) * 5"));
+    EXPECT_FALSE(formula_parser::is_valid("=(10 + 5) * 5"));
 }
 
 /**
@@ -174,3 +186,24 @@ TEST(FormulaParserTest, VariableValidity) {
     EXPECT_FALSE(formula_parser::is_valid("A$B + 5")); // Includes invalid characters
     EXPECT_FALSE(formula_parser::is_valid("A_B&2 + 5")); // Includes invalid characters
 }
+
+/**
+ * Tests the ability to find all dependents of a given formula.
+ */
+TEST(FormulaParserTest, FindDependents) {
+    compare_set(formula_parser::find_dependents("ABC"), {"ABC"});
+    compare_set(formula_parser::find_dependents("ABC + abc"), {"ABC"});
+    compare_set(formula_parser::find_dependents("ABC + ab"), {"ABC", "AB"});
+    compare_set(formula_parser::find_dependents("a - A + b - B * c / C * d - D + a - c + d + e / B"),
+                {"A", "B", "C", "D", "E"});
+    compare_set(formula_parser::find_dependents("A10 + 15 - (10 * B6) / a4 - a10"), {"A10", "B6", "A4"});
+
+    // Invalid formulas
+    compare_set(formula_parser::find_dependents(""), {});
+    compare_set(formula_parser::find_dependents("+ 5 * 10"), {});
+
+    // No dependents
+    compare_set(formula_parser::find_dependents("11.123456 - 1.23445 * (150.3984 / 1082.43434)"), {});
+    compare_set(formula_parser::find_dependents("(10 * 5) + 11 / 42 - 1000"), {});
+}
+

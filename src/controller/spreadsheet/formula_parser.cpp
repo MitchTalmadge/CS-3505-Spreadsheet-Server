@@ -59,8 +59,22 @@ std::pair<bool, std::set<std::string> > formula_parser::parse_formula(std::strin
     for (const auto &token : tokens) {
 
         if (!previous_token.empty()) {
-            //TODO: Check tokens which follow opening parentheses or operators.
-            //TODO: Check tokens which follow closing parentheses, numbers, or variables.
+            // Ensure that any token immediately following an opening parenthesis or operator
+            // is either another opening parenthesis, a number, or a variable.
+            if (previous_token == "(" || previous_token == "+" || previous_token == "-" || previous_token == "*" ||
+                previous_token == "/") {
+                if (previous_token != "(" && !is_double(previous_token) && !is_valid_variable(previous_token))
+                    return std::pair<bool, std::set<std::string> >(false, {});
+            }
+
+            // Ensure that any token immediately following a closing parenthesis, number, or variable
+            // is either another closing parenthesis or an operator.
+            if (previous_token == ")" || is_double(previous_token) || is_valid_variable(previous_token)) {
+                if (previous_token != ")" && previous_token != "+" && previous_token != "-" && previous_token != "*" &&
+                    previous_token != "/") {
+                    return std::pair<bool, std::set<std::string> >(false, {});
+                }
+            }
         }
 
         // Count parentheses.

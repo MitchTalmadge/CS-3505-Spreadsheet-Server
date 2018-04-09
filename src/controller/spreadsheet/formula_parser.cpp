@@ -31,7 +31,7 @@ std::pair<bool, std::set<std::string> > formula_parser::parse_formula(std::strin
 
     // Empty formulas are invalid.
     if (formula.empty())
-        return std::make_pair(false, {});
+        return std::pair<bool, std::set<std::string> >(false, {});
 
     // Extract tokens from formula
     auto tokens = extract_tokens(formula);
@@ -39,13 +39,13 @@ std::pair<bool, std::set<std::string> > formula_parser::parse_formula(std::strin
     // Check the first token for syntax errors.
     auto firstToken = tokens.front();
     if (firstToken != "(" && !is_double(firstToken) && !is_valid_variable(firstToken)) {
-        return std::make_pair(false, {});
+        return std::pair<bool, std::set<std::string> >(false, {});
     }
 
     // Check the last token for syntax errors.
     auto lastToken = tokens.back();
     if (lastToken != ")" && !is_double(lastToken) && !is_valid_variable(lastToken)) {
-        return std::make_pair(false, {});
+        return std::pair<bool, std::set<std::string> >(false, {});
     }
 
     // The number of left and right parentheses encountered, respectively.
@@ -77,9 +77,9 @@ std::pair<bool, std::set<std::string> > formula_parser::parse_formula(std::strin
 
     // Ensure parentheses are balanced.
     if (parentheses_count[0] != parentheses_count[1])
-        return std::make_pair(false, {});
+        return std::pair<bool, std::set<std::string> >(false, {});
 
-    return std::make_pair(true, dependents);
+    return std::pair<bool, std::set<std::string> >(true, dependents);
 }
 
 bool formula_parser::is_valid(const std::string &formula) {

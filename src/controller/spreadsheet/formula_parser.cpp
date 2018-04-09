@@ -27,7 +27,7 @@ std::vector<std::string> formula_parser::extract_tokens(const std::string &formu
 
 std::pair<bool, std::set<std::string> > formula_parser::parse_formula(std::string formula) {
     // Remove all spaces.
-    std::remove(formula.begin(), formula.end(), ' ');
+    formula.erase(std::remove_if(formula.begin(), formula.end(), std::isspace), formula.end());
 
     // Empty formulas are invalid.
     if (formula.empty())

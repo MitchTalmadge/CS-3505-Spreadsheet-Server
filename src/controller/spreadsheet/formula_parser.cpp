@@ -63,15 +63,15 @@ std::pair<bool, std::set<std::string> > formula_parser::parse_formula(std::strin
             // is either another opening parenthesis, a number, or a variable.
             if (previous_token == "(" || previous_token == "+" || previous_token == "-" || previous_token == "*" ||
                 previous_token == "/") {
-                if (previous_token != "(" && !is_double(previous_token) && !is_valid_variable(previous_token))
+                if (token != "(" && !is_double(token) && !is_valid_variable(token))
                     return std::pair<bool, std::set<std::string> >(false, {});
             }
 
             // Ensure that any token immediately following a closing parenthesis, number, or variable
             // is either another closing parenthesis or an operator.
             if (previous_token == ")" || is_double(previous_token) || is_valid_variable(previous_token)) {
-                if (previous_token != ")" && previous_token != "+" && previous_token != "-" && previous_token != "*" &&
-                    previous_token != "/") {
+                if (token != ")" && token != "+" && token != "-" && token != "*" &&
+                        token != "/") {
                     return std::pair<bool, std::set<std::string> >(false, {});
                 }
             }

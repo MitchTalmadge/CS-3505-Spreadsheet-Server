@@ -14,7 +14,7 @@ std::vector<std::string> formula_parser::extract_tokens(const std::string &formu
             R"(|([\+\-*/]))" // Operator
             R"(|([a-zA-Z_](?:[a-zA-Z_]|\d)*))" // Variable
             R"(|((?:\d+\.\d*|\d*\.\d+|\d+)(?:[eE][\+-]?\d+)?))" // Double
-            R"(|.)" // All others
+            R"(|[^\s])" // All others, except spaces
     );
 
     // Split formula with pattern
@@ -27,15 +27,16 @@ std::vector<std::string> formula_parser::extract_tokens(const std::string &formu
 }
 
 std::pair<bool, std::set<std::string> > formula_parser::parse_formula(std::string formula) {
-    // Remove all spaces.
-    formula.erase(std::remove_if(formula.begin(), formula.end(), ::isspace), formula.end());
-
-    // Empty formulas are invalid.
+    // Empty formula
     if (formula.empty())
         return std::pair<bool, std::set<std::string> >(false, {});
 
     // Extract tokens from formula
     auto tokens = extract_tokens(formula);
+
+    // Empty formula
+    if (tokens.size() == 0)
+        return std::pair<bool, std::set<std::string> >(false, {});
 
     // Check the first token for syntax errors.
     auto firstToken = tokens.front();
@@ -72,7 +73,7 @@ std::pair<bool, std::set<std::string> > formula_parser::parse_formula(std::strin
             // is either another closing parenthesis or an operator.
             if (previous_token == ")" || is_double(previous_token) || is_valid_variable(previous_token)) {
                 if (token != ")" && token != "+" && token != "-" && token != "*" &&
-                        token != "/") {
+                    token != "/") {
                     return std::pair<bool, std::set<std::string> >(false, {});
                 }
             }

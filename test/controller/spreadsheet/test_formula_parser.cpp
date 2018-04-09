@@ -7,8 +7,8 @@ void compare_set(const std::set<std::string> &set, const std::set<std::string> &
     EXPECT_EQ(correctSet.size(), set.size());
 
     // Iterate over each entry in the correct set and try to find it in the comparison set.
-    for (auto item : correctSet) {
-        EXPECT_TRUE(set.find(item) != set.end());
+    for (const auto &item : correctSet) {
+        EXPECT_TRUE(set.find(item) != set.end()) << "Item not found in set: " << item;
     }
 }
 

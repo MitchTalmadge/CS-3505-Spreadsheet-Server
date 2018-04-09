@@ -14,6 +14,7 @@ std::vector<std::string> formula_parser::extract_tokens(const std::string &formu
             R"(|([\+\-*/]))" // Operator
             R"(|([a-zA-Z_](?:[a-zA-Z_]|\d)*))" // Variable
             R"(|((?:\d+\.\d*|\d*\.\d+|\d+)(?:[eE][\+-]?\d+)?))" // Double
+            R"(|.)" // All others
     );
 
     // Split formula with pattern

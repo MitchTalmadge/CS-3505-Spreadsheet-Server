@@ -32,11 +32,16 @@ When a new client is connected for the given spreadsheet, determine whether
 or not to spawn a new model thread for a new spreadsheet and forward the socket
 to the network controller so that we can get communication.
  */
-void main_controller::handle_client(std::string spreadsheet, int socket_id)
+void main_controller::handle_client(int socket_id)
 {
-  // TODO: determine if we have to create a new model or if the model
-  // already exists.
+  // Determine which spreadsheet the new client wants to edit.
+  std::string spreadsheet = network_control.handshake(socket_id);
 
-  // Forward the new socket to the network controller who can handle communication.
-  network_control.handle_new_client(socket_id, spreadsheet);
+  // Tell the data container the new mapping.
+  data.new_client(socket_id, spreadsheet);
+
+  // TODO: Determine if we need to spawn a new model.
+
+  // Forward the new socket to the network controller who sets up a communication loop.
+  network_control.start_work(socket_id);
 }

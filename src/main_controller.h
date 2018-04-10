@@ -33,7 +33,7 @@ class main_controller
   main_controller();
 
   // Handle a new client connecting.
-  void handle_client(std::string spreadsheet, int socket_id);
+  void handle_client(int socket_id);
 
   // Shutdown the controller and it's components.
   void shut_down();

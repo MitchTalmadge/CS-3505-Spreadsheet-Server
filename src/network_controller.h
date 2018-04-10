@@ -8,6 +8,7 @@ clients.
 #ifndef NETWORK_CONTROLLER
 #define NETWORK_CONTROLLER
 
+#include <map>
 #include "network_controller.h"
 #include <vector>
 #include <string>
@@ -27,13 +28,16 @@ class network_controller
 
   // Work loop for the network controller, where it listens in on a socket for incoming
   // messages and listens for new sockets to send from the model.
-  void socket_work_loop(int socket_id, std::string spreadsheet);
+  void socket_work_loop(int socket_id);
 
  public:
   network_controller(data_container& data);
 
-  // Handle network communication for a newly connected socket.
-  void handle_new_client(int socket_id, std::string spreadsheet);
+  // Create a work loop for the provided socket.
+  void start_work(int socket_id);
+
+  // Perform protocol handshake to determine what this client wants to edit in.
+  std::string handshake(int socket_id);
 
   // Shut down self and components.
   void shut_down();

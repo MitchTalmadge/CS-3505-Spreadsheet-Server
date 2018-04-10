@@ -27,16 +27,6 @@ class spreadsheet {
      */
     std::map<std::string, std::string> cell_contents_;
 
-    /**
-     * Normalizes the given cell name for consistency.
-     *
-     * All cell names will be converted to uppercase.
-     *
-     * @param cellName The name of the cell to normalize.
-     * @return The normalized cell name.
-     */
-    std::string normalize_cell_name(std::string cellName);
-
 public:
 
     /**

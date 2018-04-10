@@ -36,7 +36,7 @@ endif ()
 # Attempt to locate system-installed libraries.
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
-find_package(Boost 1.57.0 COMPONENTS system filesystem thread date_time)
+find_package(Boost 1.57.0 COMPONENTS system filesystem thread date_time regex)
 
 if (Boost_FOUND)
     include_directories(server ${Boost_INCLUDE_DIRS})

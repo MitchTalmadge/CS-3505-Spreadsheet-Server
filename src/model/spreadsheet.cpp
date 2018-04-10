@@ -1,4 +1,5 @@
 #include "spreadsheet.h"
+#include <controller/spreadsheet/spreadsheet_utils.h>
 #include <algorithm>
 
 spreadsheet::spreadsheet() = default;
@@ -17,9 +18,4 @@ std::string spreadsheet::get_cell_contents(const std::string &cell_name) {
 
 void spreadsheet::set_cell_contents(const std::string &cell_name, const std::string &contents) {
     cell_contents_[normalize_cell_name(cell_name)] = contents;
-}
-
-std::string spreadsheet::normalize_cell_name(std::string cellName) {
-    std::transform(cellName.begin(), cellName.end(), cellName.begin(), ::toupper);
-    return cellName;
 }

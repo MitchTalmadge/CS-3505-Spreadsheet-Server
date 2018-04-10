@@ -1,10 +1,15 @@
-cmake_minimum_required (VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.0.0)
 project(Pigrammers_Spreadsheet_Server)
-set(CMAKE_CXX_STANDARD 11)  # enable C++11 standard
 
-include_directories(src)
-file(GLOB_RECURSE SOURCES "src/*.cpp")
+# Enable C++11 standard.
+set(CMAKE_CXX_STANDARD 11)
+SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(server ${SOURCES})
+# Add server source configuration.
+include(src/CMakeLists.txt.in)
 
-target_link_libraries(server /usr/lib64/libboost_system.so.1.53.0 /usr/lib64/libboost_thread-mt.so.1.53.0)
+# Add server test configuration.
+include(test/CMakeLists.txt.in)
+
+# Add third-party libraries.
+include(lib/CMakeLists.txt.in)

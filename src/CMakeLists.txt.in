@@ -1,0 +1,6 @@
+# Add source code
+include_directories(src)
+file(GLOB_RECURSE SOURCES "src/*.cpp")
+
+# Define executable
+add_executable(server ${SOURCES})

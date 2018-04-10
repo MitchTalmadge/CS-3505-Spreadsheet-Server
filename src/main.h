@@ -1,6 +1,6 @@
-#ifndef SERVER_MAIN_H
-#define SERVER_MAIN_H
+#ifndef PIGRAMMERS_SPREADSHEET_SERVER_MAIN_H
+#define PIGRAMMERS_SPREADSHEET_SERVER_MAIN_H
 
-int main(int argc, char ** argv);
+int main(int argc, char **argv);
 
-#endif //SERVER_MAIN_H
+#endif //PIGRAMMERS_SPREADSHEET_SERVER_MAIN_H

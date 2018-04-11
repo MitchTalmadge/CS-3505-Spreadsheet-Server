@@ -12,7 +12,7 @@ Coordinate model/client activity, specifically:
 
 #include <vector>
 #include <string>
-#include "network_controller.h"
+#include <controller/network/network_controller.h>
 #include "data_container.h"
 
 class main_controller
@@ -28,6 +28,12 @@ class main_controller
   
   // Map from spreadsheet id to associated model.
   //  boost::unordered_map<std::string, spreadsheet> models;
+
+  // List of all spreadsheets.
+  std::vector<std::string> spreadsheets;
+
+  // Callback from network controller to handle a message.
+  std::string message_callback(int socket_src, std::string message);
 
  public:
   main_controller();

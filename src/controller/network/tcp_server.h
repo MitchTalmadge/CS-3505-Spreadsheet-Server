@@ -9,7 +9,7 @@ which handles setting up the network/model components for connected clients.
 #define TCP_SERVER
 
 #include <boost/thread/thread.hpp>
-#include "main_controller.h"
+#include <controller/main_controller.h>
 
 class tcp_server 
 {

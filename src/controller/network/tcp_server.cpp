@@ -26,8 +26,6 @@ Startup has two main roles:
  */
 void tcp_server::startup()
 {
-  // TODO: Setup main_controller.
-
   // Start TCP server listening for connections:
 
   // AF_INET - use IPv4.
@@ -46,9 +44,18 @@ void tcp_server::startup()
   address.sin_addr.s_addr = INADDR_ANY; // Use localhost
   address.sin_port = htons(this->port); // htons converts to network byte order.
 
+  // Set some socket options so it reuses the port.
+  int opt = 1;
+  int res = setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
+  if (res < 0) {
+    std::cout << "Failed to set socket settings correctly." << std::endl;
+  }
+
   // Bind our server socket to the address/port specified above.
-  if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
+  res = bind(server_fd, (struct sockaddr *)&address, sizeof(address));
+  if (res < 0) {
     std::cout << "Failed to bind socket to address." << std::endl;
+    std::cout << errno << " : " << EADDRINUSE << std::endl;
   }
 
   // Set the server socket up to listen for incoming requests. Queue up to 5 connections.

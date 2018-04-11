@@ -35,6 +35,8 @@ Allow the model to get a message for the given string spreadsheet.
 std::string data_container::get_inbound_message(std::string spreadsheet)
 {
   // TODO
+
+  return "";
 }
 
 void data_container::new_outbound_message(std::string spreadsheet, std::string message)
@@ -48,4 +50,5 @@ Allow for socket to grab an outbound message to be sent to client.
 std::string data_container::get_outbound_message(int id)
 {
   // TODO
+  return "Message to client.";
 }

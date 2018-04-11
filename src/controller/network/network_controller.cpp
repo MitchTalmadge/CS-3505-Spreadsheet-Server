@@ -7,9 +7,11 @@ clients.
 
 #include "network_controller.h"
 #include <sys/socket.h>
+#include <fcntl.h>
 #include <netinet/in.h>
 #include <boost/ref.hpp>
 #include <boost/regex.hpp>
+#include <boost/chrono.hpp>
 #include <string.h>
 
 /*
@@ -32,19 +34,37 @@ void network_controller::socket_work_loop(int socket_id, std::function<std::stri
   
   while(true)
   {
-    // Make this asynch.
+    // Wait for a message to arrive.
     read(socket_id, &buffer, 1024);
     
     std::cout << "Message from client: " << std::endl;
     std::cout << buffer << std::endl;
 
-    // TODO: Handle incomplete messages.
+    // TODO: Handle incomplete messages - move this to main_controller?
 
     // Send messages to the main_controller who decides where to send them next.
     callback(socket_id, buffer);
 
     // TODO: Read from outbound message queue.
+    std::string message = data.get_outbound_message(socket_id);
+
+    if (message != "")
+    {
+      const char * msg = message.c_str();
+      write(socket_id, msg, sizeof(msg));
+    }
+
+    boost::this_thread::sleep_for(boost::chrono::seconds{4});
   }
+}
+
+void set_socket_non_blocking(int socket_id)
+{
+  // TODO: error handling.
+
+  int flags = fcntl(socket_id, F_GETFL, 0);
+  flags = flags | O_NONBLOCK;
+  fcntl(socket_id, F_SETFL, flags);
 }
 
 /*
@@ -53,8 +73,10 @@ spreadsheet, then setup a loop listening on the new socket for communications.
  */
 void network_controller::start_work(int socket_id, std::function<std::string (int, std::string)> callback)
 {
-  // Start a thread that can listen in on the given socket and handle communications.
-  boost::thread new_thread(&network_controller::socket_work_loop, this, socket_id, callback);
+  set_socket_non_blocking(socket_id);
+
+  // Start a thread that can listen in on the given socket.
+  boost::thread work_thread(&network_controller::socket_work_loop, this, socket_id, callback);
 }
 
 /*

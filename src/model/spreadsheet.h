@@ -3,7 +3,6 @@
 
 #include <string>
 #include <map>
-#include <model/dependency_graph.h>
 
 /**
  * Represents one collaborative Spreadsheet and all its contents.
@@ -14,12 +13,6 @@ class spreadsheet {
      * Determines if the spreadsheet has been changed at all since last opened/saved.
      */
     bool changed_ = false;
-
-    /**
-     * Contains relations between cells in the spreadsheet.
-     * Each node in the graph is the name of a cell.
-     */
-    dependency_graph dependencies_;
 
     /**
      * Contains the contents of each cell in the spreadsheet.

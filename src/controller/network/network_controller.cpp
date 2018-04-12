@@ -25,46 +25,68 @@ network_controller::network_controller(data_container& data_container)
 /*
 Work loop for the network controller, where it listens in on the provided socket 
 and checks to see if it needs to send a message out on the given socket.
+
+Note:
+Because our sockets are non-blocking, this loop will check if a message has arrived
+but will NOT block until one arrives. This allows it to fall through and check if
+there is a message to be sent out. We use a sleep to keep this from overworking the 
+server.
  */
 void network_controller::socket_work_loop(int socket_id, std::function<std::string(int, std::string)> callback)
 {
   std::cout << "Listening on socket " << socket_id << std::endl;
 
   char buffer[1024] = {0};
-  
   while(true)
   {
-    // Wait for a message to arrive.
+    // Check if a message has arrived since last time.
     read(socket_id, &buffer, 1024);
-    
-    std::cout << "Message from client: " << std::endl;
-    std::cout << buffer << std::endl;
 
-    // TODO: Handle incomplete messages - move this to main_controller?
-
-    // Send messages to the main_controller who decides where to send them next.
-    callback(socket_id, buffer);
-
-    // TODO: Read from outbound message queue.
-    std::string message = data.get_outbound_message(socket_id);
-
-    if (message != "")
+    if (strlen(buffer) != 0)
     {
-      const char * msg = message.c_str();
-      write(socket_id, msg, sizeof(msg));
+      std::cout << "Message from client: " << std::endl;
+      std::cout << buffer << std::endl;
+
+      // Send messages to the main_controller who decides where to send them next.
+      callback(socket_id, buffer);
+
+      // Clear the buffer.
+      memset(buffer, 0, 1024);
     }
 
-    boost::this_thread::sleep_for(boost::chrono::seconds{4});
+    // Read and send from outbound message queue as necessary.
+    std::string message = data.get_outbound_message(socket_id);
+
+    // If a message is there to be sent, send it!
+    if (message.length() != 0)
+    {
+      const char * msg = message.c_str();
+
+      std::cout << "Message to send to client: " << msg << std::endl;
+
+      write(socket_id, msg, strlen(msg) * sizeof(char));
+    }
+
+    // Briefly sleep to prevent this from choking machine resources.
+    boost::this_thread::sleep_for(boost::chrono::milliseconds{10});
   }
 }
 
-void set_socket_non_blocking(int socket_id)
+/*
+Helper to set the socket associated with the provided socket id to non-blocking
+to allow our work loop to work correctly.
+ */
+bool set_socket_non_blocking(int socket_id)
 {
-  // TODO: error handling.
-
+  // Get current socket flags.
   int flags = fcntl(socket_id, F_GETFL, 0);
+
+  // Make sure we got flags correctly.
+  if (flags == -1) return false;
+
+  // Now set the socket to non-blocking.
   flags = flags | O_NONBLOCK;
-  fcntl(socket_id, F_SETFL, flags);
+  return (fcntl(socket_id, F_SETFL, flags) == 0) ? true : false;
 }
 
 /*
@@ -73,7 +95,14 @@ spreadsheet, then setup a loop listening on the new socket for communications.
  */
 void network_controller::start_work(int socket_id, std::function<std::string (int, std::string)> callback)
 {
-  set_socket_non_blocking(socket_id);
+  bool set_non_blocking = set_socket_non_blocking(socket_id);
+
+  // If something went wrong, close the socket.
+  if (!set_non_blocking)
+  {
+    std::cout << "Error in setting up socket. Closing connection..." << std::endl;
+    shutdown(socket_id, SHUT_RDWR);
+  }
 
   // Start a thread that can listen in on the given socket.
   boost::thread work_thread(&network_controller::socket_work_loop, this, socket_id, callback);

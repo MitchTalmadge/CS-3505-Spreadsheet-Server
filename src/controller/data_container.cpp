@@ -50,5 +50,5 @@ Allow for socket to grab an outbound message to be sent to client.
 std::string data_container::get_outbound_message(int id)
 {
   // TODO
-  return "Message to client.";
+  return "";
 }

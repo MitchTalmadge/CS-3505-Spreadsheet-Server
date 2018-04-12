@@ -5,38 +5,37 @@ TCP Server listens for new connections and forwards them to the MainController
 which handles setting up the network/model components for connected clients.
  */
 
-#ifndef TCP_SERVER
-#define TCP_SERVER
+#ifndef PIGRAMMERS_SPREADSHEET_SERVER_TCP_SERVER
+#define PIGRAMMERS_SPREADSHEET_SERVER_TCP_SERVER
 
 #include <boost/thread/thread.hpp>
 #include <controller/main_controller.h>
 
-class tcp_server 
-{
- private:
-  // Main controller that handles the network/model components for connected clients.
-  main_controller main_control;
-  
-  // TCP Port to listen on.
-  int port;
+class tcp_server {
+private:
+    // Main controller that handles the network/model components for connected clients.
+    main_controller main_control;
 
-  // Server socket file descriptor. Identifies our TCP server socket.
-  int server_fd;
+    // TCP Port to listen on.
+    int port;
 
-  // Thread to do all the listening work.
-  boost::thread worker_thread;
+    // Server socket file descriptor. Identifies our TCP server socket.
+    int server_fd;
 
-  // Work loop for our server - listen for new clients.
-  void server_work();
+    // Thread to do all the listening work.
+    boost::thread worker_thread;
 
- public:
-  tcp_server();
+    // Work loop for our server - listen for new clients.
+    void server_work();
 
-  // Start up our TCP Server.
-  void startup();
+public:
+    tcp_server();
 
-  // Shut down the server and it's components.
-  void shut_down();
+    // Start up our TCP Server.
+    void startup();
+
+    // Shut down the server and it's components.
+    void shut_down();
 };
 
 #endif

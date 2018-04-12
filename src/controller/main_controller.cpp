@@ -53,11 +53,10 @@ Handle a message arriving from a client. Specifically:
 - Handle disconnects. (How?)
 - Forward edits into the corresponding spreadsheets inbound queue.
  */
-std::string main_controller::message_callback(int socket_src, std::string message)
-{
-  std::cout << "Message received at the callback." << std::endl;
+std::string main_controller::message_callback(int socket_src, std::string message){
 
-  boost::regex register{"register\ \3"};
+
+  std::cout << "Message received at the callback." << std::endl;boost::regex register{"register\ \3"};
   boost::regex disconnect{"disconnect\ \3"};
   boost::regex load{"load\ \3"};
   boost::regex ping{"ping\ \3"};

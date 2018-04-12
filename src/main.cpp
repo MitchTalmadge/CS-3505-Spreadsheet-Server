@@ -24,7 +24,7 @@ int main(int argc, char ** argv) {
     std::string input;
 
     // Start our I/O loop that handles user input.
-    while(true) {
+    for(;;) {
 
       std::cin >> input;
 

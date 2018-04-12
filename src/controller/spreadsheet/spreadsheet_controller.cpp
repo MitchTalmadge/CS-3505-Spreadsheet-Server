@@ -5,7 +5,7 @@
 bool spreadsheet_controller::is_valid_cell_name(const std::string &cell_name) {
 
     // Define cell name regex pattern.
-    static const boost::regex pattern(R"(^[A-Z][1-99]$)");
+    static const boost::regex pattern(R"(^[A-Z][1-9][0-9]$)");
 
     // Compare normalized cell name to regex.
     auto normalized_cell_name = spreadsheet_controller::normalize_cell_name(cell_name);

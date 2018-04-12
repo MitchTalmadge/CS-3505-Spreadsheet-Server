@@ -3,4 +3,4 @@
 
 int main(int argc, char **argv);
 
-#endif //PIGRAMMERS_SPREADSHEET_SERVER_MAIN_H
+#endif

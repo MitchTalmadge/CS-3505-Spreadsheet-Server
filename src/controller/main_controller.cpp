@@ -8,6 +8,7 @@ Coordinate model/client activity, specifically:
  */
 
 #include "main_controller.h"
+#include <boost/regex.hpp>
 
 /*
 Create a new main controller.
@@ -54,8 +55,16 @@ Handle a message arriving from a client. Specifically:
  */
 std::string main_controller::message_callback(int socket_src, std::string message)
 {
-
   std::cout << "Message received at the callback." << std::endl;
+
+  boost::regex register{"register\ \3"};
+  boost::regex disconnect{"disconnect\ \3"};
+  boost::regex load{"load\ \3"};
+  boost::regex ping{"ping\ \3"};
+  boost::regex ping_response{"ping_response\ \3"};
+  boost::regex edit{"edit\ \3"};
+
+  if (
   
   // TODO: Handle a message from the user.
   return "";

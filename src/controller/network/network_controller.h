@@ -8,31 +8,28 @@ clients.
 #ifndef PIGRAMMERS_SPREADSHEET_SERVER_NETWORK_CONTROLLER
 #define PIGRAMMERS_SPREADSHEET_SERVER_NETWORK_CONTROLLER
 
-#include <unordered_map>
+#include <map>
 #include <vector>
 #include <string>
-#include <queue>
+#include <boost/thread/thread.hpp>
+#include <functional>
+#include <controller/data_container.h>
 
 class network_controller {
 
 private:
-    // Queue messages for a given spreadsheet.
-    std::unordered_map<std::string, std::queue<std::string>> in_messages;
+    // Data container is where outgoing messages will be stored.
+    data_container data;
 
-    // Convert from socket id to corresponding spreadsheet.
-    std::unordered_map<int, std::string> socket_spreadsheet;
+    // Work loop for the network controller, where it listens in on a socket for incoming
+    // messages.
+    void socket_work_loop(int socket_id, std::function<std::string(int, std::string)> callback);
 
 public:
-    network_controller();
+    network_controller(data_container &data);
 
-    // Handle network communication for a newly connected socket.
-    void handle_new_client(int socket_id, std::string spreadsheet);
-
-    // Get a message for a given spreadsheet.
-    std::string get_message(std::string spreadsheet);
-
-    // Send a message to the given socket.
-    void send_message(int socket_id, std::string message);
+    // Create a work loop for the provided socket.
+    void start_work(int socket_id, std::function<std::string(int, std::string)> callback);
 
     // Shut down self and components.
     void shut_down();

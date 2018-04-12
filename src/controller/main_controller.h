@@ -7,32 +7,41 @@ Coordinate model/client activity, specifically:
 - Create models when network controller signals as such.
  */
 
-#ifndef PIGRAMMERS_SPREADSHEET_SERVER_MAIN_CONTROLLER
-#define PIGRAMMERS_SPREADSHEET_SERVER_MAIN_CONTROLLER
+#ifndef MAIN_CONTROLLER
+#define MAIN_CONTROLLER
 
 #include <vector>
 #include <string>
 #include <controller/network/network_controller.h>
+#include "data_container.h"
 
 class main_controller {
 
 private:
+    // Data Container holds the data involved in communication between
+    // the network controller and the models.
+    data_container data;
+
     // Network Controller handles network interactions with clients.
     network_controller network_control;
 
-    // Vector of active model ids.
-    std::vector <std::string> active_models;
-    // Vector of actual active models.
-    //std::vector<spreadsheet> spreadsheets;
+    // Map from spreadsheet id to associated model.
+    //  boost::unordered_map<std::string, spreadsheet> models;
 
-    // Handle a new client connecting.
-    void handle_client(std::string spreadsheet, int socket_id);
+    // List of all spreadsheets.
+    std::vector<std::string> spreadsheets;
 
-    // Shutdown the controller and it's components.
-    void shut_down();
+    // Callback from network controller to handle a message.
+    std::string message_callback(int socket_src, std::string message);
 
 public:
     main_controller();
+
+    // Handle a new client connecting.
+    void handle_client(int socket_id);
+
+    // Shutdown the controller and it's components.
+    void shut_down();
 };
 
 #endif

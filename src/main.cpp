@@ -14,9 +14,9 @@ input to handle input from the console.
 /*
 Start the server, and setup different threads to handle user input and networking code.
 */
-int main(int argc, char ** argv) {
+int main(int argc, char **argv) {
     std::cout << "Starting Server." << std::endl;
-  
+
     // Create and start our TCP server which creates and starts controllers/models.
     tcp_server server;
     server.startup();
@@ -24,18 +24,18 @@ int main(int argc, char ** argv) {
     std::string input;
 
     // Start our I/O loop that handles user input.
-    for(;;) {
+    while (true) {
 
-      std::cin >> input;
+        std::cin >> input;
 
-      // Handle the input.
-      if (input == "shutdown") {
-	// Shut everything down cleanly.
-	server.shut_down();
-	return 0;
-      } else {
-	// Default unsupported message.
-	std::cout << "Unsupported action: \"" << input << "\"" << std::endl;
-      }
+        // Handle the input.
+        if (input == "shutdown") {
+            // Shut everything down cleanly.
+            server.shut_down();
+            return 0;
+        } else {
+            // Default unsupported message.
+            std::cout << "Unsupported action: \"" << input << "\"" << std::endl;
+        }
     }
 }

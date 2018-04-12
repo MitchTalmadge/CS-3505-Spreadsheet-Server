@@ -8,7 +8,7 @@ bool spreadsheet_controller::is_valid_cell_name(const std::string &cell_name) {
     static const boost::regex pattern(R"(^[A-Z][1-99]$)");
 
     // Compare normalized cell name to regex.
-    auto normalized_cell_name = normalized_cell_name(cell_name);
+    auto normalized_cell_name = spreadsheet_controller::normalize_cell_name(cell_name);
     boost::smatch match;
     return boost::regex_search(normalized_cell_name.begin(), normalized_cell_name.end(), match, pattern);
 }

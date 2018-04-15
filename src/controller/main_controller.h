@@ -7,8 +7,8 @@ Coordinate model/client activity, specifically:
 - Create models when network controller signals as such.
  */
 
-#ifndef MAIN_CONTROLLER
-#define MAIN_CONTROLLER
+#ifndef PIGRAMMERS_SPREADSHEET_SERVER_MAIN_CONTROLLER
+#define PIGRAMMERS_SPREADSHEET_SERVER_MAIN_CONTROLLER
 
 #include <vector>
 #include <string>
@@ -17,25 +17,48 @@ Coordinate model/client activity, specifically:
 
 class main_controller {
 
-private:
-    // Data Container holds the data involved in communication between
-    // the network controller and the models.
-    data_container data;
+    /**
+     * Data container for sending responses to clients during handshake.
+     */
+    data_container &data_container_ = data_container::get_instance();
 
-    // Network Controller handles network interactions with clients.
-    network_controller network_control;
-
-    // Map from spreadsheet id to associated model.
-    //  boost::unordered_map<std::string, spreadsheet> models;
-
+    /**
+     * Network controller for handling interactions with clients.
+     */
+    network_controller &network_controller_ = network_controller::get_instance();
+    
     // List of all spreadsheets.
     std::vector<std::string> spreadsheets;
 
     // Callback from network controller to handle a message.
     std::string message_callback(int socket_src, std::string message);
 
+    /**
+     * Private constructor for singleton pattern.
+     */
+    main_controller() = default;
+
+    /**
+     * Private destructor for singleton pattern.
+     */
+    ~main_controller() = default;
+
 public:
-    main_controller();
+
+    /**
+     * @return The singleton instance of this controller.
+     */
+    static main_controller &get_instance();
+
+    /**
+     * Deleted copy constructor since this is a singleton.
+     */
+    main_controller(main_controller const &) = delete;
+
+    /**
+     * Deleted assignment operator since this is a singleton.
+     */
+    void operator=(main_controller const &) = delete;
 
     // Handle a new client connecting.
     void handle_client(int socket_id);

@@ -2,13 +2,65 @@
 #define PIGRAMMERS_SPREADSHEET_SERVER_SPREADSHEET_CONTROLLER_H
 
 #include <string>
+#include <vector>
+#include <model/spreadsheet.h>
+#include <controller/data_container.h>
 
 /**
  * Controller for all the available and loaded spreadsheets.
  */
 class spreadsheet_controller {
 
+    /**
+     * Contains all spreadsheets which are active, meaning they have been loaded by a client.
+     * Maps spreadsheet file names to spreadsheet instances.
+     */
+    std::map<const std::string, spreadsheet *> active_spreadsheets_;
+
+    /**
+     * The data container that interfaces between the network controller and spreadsheet controller.
+     */
+    data_container &data_container_ = data_container::get_instance();
+
+    /**
+     * Private constructor for singleton pattern.
+     */
+    spreadsheet_controller();
+
+    /**
+     * Private destructor for singleton pattern.
+     */
+    ~spreadsheet_controller();
+
+    /**
+     * The work-loop for all active spreadsheets.
+     */
+    void work();
+
+    /**
+     * Parses an inbound message for a given spreadsheet.
+     * @param message The message to parse.
+     * @param spreadsheet_name The spreadsheet file name.
+     * @param sheet The spreadsheet instance.
+     */
+    void parse_inbound_message(const std::string &message, const std::string &spreadsheet_name, spreadsheet &sheet);
+
 public:
+
+    /**
+     * @return The singleton instance of this controller.
+     */
+    static spreadsheet_controller &get_instance();
+
+    /**
+     * Deleted copy constructor since this is a singleton.
+     */
+    spreadsheet_controller(spreadsheet_controller const &) = delete;
+
+    /**
+     * Deleted assignment operator since this is a singleton.
+     */
+    void operator=(spreadsheet_controller const &)  = delete;
 
     /**
      * Determines if the given cell name is formatted correctly.

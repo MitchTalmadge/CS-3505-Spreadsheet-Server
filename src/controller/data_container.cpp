@@ -8,12 +8,11 @@ able to access shared data.
 
 #include "data_container.h"
 
-/*
-Create a new data container.
- */
-data_container::data_container() {
-    // Nothing for now.
+data_container &data_container::get_instance() {
+    static data_container instance; // Initialized on first-use.
+    return instance;
 }
+
 
 /*
 Insert the new container into the mapping from spreadsheets to sockets and vice versa.

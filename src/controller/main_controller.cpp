@@ -9,12 +9,9 @@ Coordinate model/client activity, specifically:
 
 #include "main_controller.h"
 
-/*
-Create a new main controller.
- */
-main_controller::main_controller() :
-        network_control(data) {
-    // Nothing for now.
+main_controller &main_controller::get_instance() {
+    static main_controller instance;
+    return instance;
 }
 
 /*
@@ -34,11 +31,11 @@ void main_controller::handle_client(int socket_id) {
 
 
     // Forward the new socket to the network controller who sets up a communication loop.
-    network_control.start_work(socket_id, std::bind(&main_controller::message_callback, this, std::placeholders::_1,
+    network_controller_.start_work(socket_id, std::bind(&main_controller::message_callback, this, std::placeholders::_1,
                                                     std::placeholders::_2));
 
     // Tell the data container the new mapping.
-    //data.new_client(socket_id, spreadsheet);
+    //data_container_.new_client(socket_id, spreadsheet);
 
     // TODO: Determine if we need to spawn a new model.
 }

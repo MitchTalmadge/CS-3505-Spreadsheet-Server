@@ -14,7 +14,7 @@ which handles setting up the network/model components for connected clients.
 class tcp_server {
 private:
     // Main controller that handles the network/model components for connected clients.
-    main_controller main_control;
+    main_controller &main_controller_ = main_controller::get_instance();
 
     // TCP Port to listen on.
     int port;

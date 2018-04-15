@@ -14,12 +14,11 @@ clients.
 #include <boost/chrono.hpp>
 #include <string.h>
 
-/*
-Create a new network controller. Set up any variables as necessary.
- */
-network_controller::network_controller(data_container &data_container) {
-    data = data_container;
+network_controller &network_controller::get_instance() {
+    static network_controller instance;
+    return instance;
 }
+
 
 /*
 Work loop for the network controller, where it listens in on the provided socket 
@@ -51,7 +50,7 @@ void network_controller::socket_work_loop(int socket_id, std::function<std::stri
         }
 
         // Read and send from outbound message queue as necessary.
-        std::string message = data.get_outbound_message(socket_id);
+        std::string message = data_container_.get_outbound_message(socket_id);
 
         // If a message is there to be sent, send it!
         if (message.length() != 0) {

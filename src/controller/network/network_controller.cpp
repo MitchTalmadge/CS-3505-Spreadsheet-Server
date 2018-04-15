@@ -50,7 +50,7 @@ void network_controller::socket_work_loop(int socket_id, std::function<std::stri
         }
 
         // Read and send from outbound message queue as necessary.
-        std::string message = data.get_outbound_message(socket_id);
+        std::string message = data_container_.get_outbound_message(socket_id);
 
         // If a message is there to be sent, send it!
         if (message.length() != 0) {

@@ -19,7 +19,7 @@ class network_controller {
 
 private:
     // Data container is where outgoing messages will be stored.
-    data_container &data = data_container::get_instance();
+    data_container &data_container_ = data_container::get_instance();
 
     // Work loop for the network controller, where it listens in on a socket for incoming
     // messages.

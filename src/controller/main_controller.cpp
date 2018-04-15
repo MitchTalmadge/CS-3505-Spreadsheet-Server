@@ -35,7 +35,7 @@ void main_controller::handle_client(int socket_id) {
                                                     std::placeholders::_2));
 
     // Tell the data container the new mapping.
-    //data.new_client(socket_id, spreadsheet);
+    //data_container_.new_client(socket_id, spreadsheet);
 
     // TODO: Determine if we need to spawn a new model.
 }

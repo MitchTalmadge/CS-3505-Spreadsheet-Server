@@ -17,12 +17,16 @@ Coordinate model/client activity, specifically:
 
 class main_controller {
 
-    // Network Controller handles network interactions with clients.
+    /**
+     * Data container for sending responses to clients during handshake.
+     */
+    data_container &data_container_ = data_container::get_instance();
+
+    /**
+     * Network controller for handling interactions with clients.
+     */
     network_controller &network_controller_ = network_controller::get_instance();
-
-    // Map from spreadsheet id to associated model.
-    //  boost::unordered_map<std::string, spreadsheet> models;
-
+    
     // List of all spreadsheets.
     std::vector<std::string> spreadsheets;
 

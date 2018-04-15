@@ -18,10 +18,6 @@ Coordinate model/client activity, specifically:
 class main_controller {
 
 private:
-    // Data Container holds the data involved in communication between
-    // the network controller and the models.
-    data_container data;
-
     // Network Controller handles network interactions with clients.
     network_controller network_control;
 
@@ -35,8 +31,6 @@ private:
     std::string message_callback(int socket_src, std::string message);
 
 public:
-    main_controller();
-
     // Handle a new client connecting.
     void handle_client(int socket_id);
 

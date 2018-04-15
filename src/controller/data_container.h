@@ -30,9 +30,32 @@ private:
     // Map from socket_id to outgoing message queue.
     std::map<int, std::queue<std::string> > outbound_messages;
 
+    /**
+     * Private constructor for singleton pattern.
+     */
+    data_container() = default;
+
+    /**
+     * Private destructor for singleton pattern.
+     */
+    ~data_container() = default;
+
 public:
 
-    data_container();
+    /**
+     * @return The singleton instance of this container.
+     */
+    static data_container &get_instance();
+
+    /**
+     * Deleted copy constructor since this is a singleton.
+     */
+    data_container(data_container const &) = delete;
+
+    /**
+     * Deleted assignment operator since this is a singleton.
+     */
+    void operator=(data_container const &)  = delete;
 
     // Insert a new client into the mapping from sockets to spreadsheets and vice versa.
     void new_client(int socket_id, std::string spreadsheet);

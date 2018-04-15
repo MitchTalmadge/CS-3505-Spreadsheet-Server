@@ -14,12 +14,11 @@ clients.
 #include <boost/chrono.hpp>
 #include <string.h>
 
-/*
-Create a new network controller. Set up any variables as necessary.
- */
-network_controller::network_controller(data_container &data_container) {
-    data = data_container;
+network_controller &network_controller::get_instance() {
+    static network_controller instance;
+    return instance;
 }
+
 
 /*
 Work loop for the network controller, where it listens in on the provided socket 

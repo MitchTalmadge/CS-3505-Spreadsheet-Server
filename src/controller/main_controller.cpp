@@ -10,14 +10,6 @@ Coordinate model/client activity, specifically:
 #include "main_controller.h"
 
 /*
-Create a new main controller.
- */
-main_controller::main_controller() :
-        network_control(data) {
-    // Nothing for now.
-}
-
-/*
 Clean up the main controller. Specifically, tell the network controller
 and models to shut down.
  */

@@ -1,6 +1,63 @@
 #include "spreadsheet_controller.h"
 #include <algorithm>
 #include <boost/regex.hpp>
+#include <boost/thread/thread.hpp>
+#include <boost/algorithm/string.hpp>
+
+spreadsheet_controller::spreadsheet_controller() {
+
+    // Start work thread.
+    boost::thread work_thread(work);
+}
+
+spreadsheet_controller::~spreadsheet_controller() = default;
+
+spreadsheet_controller &spreadsheet_controller::get_instance() {
+    static spreadsheet_controller instance; // Instantiated on first-use.
+    return instance;
+}
+
+void spreadsheet_controller::work() {
+
+    // Iterate over all active spreadsheets
+    for (auto iterator = active_spreadsheets_.begin(); iterator != active_spreadsheets_.end(); iterator++) {
+        // Check for inbound messages.
+        std::string message = data_container_.get_inbound_message(iterator->first);
+        if (!message.empty()) {
+            // Parse inbound message.
+            parse_inbound_message(message, iterator->first, iterator->second);
+        }
+    }
+
+    // Briefly sleep to prevent this from choking machine resources.
+    boost::this_thread::sleep_for(boost::chrono::milliseconds{10});
+}
+
+void spreadsheet_controller::parse_inbound_message(const std::string &message, const std::string &spreadsheet_name,
+                                                   spreadsheet &sheet) {
+    static std::string edit_prefix = "edit";
+
+    // Check if this is an edit message. Example: "edit A1:=2*3+A2\3"
+    if (message.compare(0, edit_prefix.size(), edit_prefix)) {
+        // Extract contents of message, excluding "edit " and "\3"
+        std::string edit_contents = message.substr(edit_prefix.size() + 1, message.size() - 1);
+
+        // Split on :
+        std::vector<std::string> split;
+        boost::split(split, edit_contents, boost::is_any_of(':'));
+
+        // Verify that the message was formatted correctly.
+        if (split.size() != 2)
+            return;
+
+        // Attempt to assign contents
+        sheet.set_cell_contents(split.front(), split.back());
+
+        // Relay change to all clients
+        data_container_.new_outbound_message(spreadsheet_name,
+                                             "change " + split.front() + ":" + split.back() + ((char) 3));
+    }
+}
 
 bool spreadsheet_controller::is_valid_cell_name(const std::string &cell_name) {
 

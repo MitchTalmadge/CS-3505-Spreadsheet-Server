@@ -15,7 +15,7 @@ class spreadsheet_controller {
      * Contains all spreadsheets which are active, meaning they have been loaded by a client.
      * Maps spreadsheet file names to spreadsheet instances.
      */
-    std::map<const std::string &, spreadsheet &> active_spreadsheets_;
+    std::map<const std::string, spreadsheet *> active_spreadsheets_;
 
     /**
      * The data container that interfaces between the network controller and spreadsheet controller.

@@ -7,7 +7,7 @@
 spreadsheet_controller::spreadsheet_controller() {
 
     // Start work thread.
-    boost::thread work_thread(spreadsheet_controller::work);
+    boost::thread work_thread(&spreadsheet_controller::work, this);
 }
 
 spreadsheet_controller::~spreadsheet_controller() = default;
@@ -20,12 +20,12 @@ spreadsheet_controller &spreadsheet_controller::get_instance() {
 void spreadsheet_controller::work() {
 
     // Iterate over all active spreadsheets
-    for (auto iterator = active_spreadsheets_.begin(); iterator != active_spreadsheets_.end(); iterator++) {
+    for (auto &entry : active_spreadsheets_) {
         // Check for inbound messages.
-        std::string message = data_container_.get_inbound_message(iterator->first);
+        std::string message = data_container_.get_inbound_message(entry.first);
         if (!message.empty()) {
             // Parse inbound message.
-            parse_inbound_message(message, iterator->first, iterator->second);
+            parse_inbound_message(message, entry.first, *(entry.second));
         }
     }
 

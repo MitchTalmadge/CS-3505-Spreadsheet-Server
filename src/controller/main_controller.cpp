@@ -9,6 +9,11 @@ Coordinate model/client activity, specifically:
 
 #include "main_controller.h"
 
+main_controller &main_controller::get_instance() {
+    static main_controller instance;
+    return instance;
+}
+
 /*
 Clean up the main controller. Specifically, tell the network controller
 and models to shut down.

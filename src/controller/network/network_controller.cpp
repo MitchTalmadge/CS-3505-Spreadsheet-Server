@@ -18,7 +18,7 @@ clients.
 Create a new network controller. Set up any variables as necessary.
  */
 network_controller::network_controller(data_container &data_container) {
-    data = data_container;
+    data = &data_container;
 }
 
 /*
@@ -51,7 +51,7 @@ void network_controller::socket_work_loop(int socket_id, std::function<std::stri
         }
 
         // Read and send from outbound message queue as necessary.
-        std::string message = data.get_outbound_message(socket_id);
+	std::string message = (*data).get_outbound_message(socket_id);
 
         // If a message is there to be sent, send it!
         if (message.length() != 0) {
@@ -60,7 +60,7 @@ void network_controller::socket_work_loop(int socket_id, std::function<std::stri
             std::cout << "Message to send to client: " << msg << std::endl;
 
             write(socket_id, msg, strlen(msg) * sizeof(char));
-        }
+	}
 
         // Briefly sleep to prevent this from choking machine resources.
         boost::this_thread::sleep_for(boost::chrono::milliseconds{10});

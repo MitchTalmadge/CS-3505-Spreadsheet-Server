@@ -28,21 +28,13 @@ void main_controller::shut_down() {
 }
 
 /*
-When a new client is connected for the given spreadsheet, determine whether
-or not to spawn a new model thread for a new spreadsheet and forward the socket
-to the network controller so that we can get communication.
+When a new client is connected for the given spreadsheet, forward it to our network controller
+who will control the interactions with it.
  */
 void main_controller::handle_client(int socket_id) {
-
-
     // Forward the new socket to the network controller who sets up a communication loop.
     network_control.start_work(socket_id, std::bind(&main_controller::message_callback, this, std::placeholders::_1,
                                                     std::placeholders::_2));
-
-    // Tell the data container the new mapping.
-    //data.new_client(socket_id, spreadsheet);
-
-    // TODO: Determine if we need to spawn a new model.
 }
 
 /*
@@ -53,18 +45,51 @@ Handle a message arriving from a client. Specifically:
 - Forward edits into the corresponding spreadsheets inbound queue.
  */
 std::string main_controller::message_callback(int socket_src, std::string message) {
+    // End of text character.
+    char eot = (char) 3;
 
-    std::cout << "Message received at the callback." << std::endl;
-    boost::regex register{ "register \3" };
-    boost::regex disconnect{"disconnect \3"};
-    boost::regex load{"load \3"};
-    boost::regex ping{"ping \3"};
-    boost::regex ping_response{"ping_response \3"};
-    boost::regex edit{"edit \3"};
+    boost::regex register_msg{ "register " + eot};
+    boost::regex disconnect{"disconnect " + eot };
+    boost::regex load{"load .+" + eot };
+    boost::regex ping{"ping " + eot };
+    boost::regex ping_response{"ping_response " + eot };
+    boost::regex edit{"edit [a-zA-Z][1-9][0-9]?:.*" + eot };
+    boost::regex focus{"focus [a-zA-Z][1-9][0-9]?" + eot };
+    boost::regex unfocus{"unfocus [a-zA-Z][1-9][0-9]?" + eot };
+    boost::regex undo{ "undo " + eot };
+    boost::regex revert{ "revert [a-zA-Z][1-9][0-9]?" + eot };
 
-    //if (
+    if (boost::regex_match(message, register_msg)) {
+      // New client registering. Send it a connect_accepted message.
+      std::cout << "Client registered on socket " << socket_src << std::endl;
 
-    // TODO: Handle a message from the user.
+      // TODO: Add list of spreadsheets to this message.
+      std::string connect_accepted = "connect_accepted " + eot;
+      
+      // Add the message to its outgoing buffer.
+      data.new_outbound_message(socket_src, connect_accepted);
+    } else if(boost::regex_match(message, load)) {
+      // Determine the name of the spreadsheet the client would like to connect to.
+      std::string sprdsheet_name = message.substr(5, message.length()-1);
+
+      // TODO: Add more name checking?
+      
+      // TODO: Check if a model exists.
+      /*
+      if (sprdsheet_name in existing_models)
+        get and send spreadsheet contents.
+      else
+        */
+      // Associate the user with the given spreadsheet.
+      data.new_client(socket_src, sprdsheet_name);
+
+      std::string empty_sprdsheet = "full_state " + eot;
+      data.new_outbound_message(socket_src, empty_sprdsheet);
+
+      // TODO: Alert model of client, if required.
+    } else {
+      // For now, we simply drop the message we just received.
+    }
+
     return "";
-
 }

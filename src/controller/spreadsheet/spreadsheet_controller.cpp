@@ -7,7 +7,7 @@
 spreadsheet_controller::spreadsheet_controller() {
 
     // Start work thread.
-    boost::thread work_thread(work);
+    boost::thread work_thread(spreadsheet_controller::work);
 }
 
 spreadsheet_controller::~spreadsheet_controller() = default;
@@ -44,7 +44,7 @@ void spreadsheet_controller::parse_inbound_message(const std::string &message, c
 
         // Split on :
         std::vector<std::string> split;
-        boost::split(split, edit_contents, boost::is_any_of(':'));
+        boost::split(split, edit_contents, boost::is_any_of(":"));
 
         // Verify that the message was formatted correctly.
         if (split.size() != 2)

@@ -17,9 +17,8 @@ Coordinate model/client activity, specifically:
 
 class main_controller {
 
-private:
     // Network Controller handles network interactions with clients.
-    network_controller network_control;
+    network_controller &network_controller_ = network_controller::get_instance();
 
     // Map from spreadsheet id to associated model.
     //  boost::unordered_map<std::string, spreadsheet> models;
@@ -55,7 +54,7 @@ public:
     /**
      * Deleted assignment operator since this is a singleton.
      */
-    void operator=(main_controller const &)  = delete;
+    void operator=(main_controller const &) = delete;
 
     // Handle a new client connecting.
     void handle_client(int socket_id);

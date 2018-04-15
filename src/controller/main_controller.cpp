@@ -31,7 +31,7 @@ void main_controller::handle_client(int socket_id) {
 
 
     // Forward the new socket to the network controller who sets up a communication loop.
-    network_control.start_work(socket_id, std::bind(&main_controller::message_callback, this, std::placeholders::_1,
+    network_controller_.start_work(socket_id, std::bind(&main_controller::message_callback, this, std::placeholders::_1,
                                                     std::placeholders::_2));
 
     // Tell the data container the new mapping.

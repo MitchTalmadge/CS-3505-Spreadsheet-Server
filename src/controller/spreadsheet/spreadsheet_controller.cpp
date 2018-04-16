@@ -85,3 +85,23 @@ bool spreadsheet_controller::is_double(const std::string &str) {
         return false;
     }
 }
+
+
+std::string spreadsheet_controller::get_spreadsheets() {
+  // TODO: Update this with actual spreadsheet list.
+  char eot = '\3';
+
+  std::string msg = "connected_accepted ";
+  return msg + eot;
+}
+
+
+std::string spreadsheet_controller::get_spreadsheet(std::string) {
+  // TODO: Update this to return actual data for the given spreadsheet.
+  char eot = '\3';
+  std::string full_state = "full_state ";
+
+  // TODO: Handle failure case by returning file_load_error.
+
+  return full_state + eot;
+}

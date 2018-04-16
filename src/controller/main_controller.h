@@ -13,7 +13,8 @@ Coordinate model/client activity, specifically:
 #include <vector>
 #include <string>
 #include <controller/network/network_controller.h>
-#include "data_container.h"
+#include <controller/data_container.h>
+#include <controller/spreadsheet/spreadsheet_controller.h>
 
 class main_controller {
 
@@ -26,12 +27,17 @@ class main_controller {
      * Network controller for handling interactions with clients.
      */
     network_controller &network_controller_ = network_controller::get_instance();
+
+    /**
+     * Spreadsheet controller for handling spreadsheet models and updates.
+     */
+    spreadsheet_controller &spreadsheet_controller_ = spreadsheet_controller::get_instance();
     
     // List of all spreadsheets.
     std::vector<std::string> spreadsheets;
 
     // Callback from network controller to handle a message.
-    std::string message_callback(int socket_src, std::string message);
+    void message_callback(int socket_src, std::string message);
 
     /**
      * Private constructor for singleton pattern.

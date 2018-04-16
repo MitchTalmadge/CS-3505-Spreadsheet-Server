@@ -53,6 +53,20 @@ public:
     static spreadsheet_controller &get_instance();
 
     /**
+     * @return Valid connect_accepted message for the current state of the server.
+     */
+    std::string get_spreadsheets();
+
+    /**
+     * Handle the opening of a new spreadsheet, adding to the list
+     * of active models or creating a new spreadsheet entirely as necessary.
+     *
+     * @param spreadsheet Name of spreadsheet that client wants to load.
+     * @return The full_state message for the given spreadsheet.
+     */
+    std::string get_spreadsheet(std::string spreadsheet);
+
+    /**
      * Deleted copy constructor since this is a singleton.
      */
     spreadsheet_controller(spreadsheet_controller const &) = delete;

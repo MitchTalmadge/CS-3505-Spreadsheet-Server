@@ -23,7 +23,7 @@ private:
 
     // Work loop for the network controller, where it listens in on a socket for incoming
     // messages.
-    void socket_work_loop(int socket_id, std::function<std::string(int, std::string)> callback);
+    void socket_work_loop(int socket_id, std::function<void(int, std::string)> callback);
 
     /**
      * Private constructor for singleton pattern.
@@ -53,7 +53,7 @@ public:
     void operator=(network_controller const &)  = delete;
 
     // Create a work loop for the provided socket.
-    void start_work(int socket_id, std::function<std::string(int, std::string)> callback);
+    void start_work(int socket_id, std::function<void(int, std::string)> callback);
 
     // Shut down self and components.
     void shut_down();

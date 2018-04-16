@@ -14,6 +14,10 @@ clients.
 #include <boost/chrono.hpp>
 #include <string.h>
 
+
+/*
+Create a new network controller. Set up any variables as necessary.
+ */
 network_controller &network_controller::get_instance() {
     static network_controller instance;
     return instance;
@@ -30,7 +34,7 @@ but will NOT block until one arrives. This allows it to fall through and check i
 there is a message to be sent out. We use a sleep to keep this from overworking the 
 server.
  */
-void network_controller::socket_work_loop(int socket_id, std::function<std::string(int, std::string)> callback) {
+void network_controller::socket_work_loop(int socket_id, std::function<void(int, std::string)> callback) {
     std::cout << "Listening on socket " << socket_id << std::endl;
 
     char buffer[1024] = {0};
@@ -59,7 +63,7 @@ void network_controller::socket_work_loop(int socket_id, std::function<std::stri
             std::cout << "Message to send to client: " << msg << std::endl;
 
             write(socket_id, msg, strlen(msg) * sizeof(char));
-        }
+	}
 
         // Briefly sleep to prevent this from choking machine resources.
         boost::this_thread::sleep_for(boost::chrono::milliseconds{10});
@@ -86,7 +90,7 @@ bool set_socket_non_blocking(int socket_id) {
 When a new client connects, determine whether to create a new queue for a new
 spreadsheet, then setup a loop listening on the new socket for communications.
  */
-void network_controller::start_work(int socket_id, std::function<std::string(int, std::string)> callback) {
+void network_controller::start_work(int socket_id, std::function<void(int, std::string)> callback) {
     bool set_non_blocking = set_socket_non_blocking(socket_id);
 
     // If something went wrong, close the socket.

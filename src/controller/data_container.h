@@ -13,6 +13,7 @@ able to access shared data.
 #include <map>
 #include <string>
 #include <vector>
+#include <mutex>
 
 class data_container {
 
@@ -20,15 +21,19 @@ private:
 
     // Map from spreadsheet to associated sockets.
     std::map<std::string, std::vector<int> > spreadsheet_to_sockets;
+    std::mutex spreadsheet_to_sockets_mutex;
 
     // Map from sockets to associated spreadsheet.
     std::map<int, std::string> sockets_to_spreadsheet;
+    std::mutex sockets_to_spreadsheet_mutex;
 
     // Map from spreadsheet name to incoming message queue.
     std::map<std::string, std::queue<std::string> > inbound_messages;
+    std::mutex inbound_messages_mutex;
 
     // Map from socket_id to outgoing message queue.
     std::map<int, std::queue<std::string> > outbound_messages;
+    std::mutex outbound_messages_mutex;
 
     /**
      * Private constructor for singleton pattern.
@@ -69,7 +74,10 @@ public:
     // Get outbound message from the given socket's queue.
     std::string get_outbound_message(int socket_id);
 
-    // Send new message to outbound message.
+    // Send new message to outbound queue for given socket.
+    void new_outbound_message(int socket_id, std::string message);
+
+    // Send new message to outbound queue for all sockets in the provided spreadsheet.
     void new_outbound_message(std::string spreadsheet_src, std::string message);
 };
 

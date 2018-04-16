@@ -9,12 +9,11 @@ able to access shared data.
 #include "data_container.h"
 #include <iostream>
 
-/*
-Create a new data container.
- */
-data_container::data_container() {
-    // Nothing for now.
+data_container &data_container::get_instance() {
+    static data_container instance; // Initialized on first-use.
+    return instance;
 }
+
 
 /*
 Insert the new container into the mapping from spreadsheets to sockets and vice versa.
@@ -76,12 +75,8 @@ std::string data_container::get_outbound_message(int socket_id) {
 
   if (it != outbound_messages.end()) {
     if (!outbound_messages[socket_id].empty()) {
-      std::cout << "Grabbing message." << std::endl;
-
       std::string msg = outbound_messages[socket_id].front();
       outbound_messages[socket_id].pop();
-
-      std::cout << "Sending message." << std::endl;
 
       outbound_messages_mutex.unlock();
       return msg;

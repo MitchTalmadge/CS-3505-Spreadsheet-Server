@@ -14,12 +14,15 @@ clients.
 #include <boost/chrono.hpp>
 #include <string.h>
 
+
 /*
 Create a new network controller. Set up any variables as necessary.
  */
-network_controller::network_controller(data_container &data_container) {
-    data = &data_container;
+network_controller &network_controller::get_instance() {
+    static network_controller instance;
+    return instance;
 }
+
 
 /*
 Work loop for the network controller, where it listens in on the provided socket 
@@ -31,7 +34,7 @@ but will NOT block until one arrives. This allows it to fall through and check i
 there is a message to be sent out. We use a sleep to keep this from overworking the 
 server.
  */
-void network_controller::socket_work_loop(int socket_id, std::function<std::string(int, std::string)> callback) {
+void network_controller::socket_work_loop(int socket_id, std::function<void(int, std::string)> callback) {
     std::cout << "Listening on socket " << socket_id << std::endl;
 
     char buffer[1024] = {0};
@@ -51,7 +54,7 @@ void network_controller::socket_work_loop(int socket_id, std::function<std::stri
         }
 
         // Read and send from outbound message queue as necessary.
-	std::string message = (*data).get_outbound_message(socket_id);
+        std::string message = data_container_.get_outbound_message(socket_id);
 
         // If a message is there to be sent, send it!
         if (message.length() != 0) {
@@ -87,7 +90,7 @@ bool set_socket_non_blocking(int socket_id) {
 When a new client connects, determine whether to create a new queue for a new
 spreadsheet, then setup a loop listening on the new socket for communications.
  */
-void network_controller::start_work(int socket_id, std::function<std::string(int, std::string)> callback) {
+void network_controller::start_work(int socket_id, std::function<void(int, std::string)> callback) {
     bool set_non_blocking = set_socket_non_blocking(socket_id);
 
     // If something went wrong, close the socket.

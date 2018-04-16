@@ -11,12 +11,9 @@ Coordinate model/client activity, specifically:
 #include <iostream>
 #include <boost/regex.hpp>
 
-/*
-Create a new main controller.
- */
-main_controller::main_controller() :
-        network_control(data) {
-    // Nothing for now.
+main_controller &main_controller::get_instance() {
+    static main_controller instance;
+    return instance;
 }
 
 /*
@@ -33,7 +30,7 @@ who will control the interactions with it.
  */
 void main_controller::handle_client(int socket_id) {
     // Forward the new socket to the network controller who sets up a communication loop.
-    network_control.start_work(socket_id, std::bind(&main_controller::message_callback, this, std::placeholders::_1,
+    network_controller_.start_work(socket_id, std::bind(&main_controller::message_callback, this, std::placeholders::_1,
                                                     std::placeholders::_2));
 }
 
@@ -44,52 +41,59 @@ Handle a message arriving from a client. Specifically:
 - Handle disconnects. (How?)
 - Forward edits into the corresponding spreadsheets inbound queue.
  */
-std::string main_controller::message_callback(int socket_src, std::string message) {
-    // End of text character.
-    char eot = (char) 3;
-
-    boost::regex register_msg{ "register " + eot};
-    boost::regex disconnect{"disconnect " + eot };
-    boost::regex load{"load .+" + eot };
-    boost::regex ping{"ping " + eot };
-    boost::regex ping_response{"ping_response " + eot };
-    boost::regex edit{"edit [a-zA-Z][1-9][0-9]?:.*" + eot };
-    boost::regex focus{"focus [a-zA-Z][1-9][0-9]?" + eot };
-    boost::regex unfocus{"unfocus [a-zA-Z][1-9][0-9]?" + eot };
-    boost::regex undo{ "undo " + eot };
-    boost::regex revert{ "revert [a-zA-Z][1-9][0-9]?" + eot };
+void main_controller::message_callback(int socket_src, std::string message) {
+  // End of text character.
+  char eot = '\3';
+    
+    std::string register_str = "register ";
+    boost::regex register_msg{ register_str };
+    std::string disconnect_str = "disconnect ";
+    boost::regex disconnect{ disconnect_str };
+    std::string load_str = "load .+";
+    boost::regex load{ load_str + eot };
+    std::string ping_str = "ping ";
+    boost::regex ping{ ping_str + eot };
+    std::string ping_response_str = "ping_response ";
+    boost::regex ping_response{ ping_response_str + eot };
+    std::string edit_str = "edit [a-zA-Z][1-9][0-9]?:.*";
+    boost::regex edit{ edit_str + eot };
+    std::string focus_str = "focus [a-zA-Z][1-9][0-9]?";
+    boost::regex focus{ focus_str + eot };
+    std::string unfocus_str = "unfocus [a-zA-Z][1-9][0-9]?";
+    boost::regex unfocus{ unfocus_str + eot };
+    std::string undo_str = "undo ";
+    boost::regex undo{ undo_str + eot };
+    std::string revert_str = "revert [a-zA-Z][1-9][0-9]?";
+    boost::regex revert{ revert_str + eot };
 
     if (boost::regex_match(message, register_msg)) {
       // New client registering. Send it a connect_accepted message.
       std::cout << "Client registered on socket " << socket_src << std::endl;
 
-      // TODO: Add list of spreadsheets to this message.
-      std::string connect_accepted = "connect_accepted " + eot;
+      // Return the list of all available spreadsheets.
+      std::string connect_accepted = spreadsheet_controller_.get_spreadsheets();
+
+      std::cout << "Send string: " << connect_accepted << std::endl;
       
       // Add the message to its outgoing buffer.
-      data.new_outbound_message(socket_src, connect_accepted);
+      data_container_.new_outbound_message(socket_src, connect_accepted);
     } else if(boost::regex_match(message, load)) {
       // Determine the name of the spreadsheet the client would like to connect to.
-      std::string sprdsheet_name = message.substr(5, message.length()-1);
+      std::string spreadsheet_name = message.substr(5, message.length()-1);
 
-      // TODO: Add more name checking?
+      std::cout << "Client loading " << spreadsheet_name << std::endl;
+
+      // TODO: Add more name checking? 
       
-      // TODO: Check if a model exists.
-      /*
-      if (sprdsheet_name in existing_models)
-        get and send spreadsheet contents.
-      else
-        */
-      // Associate the user with the given spreadsheet.
-      data.new_client(socket_src, sprdsheet_name);
+      std::string state_msg = spreadsheet_controller_.get_spreadsheet(spreadsheet_name);
+      
+      // Tell the data container that the given socket is associated with the given spreadsheet.
+      data_container_.new_client(socket_src, spreadsheet_name);
 
-      std::string empty_sprdsheet = "full_state " + eot;
-      data.new_outbound_message(socket_src, empty_sprdsheet);
-
-      // TODO: Alert model of client, if required.
+      // Now add a message to the outbound queue of the socket to let the client know the state
+      // of the spreadsheet.
+      data_container_.new_outbound_message(socket_src, state_msg);
     } else {
-      // For now, we simply drop the message we just received.
+      // For now, we simply drop the message we just received if it doesn't match.
     }
-
-    return "";
 }

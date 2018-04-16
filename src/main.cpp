@@ -28,14 +28,16 @@ int main(int argc, char **argv) {
 
         std::cin >> input;
 
-        // Handle the input.
-        if (input == "shutdown") {
-            // Shut everything down cleanly.
-            server.shut_down();
-            return 0;
-        } else {
-            // Default unsupported message.
-            std::cout << "Unsupported action: \"" << input << "\"" << std::endl;
+        if (!input.empty()) {
+            // Handle the input.
+            if (input == "shutdown") {
+                // Shut everything down cleanly.
+                server.shut_down();
+                return 0;
+            } else {
+                // Default unsupported message.
+                std::cout << "Unsupported action: \"" << input << "\"" << std::endl;
+            }
         }
     }
 }

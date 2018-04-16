@@ -81,7 +81,7 @@ void tcp_server::server_work() {
         // For now just announce the new connection.
         if (new_socket != -1) {
             std::cout << "New connection received." << std::endl;
-            main_control.handle_client(new_socket);
+            main_controller_.handle_client(new_socket);
         }
     }
 }

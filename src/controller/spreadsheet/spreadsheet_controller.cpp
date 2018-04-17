@@ -91,7 +91,7 @@ std::string spreadsheet_controller::get_spreadsheets() {
   // TODO: Update this with actual spreadsheet list.
   char eot = '\3';
 
-  std::string msg = "connected_accepted ";
+  std::string msg = "connect_accepted ";
   return msg + eot;
 }
 

@@ -18,7 +18,7 @@ std::string spreadsheet::get_cell_contents(const std::string &cell_name) {
 
 void spreadsheet::set_cell_contents(const std::string &cell_name, const std::string &contents) {
   // Before we write the new value in, save the old value to the undo stack for this spreadsheet.
-  std::old_value = cell_contents_[spreadsheet_controller::normalize_cell_name(cell_name)];
+  std::string old_value = cell_contents_[spreadsheet_controller::normalize_cell_name(cell_name)];
   
   cell_value old_cell;
   old_cell.cell_name = cell_name;

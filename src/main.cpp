@@ -19,7 +19,12 @@ int main(int argc, char **argv) {
 
     // Create and start our TCP server which creates and starts controllers/models.
     tcp_server server;
-    server.startup();
+    bool setup = server.startup();
+
+    if (!setup) {
+      std::cout << "Shutting down server." << std::endl;
+      return -1;
+    }
 
     std::string input;
 
@@ -31,9 +36,11 @@ int main(int argc, char **argv) {
         if (!input.empty()) {
             // Handle the input.
             if (input == "shutdown") {
-                // Shut everything down cleanly.
-                server.shut_down();
-                return 0;
+	      std::cout << "Shutting down server." << std::endl;
+
+	      // Shut everything down cleanly.
+	      server.shut_down();
+	      return 0;
             } else {
                 // Default unsupported message.
                 std::cout << "Unsupported action: \"" << input << "\"" << std::endl;

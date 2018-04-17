@@ -46,9 +46,9 @@ void main_controller::message_callback(int socket_src, std::string message) {
   char eot = '\3';
     
     std::string register_str = "register ";
-    boost::regex register_msg{ register_str };
+    boost::regex register_msg{ register_str + eot };
     std::string disconnect_str = "disconnect ";
-    boost::regex disconnect{ disconnect_str };
+    boost::regex disconnect{ disconnect_str + eot };
     std::string load_str = "load .+";
     boost::regex load{ load_str + eot };
     std::string ping_str = "ping ";

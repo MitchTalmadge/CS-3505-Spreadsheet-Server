@@ -38,12 +38,12 @@ class spreadsheet_controller {
     void work();
 
     /**
-     * Parses an inbound message for a given spreadsheet.
-     * @param message The message to parse.
+     * Parses an inbound packet for a given spreadsheet.
+     * @param packet The packet to parse.
      * @param spreadsheet_name The spreadsheet file name.
      * @param sheet The spreadsheet instance.
      */
-    void parse_inbound_message(const std::string &message, const std::string &spreadsheet_name, spreadsheet &sheet);
+    void parse_inbound_packet(inbound_packet packet, const std::string &spreadsheet_name, spreadsheet &sheet);
 
 public:
 

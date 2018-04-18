@@ -10,7 +10,7 @@
 class inbound_disconnect_packet : inbound_packet {
 public:
 
-    inbound_disconnect_packet(int socket_id_, const std::string &raw_contents_);
+    inbound_disconnect_packet(int socket_id, const std::string &raw_message);
 
 };
 

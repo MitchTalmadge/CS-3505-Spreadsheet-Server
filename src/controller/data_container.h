@@ -14,6 +14,9 @@ able to access shared data.
 #include <string>
 #include <vector>
 #include <mutex>
+#include <model/packet/inbound/inbound_packet.h>
+#include <model/packet/outbound/outbound_packet.h>
+#include <boost/optional/optional.hpp>
 
 class data_container {
 
@@ -28,11 +31,11 @@ private:
     std::mutex sockets_to_spreadsheet_mutex;
 
     // Map from spreadsheet name to incoming message queue.
-    std::map<std::string, std::queue<std::string> > inbound_messages;
+    std::map<std::string, std::queue<inbound_packet> > inbound_messages;
     std::mutex inbound_messages_mutex;
 
-    // Map from socket_id to outgoing message queue.
-    std::map<int, std::queue<std::string> > outbound_messages;
+    // Map from socket_id_ to outgoing message queue.
+    std::map<int, std::queue<outbound_packet> > outbound_messages;
     std::mutex outbound_messages_mutex;
 
     /**
@@ -62,23 +65,20 @@ public:
      */
     void operator=(data_container const &)  = delete;
 
-    // Insert a new client into the mapping from sockets to spreadsheets and vice versa.
-    void new_client(int socket_id, std::string spreadsheet);
-
     // Get a message from the inbound queue for the given spreadsheet. Called by the model.
-    std::string get_inbound_message(std::string spreadsheet);
+    boost::optional<inbound_packet> get_inbound_packet(std::string spreadsheet);
 
     // Send new message to inbound message.
-    void new_inbound_message(int socket_src, std::string message);
+    void new_inbound_packet(inbound_packet packet);
 
     // Get outbound message from the given socket's queue.
-    std::string get_outbound_message(int socket_id);
+    boost::optional<outbound_packet> get_outbound_packet(int socket_id);
 
     // Send new message to outbound queue for given socket.
-    void new_outbound_message(int socket_id, std::string message);
+    void new_outbound_packet(int socket_id, outbound_packet packet);
 
     // Send new message to outbound queue for all sockets in the provided spreadsheet.
-    void new_outbound_message(std::string spreadsheet_src, std::string message);
+    void new_outbound_packet(std::string spreadsheet_name, outbound_packet packet);
 };
 
 #endif

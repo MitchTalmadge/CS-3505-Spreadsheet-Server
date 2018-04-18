@@ -3,6 +3,8 @@
 #include <boost/regex.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/algorithm/string.hpp>
+#include <model/packet/inbound/inbound_edit_packet.h>
+#include <model/packet/inbound/inbound_load_packet.h>
 
 spreadsheet_controller::spreadsheet_controller() {
 
@@ -22,10 +24,10 @@ void spreadsheet_controller::work() {
     // Iterate over all active spreadsheets
     for (auto &entry : active_spreadsheets_) {
         // Check for inbound messages.
-        std::string message = data_container_.get_inbound_message(entry.first);
-        if (!message.empty()) {
+        auto packet_optional = data_container_.get_inbound_packet(entry.first);
+        if (packet_optional) {
             // Parse inbound message.
-            parse_inbound_message(message, entry.first, *(entry.second));
+            parse_inbound_packet(packet_optional.get(), entry.first, *(entry.second));
         }
     }
 
@@ -33,29 +35,17 @@ void spreadsheet_controller::work() {
     boost::this_thread::sleep_for(boost::chrono::milliseconds{10});
 }
 
-void spreadsheet_controller::parse_inbound_message(const std::string &message, const std::string &spreadsheet_name,
-                                                   spreadsheet &sheet) {
-    static std::string edit_prefix = "edit";
-
-    // Check if this is an edit message. Example: "edit A1:=2*3+A2\3"
-    if (message.compare(0, edit_prefix.size(), edit_prefix)) {
-        // Extract contents of message, excluding "edit " and "\3"
-        std::string edit_contents = message.substr(edit_prefix.size() + 1, message.size() - 1);
-
-        // Split on :
-        std::vector<std::string> split;
-        boost::split(split, edit_contents, boost::is_any_of(":"));
-
-        // Verify that the message was formatted correctly.
-        if (split.size() != 2)
-            return;
-
+void spreadsheet_controller::parse_inbound_packet(inbound_packet packet, const std::string &spreadsheet_name,
+                                                  spreadsheet &sheet) {
+    if(auto edit_packet = dynamic_cast<inbound_edit_packet &>(packet)) {
         // Attempt to assign contents
-        sheet.set_cell_contents(split.front(), split.back());
+        sheet.set_cell_contents(edit_packet.get_cell_name(), edit_packet.get_cell_contents());
 
         // Relay change to all clients
-        data_container_.new_outbound_message(spreadsheet_name,
-                                             "change " + split.front() + ":" + split.back() + ((char) 3));
+        data_container_.new_outbound_packet(spreadsheet_name,
+                                            "change " + split.front() + ":" + split.back() + ((char) 3));
+    } else if (auto load_packet = dynamic_cast<inbound_load_packet &>(packet)) {
+        // full_state
     }
 }
 
@@ -93,15 +83,4 @@ std::string spreadsheet_controller::get_spreadsheets() {
 
   std::string msg = "connected_accepted ";
   return msg + eot;
-}
-
-
-std::string spreadsheet_controller::get_spreadsheet(std::string) {
-  // TODO: Update this to return actual data for the given spreadsheet.
-  char eot = '\3';
-  std::string full_state = "full_state ";
-
-  // TODO: Handle failure case by returning file_load_error.
-
-  return full_state + eot;
 }

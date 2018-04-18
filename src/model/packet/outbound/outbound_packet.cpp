@@ -1,5 +1,5 @@
-//
-// Created by mitch on 4/17/2018.
-//
-
 #include "outbound_packet.h"
+
+std::string outbound_packet::get_raw_message() {
+    return "";
+}

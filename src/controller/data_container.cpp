@@ -15,77 +15,55 @@ data_container &data_container::get_instance() {
 }
 
 
-/*
-Insert the new container into the mapping from spreadsheets to sockets and vice versa.
- */
-void data_container::new_client(int socket_id, std::string spreadsheet) {
-  // Client queue should be made during the registration process.
-}
+void data_container::new_inbound_packet(inbound_packet packet) {
 
-void data_container::new_inbound_message(int socket_id, std::string message) {
-    // TODO
 }
 
 /*
 Allow the model to get a message for the given string spreadsheet.
  */
-std::string data_container::get_inbound_message(std::string spreadsheet) {
-  // TODO
-
-    return "";
+boost::optional<inbound_packet> data_container::get_inbound_packet(std::string spreadsheet) {
+    return boost::none;
 }
 
 /*
 Send a new message to the specified socket.
 Called by the main controller during registration.
  */
-void data_container::new_outbound_message(int socket_id, std::string message) {
+void data_container::new_outbound_packet(int socket_id, outbound_packet packet) {
 
-  outbound_messages_mutex.lock();
-  // First, check if a queue already exists for this socket.
-  auto it = outbound_messages.find(socket_id);
-  if (it != outbound_messages.end())
-  {  
-    // Add the message to the queue.
-    it->second.push(message);
-  } else {
-    // Create a new queue and insert the message.
-    std::queue<std::string> new_queue;
-    new_queue.push(message);
-    // Put it in our map.
-    outbound_messages[socket_id] = new_queue;
-  }
-  outbound_messages_mutex.unlock();
+    outbound_messages_mutex.lock();
+
+    auto queue = outbound_messages[socket_id];
+    queue.push(packet);
+
+    outbound_messages_mutex.unlock();
 }
 
 /*
 Send a new message to all the attached sockets for the given spreadsheet.
 Called by the spreadsheet models.
  */
-void data_container::new_outbound_message(std::string spreadsheet, std::string message) {
-  // TODO
+void data_container::new_outbound_packet(std::string spreadsheet, outbound_packet packet) {
+    // TODO
 }
 
 /*
 Allow for socket to grab an outbound message to be sent to client.
  */
-std::string data_container::get_outbound_message(int socket_id) {
-  outbound_messages_mutex.lock();
-  auto it = outbound_messages.find(socket_id);
+boost::optional<outbound_packet> data_container::get_outbound_packet(int socket_id) {
+    outbound_messages_mutex.lock();
 
-  if (it != outbound_messages.end()) {
-    if (!outbound_messages[socket_id].empty()) {
-      std::string msg = outbound_messages[socket_id].front();
-      outbound_messages[socket_id].pop();
+    auto queue = outbound_messages[socket_id];
 
-      outbound_messages_mutex.unlock();
-      return msg;
-    } else {
-      outbound_messages_mutex.unlock();
-      return "";
+    if (queue.empty()) {
+        outbound_messages_mutex.unlock();
+        return boost::none;
     }
-  } else {
+
+    auto packet = queue.front();
+    queue.pop();
+
     outbound_messages_mutex.unlock();
-    return "";
-  }
+    return packet;
 }

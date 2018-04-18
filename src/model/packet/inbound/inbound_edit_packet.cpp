@@ -1,13 +1,13 @@
 #include "inbound_edit_packet.h"
 
-inbound_edit_packet::inbound_edit_packet(int socket_id_, const std::string &raw_contents_,
+inbound_edit_packet::inbound_edit_packet(int socket_id, const std::string &raw_message,
                                          const std::string &cell_name_, const std::string &cell_contents_)
-        : inbound_packet(socket_id_, raw_contents_), cell_name_(cell_name_), cell_contents_(cell_contents_) {}
+        : inbound_packet(socket_id, raw_message), cell_name_(cell_name_), cell_contents_(cell_contents_) {}
 
-const std::string &inbound_edit_packet::get_cell_name_() const {
+const std::string &inbound_edit_packet::get_cell_name() const {
     return cell_name_;
 }
 
-const std::string &inbound_edit_packet::get_cell_contents_() const {
+const std::string &inbound_edit_packet::get_cell_contents() const {
     return cell_contents_;
 }

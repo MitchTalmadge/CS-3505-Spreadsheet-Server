@@ -8,23 +8,25 @@
  */
 class inbound_packet {
 
+protected:
+
     /**
      * The ID of the socket that sent the packet.
      */
-    int socket_id_;
+    const int socket_id_;
 
     /**
-     * The raw, un-modified contents of the packet including an EOT terminator. (\3)
+     * The raw, un-modified message that composes this packet. Includes an EOT terminator (\3).
      */
-    std::string raw_contents_;
+    const std::string raw_message_;
+
+    inbound_packet(int socket_id, const std::string &raw_message);
 
 public:
 
-    inbound_packet(int socket_id_, const std::string &raw_contents_);
+    int get_socket_id() const;
 
-    int get_socket_id_() const;
-
-    const std::string &get_raw_contents_() const;
+    const std::string &get_raw_message() const;
 
 };
 

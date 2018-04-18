@@ -9,7 +9,7 @@
 class inbound_register_packet : inbound_packet {
 public:
 
-    inbound_register_packet(int socket_id_, const std::string &raw_contents_);
+    inbound_register_packet(int socket_id, const std::string &raw_message);
 
 };
 

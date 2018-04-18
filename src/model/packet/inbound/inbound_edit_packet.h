@@ -9,21 +9,21 @@ class inbound_edit_packet : inbound_packet {
     /**
      * The name of the cell that is being edited.
      */
-    std::string cell_name_;
+    const std::string cell_name_;
 
     /**
      * The new contents of the cell.
      */
-    std::string cell_contents_;
+    const std::string cell_contents_;
 
 public:
 
-    inbound_edit_packet(int socket_id_, const std::string &raw_contents_, const std::string &cell_name_,
+    inbound_edit_packet(int socket_id, const std::string &raw_message, const std::string &cell_name_,
                         const std::string &cell_contents_);
 
-    const std::string &get_cell_name_() const;
+    const std::string &get_cell_name() const;
 
-    const std::string &get_cell_contents_() const;
+    const std::string &get_cell_contents() const;
 
 };
 

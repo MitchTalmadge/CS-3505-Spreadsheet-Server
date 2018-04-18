@@ -124,28 +124,6 @@ TEST(inbound_packet_factory, from_raw_message__edit) {
   delete packet;
 }
 
-TEST(inbound_packet_factory, from_raw_message__edit__colon) {
-  auto packet = inbound_packet_factory::from_raw_message(0, "edit Z99:lol:hax" + EOT);
-
-  // Check if packet is not null.
-  ASSERT_TRUE(packet);
-
-  // Check if packet type is correct.
-  EXPECT_TRUE(packet->get_packet_type() == inbound_packet::EDIT)
-            << "Packet type was: " << packet->get_packet_type();
-
-  // Check if packet class is correct.
-  EXPECT_TRUE(dynamic_cast<inbound_edit_packet *>(packet));
-
-  // Check cell name and contents.
-  auto edit_packet = dynamic_cast<inbound_edit_packet *>(packet);
-  EXPECT_EQ("Z99", edit_packet->get_cell_name());
-  EXPECT_EQ("lol:hax", edit_packet->get_cell_contents());
-
-  // Dispose of packet.
-  delete packet;
-}
-
 TEST(inbound_packet_factory, from_raw_message__focus) {
   auto packet = inbound_packet_factory::from_raw_message(0, "focus A10" + EOT);
 
@@ -216,7 +194,7 @@ TEST(inbound_packet_factory, from_raw_message__revert) {
 
   // Check cell name.
   auto revert_packet = dynamic_cast<inbound_revert_packet *>(packet);
-  EXPECT_EQ("A10", revert_packet->get_cell_name());
+  EXPECT_EQ("A5", revert_packet->get_cell_name());
 
   // Dispose of packet.
   delete packet;

@@ -64,14 +64,7 @@ inbound_packet *inbound_packet_factory::from_raw_message(int socket_id,
 
     return new inbound_focus_packet(socket_id, raw_message, contents);
   } else if (boost::starts_with(raw_message, "unfocus ")) {
-    // Extract contents
-    std::string contents = raw_message.substr(8, raw_message.size() - 1 - 8);
-
-    // Validate cell name.
-    if (!spreadsheet_controller::is_valid_cell_name(contents))
-      return nullptr;
-
-    return new inbound_unfocus_packet(socket_id, raw_message, contents);
+    return new inbound_unfocus_packet(socket_id, raw_message);
   } else if (boost::starts_with(raw_message, "undo ")) {
     return new inbound_undo_packet(socket_id, raw_message);
   } else if (boost::starts_with(raw_message, "revert ")) {

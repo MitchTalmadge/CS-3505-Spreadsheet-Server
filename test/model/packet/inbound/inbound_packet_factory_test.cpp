@@ -8,7 +8,7 @@ TEST(inbound_packet_factory, from_raw_message__register) {
   auto packet = inbound_packet_factory::from_raw_message(0, "register " + EOT);
 
   // Check if packet is not null.
-  EXPECT_TRUE(packet);
+  ASSERT_TRUE(packet);
 
   // Check if packet type is correct.
   EXPECT_TRUE(packet->get_packet_type() == inbound_packet::REGISTER)

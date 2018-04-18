@@ -64,7 +64,7 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet, const 
   }
 
   // Dispose of packet.
-  delete packet;
+  delete &packet;
 }
 
 bool spreadsheet_controller::is_valid_cell_name(const std::string &cell_name) {

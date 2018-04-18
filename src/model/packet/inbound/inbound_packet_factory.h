@@ -14,7 +14,7 @@ class inbound_packet_factory {
   /**
    * The End of Text terminator.
    */
-  static const char EOT = '\3';
+  static const std::string EOT = std::string(1, '\3');
 
  public:
 

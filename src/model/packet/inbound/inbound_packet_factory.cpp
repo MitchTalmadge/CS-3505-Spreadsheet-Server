@@ -12,15 +12,15 @@
 #include "inbound_unfocus_packet.h"
 #include "inbound_focus_packet.h"
 
-inbound_packet * inbound_packet_factory::from_raw_message(int socket_id,
-                                                          const std::string &raw_message) {
+inbound_packet *inbound_packet_factory::from_raw_message(int socket_id,
+                                                         const std::string &raw_message) {
 
   // Check for empty message
   if (raw_message.empty())
     return nullptr;
 
   // Check for EOT terminator.
-  if (!boost::ends_with(raw_message, std::string(1, EOT)))
+  if (!boost::ends_with(raw_message, EOT))
     return nullptr;
 
   // Check message types

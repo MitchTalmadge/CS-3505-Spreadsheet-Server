@@ -13,7 +13,7 @@ class outbound_packet {
   /**
     * The end of text terminator, to be appended to all raw messages.
     */
-  static const char EOT = '\3';
+  static const std::string EOT = std::string(1, '\3');
 
  public:
 

@@ -22,7 +22,7 @@ class inbound_packet_factory {
    * @param raw_message The raw, un-modified contents of the packet including an EOT terminator (\3).
    * @return An inbound packet that was parsed from the message. If the message could not be parsed, boost::none will be returned.
    */
-  static boost::optional<inbound_packet> from_raw_message(int socket_id, const std::string &raw_message);
+  static inbound_packet * from_raw_message(int socket_id, const std::string &raw_message);
 
 };
 

@@ -9,10 +9,8 @@ clients.
 #include <sys/socket.h>
 #include <fcntl.h>
 #include <netinet/in.h>
-#include <boost/ref.hpp>
 #include <boost/regex.hpp>
 #include <boost/chrono.hpp>
-#include <cstring>
 
 /*
 Create a new network controller. Set up any variables as necessary.
@@ -52,11 +50,14 @@ void network_controller::socket_work_loop(int socket_id, std::function<void(int,
     }
 
     // Read and send from outbound message queue as necessary.
-    auto packet_optional = data_container_.get_outbound_packet(socket_id);
+    auto packet = data_container_.get_outbound_packet(socket_id);
 
     // If a message is there to be sent, send it!
-    if (packet_optional) {
-      const char *msg = packet_optional.get().get_raw_message().c_str();
+    if (packet) {
+      const char *msg = packet->get_raw_message().c_str();
+
+      // Dispose of packet.
+      delete packet;
 
       std::cout << "Message to send to client: " << msg << std::endl;
 

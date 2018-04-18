@@ -12,7 +12,7 @@ class outbound_full_state_packet : outbound_packet {
 
  public:
 
-  outbound_full_state_packet(const std::map<std::string, std::string> &cell_contents);
+  explicit outbound_full_state_packet(const std::map<std::string, std::string> &cell_contents);
 
   outbound_packet_type get_packet_type() override;
 

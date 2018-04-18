@@ -43,7 +43,7 @@ class spreadsheet_controller {
    * @param spreadsheet_name The spreadsheet file name.
    * @param sheet The spreadsheet instance.
    */
-  void parse_inbound_packet(inbound_packet packet, const std::string &spreadsheet_name, spreadsheet &sheet);
+  void parse_inbound_packet(inbound_packet &packet, const std::string &spreadsheet_name, spreadsheet &sheet);
 
  public:
 

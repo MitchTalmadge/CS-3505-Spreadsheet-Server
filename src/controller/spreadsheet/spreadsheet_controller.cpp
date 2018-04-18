@@ -24,10 +24,10 @@ void spreadsheet_controller::work() {
   // Iterate over all active spreadsheets
   for (auto &entry : active_spreadsheets_) {
     // Check for inbound messages.
-    auto packet_optional = data_container_.get_inbound_packet(entry.first);
-    if (packet_optional) {
+    auto packet = data_container_.get_inbound_packet(entry.first);
+    if (packet) {
       // Parse inbound message.
-      parse_inbound_packet(packet_optional.get(), entry.first, *(entry.second));
+      parse_inbound_packet(*packet, entry.first, *(entry.second));
     }
   }
 
@@ -35,30 +35,33 @@ void spreadsheet_controller::work() {
   boost::this_thread::sleep_for(boost::chrono::milliseconds{10});
 }
 
-void spreadsheet_controller::parse_inbound_packet(inbound_packet packet, const std::string &spreadsheet_name,
+void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet, const std::string &spreadsheet_name,
                                                   spreadsheet &sheet) {
 
   // Handle parsed packet.
   switch (packet.get_packet_type()) {
-    case inbound_packet::EDIT:auto edit_packet = dynamic_cast<inbound_edit_packet &>(packet);
+    case inbound_packet::EDIT: auto edit_packet = dynamic_cast<inbound_edit_packet &>(packet);
 
       // Attempt to assign contents
       sheet.set_cell_contents(edit_packet.get_cell_name(), edit_packet.get_cell_contents());
 
       // Relay change to all clients
       data_container_.new_outbound_packet(spreadsheet_name,
-                                          outbound_change_packet(edit_packet.get_cell_name(),
-                                                                 edit_packet.get_cell_contents()));
+                                          *new outbound_change_packet(edit_packet.get_cell_name(),
+                                                                      edit_packet.get_cell_contents()));
       break;
 
     case inbound_packet::LOAD:
       // TODO: full state
       data_container_.new_outbound_packet(packet.get_socket_id(),
-                                          outbound_full_state_packet(std::map<std::string, std::string>()));
+                                          *new outbound_full_state_packet(std::map<std::string, std::string>()));
       break;
 
     default: break;
   }
+
+  // Dispose of packet.
+  delete packet;
 }
 
 bool spreadsheet_controller::is_valid_cell_name(const std::string &cell_name) {

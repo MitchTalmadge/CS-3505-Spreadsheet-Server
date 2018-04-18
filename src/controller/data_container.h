@@ -31,11 +31,11 @@ private:
     std::mutex sockets_to_spreadsheet_mutex;
 
     // Map from spreadsheet name to incoming message queue.
-    std::map<std::string, std::queue<inbound_packet> > inbound_messages;
+    std::map<std::string, std::queue<inbound_packet *> > inbound_messages;
     std::mutex inbound_messages_mutex;
 
     // Map from socket_id_ to outgoing message queue.
-    std::map<int, std::queue<outbound_packet> > outbound_messages;
+    std::map<int, std::queue<outbound_packet *> > outbound_messages;
     std::mutex outbound_messages_mutex;
 
     /**
@@ -66,19 +66,19 @@ public:
     void operator=(data_container const &)  = delete;
 
     // Get a message from the inbound queue for the given spreadsheet. Called by the model.
-    boost::optional<inbound_packet> get_inbound_packet(std::string spreadsheet);
+    inbound_packet * get_inbound_packet(std::string spreadsheet);
 
     // Send new message to inbound message.
-    void new_inbound_packet(inbound_packet packet);
+    void new_inbound_packet(inbound_packet &packet);
 
     // Get outbound message from the given socket's queue.
-    boost::optional<outbound_packet> get_outbound_packet(int socket_id);
+    outbound_packet * get_outbound_packet(int socket_id);
 
     // Send new message to outbound queue for given socket.
-    void new_outbound_packet(int socket_id, outbound_packet packet);
+    void new_outbound_packet(int socket_id, outbound_packet &packet);
 
     // Send new message to outbound queue for all sockets in the provided spreadsheet.
-    void new_outbound_packet(std::string spreadsheet_name, outbound_packet packet);
+    void new_outbound_packet(std::string spreadsheet_name, outbound_packet &packet);
 };
 
 #endif

@@ -45,25 +45,29 @@ Handle a message arriving from a client. Specifically:
  */
 void main_controller::message_callback(int socket_src, std::string message) {
 
-  boost::optional<inbound_packet> packet_optional = inbound_packet_factory::from_raw_message(socket_src, message);
+  auto packet = inbound_packet_factory::from_raw_message(socket_src, message);
 
   // Check if packet was parsed.
-  if (!packet_optional)
+  if (!packet)
     return;
 
   // Handle parsed packet.
-  switch (packet_optional.get().get_packet_type()) {
+  switch (packet->get_packet_type()) {
 
-    case inbound_packet::REGISTER:
-      // Client registration.
-      std::cout << "Client registered on socket " << socket_src << std::endl;
+    case inbound_packet::REGISTER: std::cout << "Client registered on socket " << socket_src << std::endl;
 
       // Get all existing spreadsheets.
       auto spreadsheets = spreadsheet_controller_.get_spreadsheets();
 
       // Respond to the client.
-      data_container_.new_outbound_packet(socket_src, outbound_connect_accepted_packet(spreadsheets));
+      data_container_.new_outbound_packet(socket_src, *new outbound_connect_accepted_packet(spreadsheets)
+      );
 
-    default:data_container_.new_inbound_packet(packet_optional.get());
+      // Dispose of packet.
+      delete packet;
+
+      break;
+
+    default:data_container_.new_inbound_packet(*packet);
   }
 }

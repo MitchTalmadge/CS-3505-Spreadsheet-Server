@@ -32,7 +32,7 @@ public:
     tcp_server();
 
     // Start up our TCP Server.
-    void startup();
+    bool startup();
 
     // Shut down the server and it's components.
     void shut_down();

@@ -13,6 +13,7 @@
 struct cell_value {
   std::string cell_name;
   std::string value;
+  bool is_revert;
 };
 
 /**
@@ -35,6 +36,11 @@ class spreadsheet {
      * Hold history of values across spreadsheet to allow undo functionality.
      */
     std::stack<cell_value> undo_history_;
+
+    /**
+     * Hold cell specific history.
+     */
+    std::map<std::string, std::stack<std::string>> revert_history_;
 
 public:
 
@@ -74,6 +80,11 @@ public:
      * Undo the most recent edit action (i.e., edit message from client or revert).
      */
     void undo();
+
+    /**
+     * Revert the most recent edit action for the specified cell.
+     */
+    void revert(const std::string &cell_name);
 
 };
 

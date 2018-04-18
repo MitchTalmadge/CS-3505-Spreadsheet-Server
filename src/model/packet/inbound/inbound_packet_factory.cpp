@@ -20,7 +20,7 @@ inbound_packet * inbound_packet_factory::from_raw_message(int socket_id,
     return nullptr;
 
   // Check for EOT terminator.
-  if (!boost::ends_with(raw_message, EOT))
+  if (!boost::ends_with(raw_message, std::string(1, EOT)))
     return nullptr;
 
   // Check message types

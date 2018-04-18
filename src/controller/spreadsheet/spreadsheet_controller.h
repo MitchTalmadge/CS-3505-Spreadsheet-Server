@@ -55,7 +55,7 @@ public:
     /**
      * @return Valid connect_accepted message for the current state of the server.
      */
-    std::string get_spreadsheets();
+    std::vector get_spreadsheets();
 
     /**
      * Handle the opening of a new spreadsheet, adding to the list

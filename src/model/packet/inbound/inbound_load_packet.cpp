@@ -6,5 +6,5 @@ inbound_load_packet::inbound_load_packet(int socket_id, const std::string &raw_m
                                                                                 spreadsheet_name_(spreadsheet_name) {}
 
 const std::string &inbound_load_packet::get_spreadsheet_name() const {
-    return spreadsheet_name_;
+  return spreadsheet_name_;
 }

@@ -8,16 +8,16 @@
  */
 class inbound_unfocus_packet : inbound_packet {
 
-    /**
-     * The cell no longer being focused upon.
-     */
-    const std::string cell_name_;
+  /**
+   * The cell no longer being focused upon.
+   */
+  const std::string cell_name_;
 
-public:
+ public:
 
-    inbound_unfocus_packet(int socket_id, const std::string &raw_message, const std::string &cell_name);
+  inbound_unfocus_packet(int socket_id, const std::string &raw_message, const std::string &cell_name);
 
-    const std::string &get_cell_name() const;
+  const std::string &get_cell_name() const;
 
 };
 

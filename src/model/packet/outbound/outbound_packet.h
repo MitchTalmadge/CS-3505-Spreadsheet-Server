@@ -8,21 +8,20 @@
  */
 class outbound_packet {
 
-private:
+ protected:
 
-    /**
-     * The end of text terminator, to be appended to all raw messages.
-     */
-    static const char EOT = '\3';
+  /**
+    * The end of text terminator, to be appended to all raw messages.
+    */
+  static const char EOT = '\3';
 
-public:
+ public:
 
-    /**
-     * @return The raw message to be sent, including an EOT terminator (\3).
-     */
-    virtual std::string get_raw_message();
+  /**
+   * @return The raw message to be sent, including an EOT terminator (\3).
+   */
+  virtual std::string get_raw_message();
 
 };
-
 
 #endif //PIGRAMMERS_SPREADSHEET_SERVER_OUTBOUND_PACKET_H

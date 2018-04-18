@@ -35,7 +35,7 @@ private:
     std::mutex inbound_messages_mutex;
 
     // Map from socket_id_ to outgoing message queue.
-    std::map<int, std::queue<outbound_packet *> > outbound_messages;
+    std::map<int, std::queue<outbound_packet *> *> outbound_messages;
     std::mutex outbound_messages_mutex;
 
     /**

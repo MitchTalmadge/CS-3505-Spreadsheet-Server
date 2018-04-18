@@ -34,7 +34,7 @@ void data_container::new_outbound_packet(int socket_id, outbound_packet &packet)
   outbound_messages_mutex.lock();
 
   auto queue = outbound_messages[socket_id];
-  queue.push(&packet);
+  queue->push(&packet);
 
   outbound_messages_mutex.unlock();
 }
@@ -55,13 +55,13 @@ outbound_packet *data_container::get_outbound_packet(int socket_id) {
 
   auto queue = outbound_messages[socket_id];
 
-  if (queue.empty()) {
+  if (queue->empty()) {
     outbound_messages_mutex.unlock();
     return nullptr;
   }
 
-  auto packet = queue.front();
-  queue.pop();
+  auto packet = queue->front();
+  queue->pop();
 
   outbound_messages_mutex.unlock();
   return packet;

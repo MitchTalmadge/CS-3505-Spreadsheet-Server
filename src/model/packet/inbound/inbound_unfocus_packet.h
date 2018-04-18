@@ -6,7 +6,7 @@
 /**
  * Represents a client's intent to no longer edit a cell.
  */
-class inbound_unfocus_packet : inbound_packet {
+class inbound_unfocus_packet : public inbound_packet {
 
   /**
    * The cell no longer being focused upon.

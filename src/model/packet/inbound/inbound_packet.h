@@ -24,6 +24,8 @@ class inbound_packet {
 
  public:
 
+  virtual ~inbound_packet() = default;
+
   int get_socket_id() const;
 
   const std::string &get_raw_message() const;

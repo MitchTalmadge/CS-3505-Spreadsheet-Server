@@ -6,7 +6,7 @@
 /**
  * Represents a client's desire to undo the last change in the spreadsheet.
  */
-class inbound_undo_packet : inbound_packet {
+class inbound_undo_packet : public inbound_packet {
 
  public:
 

@@ -4,7 +4,7 @@
 #include <vector>
 #include "outbound_packet.h"
 
-class outbound_connect_accepted_packet : outbound_packet {
+class outbound_connect_accepted_packet : public outbound_packet {
 
   /**
    * Contains the names of all existing spreadsheets that may be loaded by a client.

@@ -6,7 +6,7 @@
 /**
  * Represents a client's edit to a cell.
  */
-class inbound_edit_packet : inbound_packet {
+class inbound_edit_packet : public inbound_packet {
 
   /**
    * The name of the cell that is being edited.

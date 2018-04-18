@@ -6,7 +6,7 @@
 /**
  * Represents a client's request to load a spreadsheet.
  */
-class inbound_load_packet : inbound_packet {
+class inbound_load_packet : public inbound_packet {
 
   /**
    * The name of the spreadsheet to be loaded.

@@ -6,7 +6,7 @@
 /**
  * Represents a client disconnecting from the server.
  */
-class inbound_disconnect_packet : inbound_packet {
+class inbound_disconnect_packet : public inbound_packet {
  public:
 
   inbound_disconnect_packet(int socket_id, const std::string &raw_message);

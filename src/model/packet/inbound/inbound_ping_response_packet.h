@@ -7,7 +7,7 @@
 /**
  * Represents a client's response to a ping packet sent from the server to the client.
  */
-class inbound_ping_response_packet : inbound_packet {
+class inbound_ping_response_packet : public inbound_packet {
 
  public:
 

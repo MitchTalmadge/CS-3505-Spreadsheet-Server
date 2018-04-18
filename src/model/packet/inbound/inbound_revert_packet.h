@@ -6,7 +6,7 @@
 /**
  * Represents a client's desire to revert a cell.
  */
-class inbound_revert_packet : inbound_packet {
+class inbound_revert_packet : public inbound_packet {
 
   /**
    * The name of the cell to revert.

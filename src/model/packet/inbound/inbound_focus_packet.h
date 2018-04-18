@@ -6,7 +6,7 @@
 /**
  * Represents a client's intent to edit a cell.
  */
-class inbound_focus_packet : inbound_packet {
+class inbound_focus_packet : public inbound_packet {
 
   /**
    * The cell being focused upon.

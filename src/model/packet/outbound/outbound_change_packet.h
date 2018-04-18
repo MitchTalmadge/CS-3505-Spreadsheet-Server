@@ -3,7 +3,7 @@
 
 #include "outbound_packet.h"
 
-class outbound_change_packet : outbound_packet {
+class outbound_change_packet : public outbound_packet {
 
   /**
    * The name of the changed cell.

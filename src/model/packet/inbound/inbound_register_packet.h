@@ -6,7 +6,7 @@
 /**
  * Represents a client joining the server.
  */
-class inbound_register_packet : inbound_packet {
+class inbound_register_packet : public inbound_packet {
  public:
 
   inbound_register_packet(int socket_id, const std::string &raw_message);

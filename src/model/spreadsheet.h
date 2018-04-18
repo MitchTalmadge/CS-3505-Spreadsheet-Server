@@ -3,6 +3,17 @@
 
 #include <string>
 #include <map>
+#include <stack>
+
+/**
+ * Simple struct to hold the value of a cell at a given time.
+ * Used by undo/revert functionality to maintain cell/spreadsheet
+ * history.
+ */
+struct cell_value {
+  std::string cell_name;
+  std::string value;
+};
 
 /**
  * Represents one collaborative Spreadsheet and all its contents.
@@ -19,6 +30,11 @@ class spreadsheet {
      * Maps cell names to cell contents.
      */
     std::map<std::string, std::string> cell_contents_;
+
+    /**
+     * Hold history of values across spreadsheet to allow undo functionality.
+     */
+    std::stack<cell_value> undo_history_;
 
 public:
 
@@ -54,7 +70,10 @@ public:
      */
     void set_cell_contents(const std::string &cell_name, const std::string &contents);
 
-    
+    /**
+     * Undo the most recent edit action (i.e., edit message from client or revert).
+     */
+    void undo();
 
 };
 

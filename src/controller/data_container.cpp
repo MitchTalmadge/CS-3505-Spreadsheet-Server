@@ -30,13 +30,10 @@ Send a new message to the specified socket.
 Called by the main controller during registration.
  */
 void data_container::new_outbound_packet(int socket_id, outbound_packet &packet) {
-
-  outbound_messages_mutex.lock();
+  std::lock_guard<std::mutex> lock(outbound_messages_mutex);
 
   auto &queue = outbound_messages[socket_id];
   queue.push(&packet);
-
-  outbound_messages_mutex.unlock();
 }
 
 /*
@@ -51,18 +48,16 @@ void data_container::new_outbound_packet(std::string spreadsheet, outbound_packe
 Allow for socket to grab an outbound message to be sent to client.
  */
 outbound_packet *data_container::get_outbound_packet(int socket_id) {
-  outbound_messages_mutex.lock();
+  std::lock_guard<std::mutex> lock(outbound_messages_mutex);
 
   auto &queue = outbound_messages[socket_id];
 
   if (queue.empty()) {
-    outbound_messages_mutex.unlock();
     return nullptr;
   }
 
   auto packet = queue.front();
   queue.pop();
 
-  outbound_messages_mutex.unlock();
   return packet;
 }

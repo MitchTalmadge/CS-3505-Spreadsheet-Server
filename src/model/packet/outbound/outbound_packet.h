@@ -15,6 +15,8 @@ class outbound_packet {
     */
   static const std::string EOT;
 
+  outbound_packet() = default;
+
  public:
 
   /**

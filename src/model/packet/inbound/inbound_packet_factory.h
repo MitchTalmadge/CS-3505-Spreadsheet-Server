@@ -14,7 +14,7 @@ class inbound_packet_factory {
   /**
    * The End of Text terminator.
    */
-  static const std::string EOT = std::string(1, '\3');
+  static const std::string EOT;
 
  public:
 
@@ -24,7 +24,7 @@ class inbound_packet_factory {
    * @param raw_message The raw, un-modified contents of the packet including an EOT terminator (\3).
    * @return An inbound packet that was parsed from the message. If the message could not be parsed, boost::none will be returned.
    */
-  static inbound_packet * from_raw_message(int socket_id, const std::string &raw_message);
+  static inbound_packet *from_raw_message(int socket_id, const std::string &raw_message);
 
 };
 

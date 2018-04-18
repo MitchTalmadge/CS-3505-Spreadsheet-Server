@@ -12,6 +12,8 @@
 #include "inbound_unfocus_packet.h"
 #include "inbound_focus_packet.h"
 
+const std::string inbound_packet_factory::EOT = std::string(1, '\3');
+
 inbound_packet *inbound_packet_factory::from_raw_message(int socket_id,
                                                          const std::string &raw_message) {
 

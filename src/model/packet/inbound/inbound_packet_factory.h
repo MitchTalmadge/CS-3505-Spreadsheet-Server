@@ -9,6 +9,8 @@
  */
 class inbound_packet_factory {
 
+ private:
+
   /**
    * The End of Text terminator.
    */

@@ -2,7 +2,7 @@
 #include <model/packet/inbound/inbound_packet_factory.h>
 #include <model/packet/inbound/inbound_register_packet.h>
 
-const char EOT = '\3';
+const std::string EOT = std::to_string('\3');
 
 TEST(inbound_packet_factory, from_raw_message__register) {
   auto packet = inbound_packet_factory::from_raw_message(0, "register " + EOT);

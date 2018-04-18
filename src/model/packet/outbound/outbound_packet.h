@@ -1,7 +1,7 @@
 #ifndef PIGRAMMERS_SPREADSHEET_SERVER_OUTBOUND_PACKET_H
 #define PIGRAMMERS_SPREADSHEET_SERVER_OUTBOUND_PACKET_H
 
-#import <string>
+#include <string>
 
 /**
  * Represents a packet sent from the server to one or more clients.

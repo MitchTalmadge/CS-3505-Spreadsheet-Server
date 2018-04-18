@@ -1,5 +1,4 @@
 #include "spreadsheet_controller.h"
-#include <algorithm>
 #include <boost/regex.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/algorithm/string.hpp>
@@ -77,10 +76,7 @@ bool spreadsheet_controller::is_double(const std::string &str) {
   }
 }
 
-std::vector spreadsheet_controller::get_spreadsheets() {
-  // TODO: Update this with actual spreadsheet list.
-  char eot = '\3';
-
-  std::string msg = "connected_accepted ";
-  return msg + eot;
+std::vector<std::string> spreadsheet_controller::get_spreadsheets() {
+  // TODO: List all existing spreadsheet names.
+  return std::vector<std::string>();
 }

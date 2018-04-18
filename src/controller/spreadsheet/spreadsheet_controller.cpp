@@ -1,107 +1,116 @@
 #include "spreadsheet_controller.h"
-#include <algorithm>
 #include <boost/regex.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/algorithm/string.hpp>
+#include <model/packet/inbound/inbound_edit_packet.h>
+#include <model/packet/outbound/outbound_change_packet.h>
+#include <model/packet/outbound/outbound_full_state_packet.h>
+#include <model/packet/inbound/inbound_focus_packet.h>
+#include <model/packet/outbound/outbound_focus_packet.h>
+#include <model/packet/outbound/outbound_unfocus_packet.h>
 
 spreadsheet_controller::spreadsheet_controller() {
 
-    // Start work thread.
-    boost::thread work_thread(&spreadsheet_controller::work, this);
+  // Start work thread.
+  boost::thread work_thread(&spreadsheet_controller::work, this);
 }
 
 spreadsheet_controller::~spreadsheet_controller() = default;
 
 spreadsheet_controller &spreadsheet_controller::get_instance() {
-    static spreadsheet_controller instance; // Instantiated on first-use.
-    return instance;
+  static spreadsheet_controller instance; // Instantiated on first-use.
+  return instance;
 }
 
 void spreadsheet_controller::work() {
 
-    // Iterate over all active spreadsheets
-    for (auto &entry : active_spreadsheets_) {
-        // Check for inbound messages.
-        std::string message = data_container_.get_inbound_message(entry.first);
-        if (!message.empty()) {
-            // Parse inbound message.
-            parse_inbound_message(message, entry.first, *(entry.second));
-        }
+  // Iterate over all active spreadsheets
+  for (auto &entry : active_spreadsheets_) {
+    // Check for inbound messages.
+    auto packet = data_container_.get_inbound_packet(entry.first);
+    if (packet) {
+      // Parse inbound message.
+      parse_inbound_packet(*packet, entry.first, *(entry.second));
     }
+  }
 
-    // Briefly sleep to prevent this from choking machine resources.
-    boost::this_thread::sleep_for(boost::chrono::milliseconds{10});
+  // Briefly sleep to prevent this from choking machine resources.
+  boost::this_thread::sleep_for(boost::chrono::milliseconds{10});
 }
 
-void spreadsheet_controller::parse_inbound_message(const std::string &message, const std::string &spreadsheet_name,
-                                                   spreadsheet &sheet) {
-    static std::string edit_prefix = "edit";
+void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet, const std::string &spreadsheet_name,
+                                                  spreadsheet &sheet) {
 
-    // Check if this is an edit message. Example: "edit A1:=2*3+A2\3"
-    if (message.compare(0, edit_prefix.size(), edit_prefix)) {
-        // Extract contents of message, excluding "edit " and "\3"
-        std::string edit_contents = message.substr(edit_prefix.size() + 1, message.size() - 1);
+  // Handle parsed packet.
+  switch (packet.get_packet_type()) {
+    case inbound_packet::EDIT: {
+      auto edit_packet = dynamic_cast<inbound_edit_packet &>(packet);
 
-        // Split on :
-        std::vector<std::string> split;
-        boost::split(split, edit_contents, boost::is_any_of(":"));
+      // Attempt to assign contents
+      sheet.set_cell_contents(edit_packet.get_cell_name(), edit_packet.get_cell_contents());
 
-        // Verify that the message was formatted correctly.
-        if (split.size() != 2)
-            return;
-
-        // Attempt to assign contents
-        sheet.set_cell_contents(split.front(), split.back());
-
-        // Relay change to all clients
-        data_container_.new_outbound_message(spreadsheet_name,
-                                             "change " + split.front() + ":" + split.back() + ((char) 3));
+      // Relay change to all clients
+      data_container_.new_outbound_packet(spreadsheet_name,
+                                          *new outbound_change_packet(edit_packet.get_cell_name(),
+                                                                      edit_packet.get_cell_contents()));
+      break;
     }
+    case inbound_packet::LOAD: {
+      // TODO: full state
+      data_container_.new_outbound_packet(packet.get_socket_id(),
+                                          *new outbound_full_state_packet(std::map<std::string, std::string>()));
+      break;
+    }
+    case inbound_packet::FOCUS: {
+      auto focus_packet = dynamic_cast<inbound_focus_packet &>(packet);
+      sheet.focus_cell(focus_packet.get_socket_id(), focus_packet.get_cell_name());
+
+      data_container_.new_outbound_packet(spreadsheet_name,
+                                          *new outbound_focus_packet(focus_packet.get_cell_name(),
+                                                                     std::to_string(focus_packet.get_socket_id())));
+    }
+    case inbound_packet::UNFOCUS: {
+      sheet.unfocus_cell(packet.get_socket_id());
+
+      data_container_.new_outbound_packet(spreadsheet_name,
+                                          *new outbound_unfocus_packet(std::to_string(packet.get_socket_id())));
+    }
+    default: {
+      break;
+    }
+  }
+
+  // Dispose of packet.
+  delete &packet;
 }
 
 bool spreadsheet_controller::is_valid_cell_name(const std::string &cell_name) {
 
-    // Define cell name regex pattern.
-    static const boost::regex pattern(R"(^[A-Z][1-9][0-9]?$)");
+  // Define cell name regex pattern.
+  static const boost::regex pattern(R"(^[A-Z][1-9][0-9]?$)");
 
-    // Compare normalized cell name to regex.
-    const std::string normalized_cell_name = spreadsheet_controller::normalize_cell_name(cell_name);
-    boost::smatch match;
-    return boost::regex_search(normalized_cell_name.begin(), normalized_cell_name.end(), match, pattern);
+  // Compare normalized cell name to regex.
+  const std::string normalized_cell_name = spreadsheet_controller::normalize_cell_name(cell_name);
+  boost::smatch match;
+  return boost::regex_search(normalized_cell_name.begin(), normalized_cell_name.end(), match, pattern);
 }
 
 std::string spreadsheet_controller::normalize_cell_name(std::string cellName) {
-    std::transform(cellName.begin(), cellName.end(), cellName.begin(), ::toupper);
-    return cellName;
+  std::transform(cellName.begin(), cellName.end(), cellName.begin(), ::toupper);
+  return cellName;
 }
-
 
 bool spreadsheet_controller::is_double(const std::string &str) {
-    try {
-        // Attempt conversion
-        std::stod(str);
-        return true;
-    } catch (...) {
-        return false;
-    }
+  try {
+    // Attempt conversion
+    std::stod(str);
+    return true;
+  } catch (...) {
+    return false;
+  }
 }
 
-
-std::string spreadsheet_controller::get_spreadsheets() {
-  // TODO: Update this with actual spreadsheet list.
-  char eot = '\3';
-
-  std::string msg = "connect_accepted ";
-  return msg + eot;
-}
-
-
-std::string spreadsheet_controller::get_spreadsheet(std::string) {
-  // TODO: Update this to return actual data for the given spreadsheet.
-  char eot = '\3';
-  std::string full_state = "full_state ";
-
-  // TODO: Handle failure case by returning file_load_error.
-
-  return full_state + eot;
+std::vector<std::string> spreadsheet_controller::get_spreadsheets() {
+  // TODO: List all existing spreadsheet names.
+  return std::vector<std::string>();
 }

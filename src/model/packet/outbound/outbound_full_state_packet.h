@@ -3,7 +3,7 @@
 
 #include <map>
 #include "outbound_packet.h"
-class outbound_full_state_packet : outbound_packet {
+class outbound_full_state_packet : public outbound_packet {
 
   /**
    * Maps all non-empty cells from their names to their contents.

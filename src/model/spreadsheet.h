@@ -10,9 +10,9 @@
  * Used by undo/revert functionality to maintain cell/spreadsheet
  * history.
  */
-struct cell_value {
+struct cell_history {
   std::string cell_name;
-  std::string value;
+  std::string contents;
   bool is_revert;
 };
 
@@ -41,7 +41,7 @@ class spreadsheet {
   /**
    * Hold history of values across spreadsheet to allow undo functionality.
    */
-  std::stack<cell_value> undo_history_;
+  std::stack<cell_history> undo_history_;
 
   /**
    * Hold cell specific history.
@@ -59,7 +59,7 @@ class spreadsheet {
    * Loads a spreadsheet from a file.
    * @param file_path The path to the JSON spreadsheet file.
    */
-  spreadsheet(const std::string &file_path);
+  explicit spreadsheet(const std::string &file_path);
 
   /**
    * Saves this spreadsheet to a JSON file.
@@ -82,27 +82,29 @@ class spreadsheet {
    */
   void set_cell_contents(const std::string &cell_name, const std::string &contents);
 
+  /**
+   * Marks a client as having focused on a particular cell.
+   * @param socket_id The ID of the socket representing the client that is focusing on a cell.
+   * @param cell_name The name of the cell to focus on.
+   */
+  void focus_cell(int socket_id, const std::string &cell_name);
+
+  /**
+   * Removes any focuses for a particular client.
+   * @param socket_id The ID of the socket representing the client that is no longer focusing on a cell.
+   */
+  void unfocus_cell(int socket_id);
+
+  /**
+   * Undo the most recent edit action (i.e., edit message from client or revert).
+   */
+  void undo();
+
+  /**
+   * Revert the most recent edit action for the specified cell.
+   */
+  void revert(const std::string &cell_name);
+
 };
-    /**
-     * Marks a client as having focused on a particular cell.
-     * @param socket_id The ID of the socket representing the client that is focusing on a cell.
-     * @param cell_name The name of the cell to focus on.
-     */
-    void focus_cell(int socket_id, const std::string &cell_name);
-
-    /**
-     * Removes any focuses for a particular client.
-     * @param socket_id The ID of the socket representing the client that is no longer focusing on a cell.
-     */
-    void unfocus_cell(int socket_id);
-    /**
-     * Undo the most recent edit action (i.e., edit message from client or revert).
-     */
-    void undo();
-
-    /**
-     * Revert the most recent edit action for the specified cell.
-     */
-    void revert(const std::string &cell_name);
 
 #endif //PIGRAMMERS_SPREADSHEET_SERVER_SPREADSHEET_H

@@ -33,18 +33,9 @@ void data_container::new_outbound_packet(int socket_id, outbound_packet &packet)
 
   outbound_messages_mutex.lock();
 
-  // First, check if a queue already exists for this socket.
-  auto it = outbound_messages.find(socket_id);
-  if (it != outbound_messages.end()) {
-    // Add the message to the queue.
-    it->second.push(&packet);
-  } else {
-    // Create a new queue and insert the message.
-    std::queue<outbound_packet *> new_queue;
-    new_queue.push(&packet);
-    // Put it in our map.
-    outbound_messages[socket_id] = new_queue;
-  }
+  auto &queue = outbound_messages[socket_id];
+  queue.push(&packet);
+
   outbound_messages_mutex.unlock();
 }
 
@@ -61,21 +52,17 @@ Allow for socket to grab an outbound message to be sent to client.
  */
 outbound_packet *data_container::get_outbound_packet(int socket_id) {
   outbound_messages_mutex.lock();
-  auto it = outbound_messages.find(socket_id);
 
-  if (it != outbound_messages.end()) {
-    if (!outbound_messages[socket_id].empty()) {
-      outbound_packet *msg = outbound_messages[socket_id].front();
-      outbound_messages[socket_id].pop();
+  auto &queue = outbound_messages[socket_id];
 
-      outbound_messages_mutex.unlock();
-      return msg;
-    } else {
-      outbound_messages_mutex.unlock();
-      return nullptr;
-    }
-  } else {
+  if (queue.empty()) {
     outbound_messages_mutex.unlock();
     return nullptr;
   }
+
+  auto packet = queue.front();
+  queue.pop();
+
+  outbound_messages_mutex.unlock();
+  return packet;
 }

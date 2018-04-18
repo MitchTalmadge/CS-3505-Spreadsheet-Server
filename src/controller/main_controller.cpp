@@ -54,20 +54,24 @@ void main_controller::message_callback(int socket_src, std::string message) {
   // Handle parsed packet.
   switch (packet->get_packet_type()) {
 
-    case inbound_packet::REGISTER: std::cout << "Client registered on socket " << socket_src << std::endl;
+    case inbound_packet::REGISTER: {
+      std::cout << "Client registered on socket " << socket_src << std::endl;
+
 
       // Get all existing spreadsheets.
       auto spreadsheets = spreadsheet_controller_.get_spreadsheets();
 
       // Respond to the client.
-      data_container_.new_outbound_packet(socket_src, *new outbound_connect_accepted_packet(spreadsheets)
-      );
+      data_container_.new_outbound_packet(socket_src, *new outbound_connect_accepted_packet(spreadsheets));
 
       // Dispose of packet.
       delete packet;
 
       break;
-
-    default:data_container_.new_inbound_packet(*packet);
+    }
+    default: {
+      data_container_.new_inbound_packet(*packet);
+      break;
+    }
   }
 }

@@ -10,7 +10,6 @@ Coordinate model/client activity, specifically:
 #include "main_controller.h"
 #include <iostream>
 #include <boost/regex.hpp>
-#include <model/packet/inbound_packet.h>
 
 main_controller &main_controller::get_instance() {
     static main_controller instance;

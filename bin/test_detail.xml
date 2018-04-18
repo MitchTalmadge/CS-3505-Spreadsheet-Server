@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuites tests="3" failures="0" disabled="0" errors="0" time="0.001" name="AllTests">
-  <testsuite name="spreadsheet_controller" tests="3" failures="0" disabled="0" errors="0" time="0">
-    <testcase name="normalize_cell_name__Comprehensive" status="run" time="0" classname="spreadsheet_controller" />
-    <testcase name="is_valid_cell_name__Valid_Names" status="run" time="0" classname="spreadsheet_controller" />
-    <testcase name="is_valid_cell_name__Invalid_Names" status="run" time="0" classname="spreadsheet_controller" />
-  </testsuite>
-</testsuites>

@@ -1,4 +1,0 @@
-/home/u0920663/CS3505/spreadsheet/server/bin/CMakeFiles/rebuild_cache.dir
-/home/u0920663/CS3505/spreadsheet/server/bin/CMakeFiles/edit_cache.dir
-/home/u0920663/CS3505/spreadsheet/server/bin/CMakeFiles/server_test.dir
-/home/u0920663/CS3505/spreadsheet/server/bin/CMakeFiles/server.dir

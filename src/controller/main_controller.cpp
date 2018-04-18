@@ -10,10 +10,7 @@ Coordinate model/client activity, specifically:
 #include "main_controller.h"
 #include <iostream>
 #include <boost/regex.hpp>
-#include <model/packet/inbound/inbound_packet.h>
 #include <model/packet/inbound/inbound_packet_factory.h>
-#include <model/packet/inbound/inbound_register_packet.h>
-#include <model/packet/inbound/inbound_load_packet.h>
 #include <model/packet/outbound/outbound_connect_accepted_packet.h>
 
 main_controller &main_controller::get_instance() {
@@ -55,16 +52,18 @@ void main_controller::message_callback(int socket_src, std::string message) {
     return;
 
   // Handle parsed packet.
-  if (auto register_packet = dynamic_cast<inbound_register_packet &>(packet_optional.get())) {
-    // Client registration.
-    std::cout << "Client registered on socket " << socket_src << std::endl;
+  switch (packet_optional.get().get_packet_type()) {
 
-    // Get all existing spreadsheets.
-    auto spreadsheets = spreadsheet_controller_.get_spreadsheets();
+    case inbound_packet::REGISTER:
+      // Client registration.
+      std::cout << "Client registered on socket " << socket_src << std::endl;
 
-    // Respond to the client.
-    data_container_.new_outbound_packet(socket_src, outbound_connect_accepted_packet(spreadsheets));
-  } else {
-    data_container_.new_inbound_packet(packet_optional.get());
+      // Get all existing spreadsheets.
+      auto spreadsheets = spreadsheet_controller_.get_spreadsheets();
+
+      // Respond to the client.
+      data_container_.new_outbound_packet(socket_src, outbound_connect_accepted_packet(spreadsheets));
+
+    default:data_container_.new_inbound_packet(packet_optional.get());
   }
 }

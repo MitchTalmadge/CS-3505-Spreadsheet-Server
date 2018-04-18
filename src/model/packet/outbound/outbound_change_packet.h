@@ -19,9 +19,9 @@ class outbound_change_packet : public outbound_packet {
 
   outbound_change_packet(const std::string &cell_name, const std::string &cell_contents);
 
- private:
+  outbound_packet_type get_packet_type() override;
+
   std::string get_raw_message() override;
- public:
 
   const std::string &get_cell_name() const;
 

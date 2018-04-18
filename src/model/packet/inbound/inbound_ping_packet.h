@@ -7,9 +7,12 @@
  * Represents a ping sent from client to server.
  */
 class inbound_ping_packet : public inbound_packet {
+
  public:
 
   inbound_ping_packet(int socket_id, const std::string &raw_message);
+
+  inbound_packet_type get_packet_type() const override;
 
 };
 

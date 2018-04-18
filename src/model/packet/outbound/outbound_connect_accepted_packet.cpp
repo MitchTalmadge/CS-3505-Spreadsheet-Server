@@ -4,6 +4,10 @@
 outbound_connect_accepted_packet::outbound_connect_accepted_packet(const std::vector<std::string> &spreadsheet_names)
     : spreadsheet_names_(spreadsheet_names) {}
 
+outbound_packet::outbound_packet_type outbound_connect_accepted_packet::get_packet_type() {
+  return CONNECT_ACCEPTED;
+}
+
 std::string outbound_connect_accepted_packet::get_raw_message() {
   std::string response = "connect_accepted ";
 

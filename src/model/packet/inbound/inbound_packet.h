@@ -24,7 +24,26 @@ class inbound_packet {
 
  public:
 
-  virtual ~inbound_packet() = default;
+  /**
+   * Represents the type of the packet, to avoid costly casting checks.
+   */
+  enum inbound_packet_type {
+    REGISTER,
+    DISCONNECT,
+    LOAD,
+    PING,
+    PING_RESPONSE,
+    EDIT,
+    FOCUS,
+    UNFOCUS,
+    UNDO,
+    REVERT
+  };
+
+  /**
+   * @return The type of the packet.
+   */
+  virtual inbound_packet_type get_packet_type() const = 0;
 
   int get_socket_id() const;
 

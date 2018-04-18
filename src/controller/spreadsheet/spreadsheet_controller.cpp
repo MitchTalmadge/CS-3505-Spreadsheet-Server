@@ -3,8 +3,8 @@
 #include <boost/thread/thread.hpp>
 #include <boost/algorithm/string.hpp>
 #include <model/packet/inbound/inbound_edit_packet.h>
-#include <model/packet/inbound/inbound_load_packet.h>
 #include <model/packet/outbound/outbound_change_packet.h>
+#include <model/packet/outbound/outbound_full_state_packet.h>
 
 spreadsheet_controller::spreadsheet_controller() {
 
@@ -37,16 +37,27 @@ void spreadsheet_controller::work() {
 
 void spreadsheet_controller::parse_inbound_packet(inbound_packet packet, const std::string &spreadsheet_name,
                                                   spreadsheet &sheet) {
-  if (auto edit_packet = dynamic_cast<inbound_edit_packet &>(packet)) {
-    // Attempt to assign contents
-    sheet.set_cell_contents(edit_packet.get_cell_name(), edit_packet.get_cell_contents());
 
-    // Relay change to all clients
-    data_container_.new_outbound_packet(spreadsheet_name,
-                                        outbound_change_packet(edit_packet.get_cell_name(),
-                                                               edit_packet.get_cell_contents()));
-  } else if (auto load_packet = dynamic_cast<inbound_load_packet &>(packet)) {
-    // full_state
+  // Handle parsed packet.
+  switch (packet.get_packet_type()) {
+    case inbound_packet::EDIT:auto edit_packet = dynamic_cast<inbound_edit_packet &>(packet);
+
+      // Attempt to assign contents
+      sheet.set_cell_contents(edit_packet.get_cell_name(), edit_packet.get_cell_contents());
+
+      // Relay change to all clients
+      data_container_.new_outbound_packet(spreadsheet_name,
+                                          outbound_change_packet(edit_packet.get_cell_name(),
+                                                                 edit_packet.get_cell_contents()));
+      break;
+
+    case inbound_packet::LOAD:
+      // TODO: full state
+      data_container_.new_outbound_packet(packet.get_socket_id(),
+                                          outbound_full_state_packet(std::map<std::string, std::string>()));
+      break;
+
+    default: break;
   }
 }
 

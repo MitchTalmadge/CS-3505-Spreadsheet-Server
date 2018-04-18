@@ -17,6 +17,8 @@ class inbound_revert_packet : public inbound_packet {
 
   inbound_revert_packet(int socket_id, const std::string &raw_message, const std::string &cell_name);
 
+  inbound_packet_type get_packet_type() const override;
+
   const std::string &get_cell_name() const;
 
 };

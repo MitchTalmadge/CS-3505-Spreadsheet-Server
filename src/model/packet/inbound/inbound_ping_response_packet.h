@@ -13,6 +13,8 @@ class inbound_ping_response_packet : public inbound_packet {
 
   inbound_ping_response_packet(int socket_id, const std::string &raw_message);
 
+  inbound_packet_type get_packet_type() const override;
+
 };
 
 #endif //PIGRAMMERS_SPREADSHEET_SERVER_INBOUND_PING_RESPONSE_PACKET_H

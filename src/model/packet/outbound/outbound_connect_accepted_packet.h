@@ -15,9 +15,9 @@ class outbound_connect_accepted_packet : public outbound_packet {
 
   explicit outbound_connect_accepted_packet(const std::vector<std::string> &spreadsheet_names);
 
- private:
+  outbound_packet_type get_packet_type() override;
+
   std::string get_raw_message() override;
- public:
 
   const std::vector<std::string> &get_spreadsheet_names() const;
 

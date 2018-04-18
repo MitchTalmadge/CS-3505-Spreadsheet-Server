@@ -18,9 +18,29 @@ class outbound_packet {
  public:
 
   /**
+   * Represents the type of the packet, to avoid costly casting checks.
+   */
+  enum outbound_packet_type {
+    CONNECT_ACCEPTED,
+    FILE_LOAD_ERROR,
+    DISCONNECT,
+    PING,
+    PING_RESPONSE,
+    FULL_STATE,
+    CHANGE,
+    FOCUS,
+    UNFOCUS
+  };
+
+  /**
+   * @return The type of the packet.
+   */
+  virtual outbound_packet_type get_packet_type() = 0;
+
+  /**
    * @return The raw message to be sent, including an EOT terminator (\3).
    */
-  virtual std::string get_raw_message();
+  virtual std::string get_raw_message() = 0;
 
 };
 

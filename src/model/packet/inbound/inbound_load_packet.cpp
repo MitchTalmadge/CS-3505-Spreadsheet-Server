@@ -5,6 +5,10 @@ inbound_load_packet::inbound_load_packet(int socket_id, const std::string &raw_m
                                                                                                raw_message),
                                                                                 spreadsheet_name_(spreadsheet_name) {}
 
+inbound_packet::inbound_packet_type inbound_load_packet::get_packet_type() const {
+  return LOAD;
+}
+
 const std::string &inbound_load_packet::get_spreadsheet_name() const {
   return spreadsheet_name_;
 }

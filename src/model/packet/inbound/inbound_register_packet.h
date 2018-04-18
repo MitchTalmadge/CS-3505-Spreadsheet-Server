@@ -7,9 +7,12 @@
  * Represents a client joining the server.
  */
 class inbound_register_packet : public inbound_packet {
+
  public:
 
   inbound_register_packet(int socket_id, const std::string &raw_message);
+
+  inbound_packet_type get_packet_type() const override;
 
 };
 

@@ -17,6 +17,8 @@ class inbound_load_packet : public inbound_packet {
 
   inbound_load_packet(int socket_id, const std::string &raw_message, const std::string &spreadsheet_name);
 
+  inbound_packet_type get_packet_type() const override;
+
   const std::string &get_spreadsheet_name() const;
 
 };

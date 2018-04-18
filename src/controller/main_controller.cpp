@@ -10,6 +10,7 @@ Coordinate model/client activity, specifically:
 #include "main_controller.h"
 #include <iostream>
 #include <boost/regex.hpp>
+#include <model/packet/inbound_packet.h>
 
 main_controller &main_controller::get_instance() {
     static main_controller instance;
@@ -44,27 +45,9 @@ Handle a message arriving from a client. Specifically:
 void main_controller::message_callback(int socket_src, std::string message) {
   // End of text character.
   char eot = '\3';
-    
-    std::string register_str = "register ";
-    boost::regex register_msg{ register_str + eot };
-    std::string disconnect_str = "disconnect ";
-    boost::regex disconnect{ disconnect_str + eot };
-    std::string load_str = "load .+";
-    boost::regex load{ load_str + eot };
-    std::string ping_str = "ping ";
-    boost::regex ping{ ping_str + eot };
-    std::string ping_response_str = "ping_response ";
-    boost::regex ping_response{ ping_response_str + eot };
-    std::string edit_str = "edit [a-zA-Z][1-9][0-9]?:.*";
-    boost::regex edit{ edit_str + eot };
-    std::string focus_str = "focus [a-zA-Z][1-9][0-9]?";
-    boost::regex focus{ focus_str + eot };
-    std::string unfocus_str = "unfocus [a-zA-Z][1-9][0-9]?";
-    boost::regex unfocus{ unfocus_str + eot };
-    std::string undo_str = "undo ";
-    boost::regex undo{ undo_str + eot };
-    std::string revert_str = "revert [a-zA-Z][1-9][0-9]?";
-    boost::regex revert{ revert_str + eot };
+
+  // Parse the inbound packet.
+  inbound_packet packet_in = parse(message);
 
     if (boost::regex_match(message, register_msg)) {
       // New client registering. Send it a connect_accepted message.

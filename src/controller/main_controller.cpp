@@ -45,16 +45,12 @@ Handle a message arriving from a client. Specifically:
  */
 void main_controller::message_callback(int socket_src, std::string message) {
 
-  std::cout << "Parsing message..." << std::endl;
   auto packet = inbound_packet_factory::from_raw_message(socket_src, message);
 
   // Check if packet was parsed.
   if (!packet) {
-    std::cout << "Message was not able to be parsed." << std::endl;
     return;
   }
-
-  std::cout << "Message parsed as " << packet->get_packet_type() << std::endl;
 
   // Handle parsed packet.
   switch (packet->get_packet_type()) {

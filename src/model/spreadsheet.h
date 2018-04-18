@@ -3,6 +3,18 @@
 
 #include <string>
 #include <map>
+#include <stack>
+
+/**
+ * Simple struct to hold the value of a cell at a given time.
+ * Used by undo/revert functionality to maintain cell/spreadsheet
+ * history.
+ */
+struct cell_value {
+  std::string cell_name;
+  std::string value;
+  bool is_revert;
+};
 
 /**
  * Represents one collaborative Spreadsheet and all its contents.
@@ -25,6 +37,16 @@ class spreadsheet {
      * If a socket is not focusing on a cell, they will not have a key in this map.
      */
     std::map<int, std::string> focused_cells_;
+
+    /**
+     * Hold history of values across spreadsheet to allow undo functionality.
+     */
+    std::stack<cell_value> undo_history_;
+
+    /**
+     * Hold cell specific history.
+     */
+    std::map<std::string, std::stack<std::string>> revert_history_;
 
 public:
 
@@ -72,6 +94,16 @@ public:
      * @param socket_id The ID of the socket representing the client that is no longer focusing on a cell.
      */
     void unfocus_cell(int socket_id);
+
+    /**
+     * Undo the most recent edit action (i.e., edit message from client or revert).
+     */
+    void undo();
+
+    /**
+     * Revert the most recent edit action for the specified cell.
+     */
+    void revert(const std::string &cell_name);
 
 };
 

@@ -5,6 +5,9 @@
 #include <model/packet/inbound/inbound_edit_packet.h>
 #include <model/packet/outbound/outbound_change_packet.h>
 #include <model/packet/outbound/outbound_full_state_packet.h>
+#include <model/packet/inbound/inbound_focus_packet.h>
+#include <model/packet/outbound/outbound_focus_packet.h>
+#include <model/packet/outbound/outbound_unfocus_packet.h>
 
 spreadsheet_controller::spreadsheet_controller() {
 
@@ -57,6 +60,20 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet, const 
       data_container_.new_outbound_packet(packet.get_socket_id(),
                                           *new outbound_full_state_packet(std::map<std::string, std::string>()));
       break;
+    }
+    case inbound_packet::FOCUS: {
+      auto focus_packet = dynamic_cast<inbound_focus_packet &>(packet);
+      sheet.focus_cell(focus_packet.get_socket_id(), focus_packet.get_cell_name());
+
+      data_container_.new_outbound_packet(spreadsheet_name,
+                                          *new outbound_focus_packet(focus_packet.get_cell_name(),
+                                                                     std::to_string(focus_packet.get_socket_id())));
+    }
+    case inbound_packet::UNFOCUS: {
+      sheet.unfocus_cell(packet.get_socket_id());
+
+      data_container_.new_outbound_packet(spreadsheet_name,
+                                          *new outbound_unfocus_packet(std::to_string(packet.get_socket_id())));
     }
     default: {
       break;

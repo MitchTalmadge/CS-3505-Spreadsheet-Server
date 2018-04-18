@@ -23,7 +23,7 @@ Startup has two main roles:
 1. Setup our Main Controller which handles coordination between model and active network connections.
 2. Setup the listening socket that listens for new connections.
  */
-void tcp_server::startup() {
+bool tcp_server::startup() {
     // Start TCP server listening for connections:
 
     // AF_INET - use IPv4.
@@ -33,7 +33,7 @@ void tcp_server::startup() {
 
     if (server_fd < 0) {
         std::cout << "Socket failed to create." << std::endl;
-        return;
+        return false;
     }
 
     // Create a sockaddr_in struct that determines the port and address of the server socket.
@@ -47,18 +47,20 @@ void tcp_server::startup() {
     int res = setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
     if (res < 0) {
         std::cout << "Failed to set socket settings correctly." << std::endl;
+	return false;
     }
 
     // Bind our server socket to the address/port specified above.
     res = bind(server_fd, (struct sockaddr *) &address, sizeof(address));
     if (res < 0) {
         std::cout << "Failed to bind socket to address." << std::endl;
-        std::cout << errno << " : " << EADDRINUSE << std::endl;
+	return false;
     }
 
     // Set the server socket up to listen for incoming requests. Queue up to 5 connections.
     if (listen(server_fd, 5) < 0) {
         std::cout << "Failed to set socket to listen mode." << std::endl;
+	return false;
     }
 
     std::cout << "Set up socket to listen for new connections." << std::endl;
@@ -66,6 +68,8 @@ void tcp_server::startup() {
     // Start a thread to handle continuously checking for new connections.
     worker_thread = boost::thread(&tcp_server::server_work,
                                   this); // this is the implicit first argument for any member function.
+
+    return true;
 }
 
 /*

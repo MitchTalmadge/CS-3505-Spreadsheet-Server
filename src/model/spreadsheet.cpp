@@ -38,12 +38,9 @@ spreadsheet::spreadsheet(const std::string &file_path) {
 
   // Iterate over each split item and map cells.
   for (auto item = split.begin(); item != split.end(); ++item) {
-    cell_contents_[*item] = *(++item);
-  }
-
-  // Debug, print out contents
-  for (auto &&contents_ : cell_contents_) {
-    std::cout << contents_.first << ":" << contents_.second << std::endl;
+    auto &key = *item;
+    auto &value = *++item;
+    cell_contents_[key] = value;
   }
 
   loaded_ = true;

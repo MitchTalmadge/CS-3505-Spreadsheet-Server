@@ -2,6 +2,7 @@
 #include <controller/spreadsheet/spreadsheet_controller.h>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
+#include <fstream>
 
 spreadsheet::spreadsheet() = default;
 

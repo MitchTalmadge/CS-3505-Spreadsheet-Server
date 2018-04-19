@@ -136,6 +136,9 @@ boost::optional<std::pair<std::string, std::string> > spreadsheet::undo() {
   if (!undo_history_.empty()) {
     cell_history undo = undo_history_.top();
 
+    // Get current value of cell to put back in the revert stack if necessary.
+    std::string current_contents = cell_contents_[spreadsheet_controller::normalize_cell_name(undo.cell_name)];
+
     // Set contents ourselves and DON'T place current contents on undo stack - undos are destructive.
     cell_contents_[spreadsheet_controller::normalize_cell_name(undo.cell_name)] = undo.contents;
 
@@ -143,6 +146,10 @@ boost::optional<std::pair<std::string, std::string> > spreadsheet::undo() {
     // to maintain consistency.
     if (!undo.is_revert) {
       revert_history_[undo.cell_name].pop();
+    } else {
+      // If the undo is a revert, push the current value onto the revert stack for that cell, thus fully
+      // undoing the revert.
+      revert_history_[undo.cell_name].push(current_contents);
     }
 
     // Remove element from undo stack.

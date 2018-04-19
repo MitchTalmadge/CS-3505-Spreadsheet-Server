@@ -34,35 +34,3 @@ void main_controller::handle_client(int socket_id) {
   // Forward the new socket to the network controller who sets up a communication loop.
   network_controller_.start_work(socket_id);
 }
-
-/*
-Handle a message arriving from a client. Specifically:
-- If a register, queue an outgoing message with list of spreadsheets.
-- If a load, determine if new model necessary.
-- Handle disconnects. (How?)
-- Forward edits into the corresponding spreadsheets inbound queue.
- */
-void main_controller::message_callback(int socket_src, std::string message) {
-  auto packet = inbound_packet_factory::from_raw_message(socket_src, message);
-
-  // Check if packet was parsed.
-  if (!packet) {
-    return;
-  }
-
-  // Handle parsed packet.
-  switch (packet->get_packet_type()) {
-
-    case inbound_packet::PING: {
-      data_container_.new_outbound_packet(packet->get_socket_id(), *new outbound_ping_response_packet());
-      break;
-    }
-    default: {
-      data_container_.new_inbound_packet(*packet);
-      return;
-    }
-  }
-
-  // Dispose of packet.
-  delete packet;
-}

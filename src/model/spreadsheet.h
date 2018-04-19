@@ -5,6 +5,7 @@
 #include <map>
 #include <stack>
 #include <fstream>
+#include <boost/optional/optional.hpp>
 
 /**
  * Simple struct to hold the value of a cell at a given time.
@@ -106,13 +107,15 @@ class spreadsheet {
 
   /**
    * Undo the most recent edit action (i.e., edit message from client or revert).
+   * @return The updated cell name and contents as a result of the undo.
    */
-  void undo();
+  boost::optional<std::pair<std::string, std::string> > undo();
 
   /**
    * Revert the most recent edit action for the specified cell.
+   * @return The updated cell name and contents as a result of the revert.
    */
-  void revert(const std::string &cell_name);
+  boost::optional<std::pair<std::string, std::string> > revert(const std::string &cell_name);
 
 };
 

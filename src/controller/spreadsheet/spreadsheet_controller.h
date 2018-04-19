@@ -19,10 +19,16 @@ class spreadsheet_controller {
   static const std::string FILE_DIR_PATH;
 
   /**
+   * The number of ticks left until all spreadsheets should be saved.
+   * Initialized to 3 minutes worth of ticks.
+   */
+  int save_countdown_ = 18000;
+
+  /**
    * Contains all spreadsheets which are active, meaning they have been loaded by a client.
    * Maps spreadsheet file names to spreadsheet instances.
    */
-  std::map<const std::string, spreadsheet> active_spreadsheets_;
+  std::map<const std::string, spreadsheet *> active_spreadsheets_;
 
   /**
    * The data container that interfaces between the network controller and spreadsheet controller.
@@ -51,6 +57,11 @@ class spreadsheet_controller {
    * @param sheet The spreadsheet instance.
    */
   void parse_inbound_packet(inbound_packet &packet, const std::string &spreadsheet_name, spreadsheet &sheet);
+
+  /**
+   * Saves all active spreadsheets one at a time.
+   */
+  void save_all_spreadsheets() const;
 
  public:
 

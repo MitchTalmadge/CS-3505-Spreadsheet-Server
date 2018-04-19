@@ -17,10 +17,12 @@ spreadsheet_controller::spreadsheet_controller() {
 
   // Load all existing spreadsheets.
   boost::filesystem::directory_iterator end;
-  for (boost::filesystem::directory_iterator item(spreadsheet_controller::FILE_DIR_PATH); item != end; ++item) {
-    spreadsheet sheet(item->path().string());
-    if (sheet.is_loaded()) {
-      active_spreadsheets_[item->path().filename().string()] = sheet;
+  for (boost::filesystem::directory_iterator item(FILE_DIR_PATH); item != end; ++item) {
+    spreadsheet *sheet = new spreadsheet(item->path().string());
+    if (sheet->is_loaded()) {
+      active_spreadsheets_[item->path().stem().string()] = sheet;
+    } else {
+      delete sheet;
     }
   }
 
@@ -28,7 +30,15 @@ spreadsheet_controller::spreadsheet_controller() {
   boost::thread work_thread(&spreadsheet_controller::work, this);
 }
 
-spreadsheet_controller::~spreadsheet_controller() = default;
+spreadsheet_controller::~spreadsheet_controller() {
+  // Save all spreadsheets.
+  save_all_spreadsheets();
+
+  // Delete all spreadsheets.
+  for (auto &&item : active_spreadsheets_) {
+    delete item.second;
+  }
+};
 
 spreadsheet_controller &spreadsheet_controller::get_instance() {
   static spreadsheet_controller instance; // Instantiated on first-use.
@@ -43,8 +53,17 @@ void spreadsheet_controller::work() {
     auto packet = data_container_.get_inbound_packet(entry.first);
     if (packet) {
       // Parse inbound message.
-      parse_inbound_packet(*packet, entry.first, entry.second);
+      parse_inbound_packet(*packet, entry.first, *entry.second);
     }
+  }
+
+  // Check if we should save.
+  if (save_countdown_ <= 0) {
+    // Reset counter.
+    save_countdown_ = 18000;
+
+    // Save all spreadsheets.
+    save_all_spreadsheets();
   }
 
   // Briefly sleep to prevent this from choking machine resources.
@@ -73,7 +92,7 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet, const 
 
       // If a spreadsheet is not loaded, it will be created automatically via the operator[] accessor of the map.
       data_container_.new_outbound_packet(packet.get_socket_id(),
-                                          *new outbound_full_state_packet(active_spreadsheets_[load_packet.get_spreadsheet_name()].get_non_empty_cells()));
+                                          *new outbound_full_state_packet(active_spreadsheets_[load_packet.get_spreadsheet_name()]->get_non_empty_cells()));
       break;
     }
     case inbound_packet::FOCUS: {
@@ -97,6 +116,12 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet, const 
 
   // Dispose of packet.
   delete &packet;
+}
+
+void spreadsheet_controller::save_all_spreadsheets() const {
+  for (auto &&item : active_spreadsheets_) {
+    item.second->save_to_file(FILE_DIR_PATH + "/" + item.first + ".sprd");
+  }
 }
 
 bool spreadsheet_controller::is_valid_cell_name(const std::string &cell_name) {

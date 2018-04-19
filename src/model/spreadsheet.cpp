@@ -2,6 +2,7 @@
 #include <controller/spreadsheet/spreadsheet_controller.h>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
+#include <iostream>
 
 spreadsheet::spreadsheet() {
   loaded_ = true;
@@ -38,6 +39,11 @@ spreadsheet::spreadsheet(const std::string &file_path) {
   // Iterate over each split item and map cells.
   for (auto item = split.begin(); item != split.end(); ++item) {
     cell_contents_[*item] = *(++item);
+  }
+
+  // Debug, print out contents
+  for (auto &&contents_ : cell_contents_) {
+    std::cout << contents_.first << ":" << contents_.second << std::endl;
   }
 
   loaded_ = true;

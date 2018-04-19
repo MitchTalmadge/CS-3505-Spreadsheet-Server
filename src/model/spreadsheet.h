@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include <stack>
+#include <fstream>
 
 /**
  * Simple struct to hold the value of a cell at a given time.

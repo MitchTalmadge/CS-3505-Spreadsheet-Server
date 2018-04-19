@@ -21,6 +21,10 @@ void data_container::new_inbound_packet(inbound_packet &packet) {
   inbound_packets_.push(&packet);
 }
 
+data_container::~data_container() {
+  // Free up inbound and outbound data queue memory.
+}
+
 /*
 Allow the model to get a message for the given string spreadsheet.
  */

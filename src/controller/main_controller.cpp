@@ -19,14 +19,6 @@ main_controller &main_controller::get_instance() {
 }
 
 /*
-Clean up the main controller. Specifically, tell the network controller
-and models to shut down.
- */
-void main_controller::shut_down() {
-  spreadsheet_controller::shut_down();
-}
-
-/*
 When a new client is connected for the given spreadsheet, forward it to our network controller
 who will control the interactions with it.
  */

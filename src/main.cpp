@@ -38,8 +38,6 @@ int main(int argc, char **argv) {
             if (input == "shutdown") {
 	      std::cout << "Shutting down server." << std::endl;
 
-	      // Shut everything down cleanly.
-	      server.shut_down();
 	      return 0;
             } else {
                 // Default unsupported message.

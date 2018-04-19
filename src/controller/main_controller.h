@@ -33,16 +33,13 @@ class main_controller {
    */
   spreadsheet_controller &spreadsheet_controller_ = spreadsheet_controller::get_instance();
 
-  // List of all spreadsheets.
-  std::vector<std::string> spreadsheets;
-
   /**
    * Private constructor for singleton pattern.
    */
   main_controller() = default;
 
   /**
-   * Private destructor for singleton pattern.
+   * Clean up and signal shutdown to children.
    */
   ~main_controller() = default;
 
@@ -65,10 +62,6 @@ class main_controller {
 
   // Handle a new client connecting.
   void handle_client(int socket_id);
-
-  // Shutdown the controller and it's components.
-  void shut_down();
-
 };
 
 #endif

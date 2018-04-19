@@ -16,8 +16,6 @@
 
 const std::string spreadsheet_controller::FILE_DIR_PATH = "saves";
 
-bool spreadsheet_controller::instance_alive_ = true;
-
 spreadsheet_controller::spreadsheet_controller() {
 
   // Load all existing spreadsheets.
@@ -33,14 +31,15 @@ spreadsheet_controller::spreadsheet_controller() {
   }
 
   // Start work thread.
-  boost::thread work_thread(&spreadsheet_controller::work, this);
+  worker_thread = new boost::thread(&spreadsheet_controller::work, this);
 }
 
 spreadsheet_controller::~spreadsheet_controller() {
-  instance_alive_ = false;
+  // Interrupt the worker thread.
+  worker_thread->interrupt();
 
   // Save all spreadsheets.
-  get_instance().save_all_spreadsheets();
+  save_all_spreadsheets();
 
   // Delete all spreadsheets.
   for (auto &&item : active_spreadsheets_) {
@@ -53,16 +52,9 @@ spreadsheet_controller &spreadsheet_controller::get_instance() {
   return instance;
 }
 
-void spreadsheet_controller::shut_down() {
-  delete &get_instance();
-}
-
 void spreadsheet_controller::work() {
 
   while (true) {
-    if (!instance_alive_)
-      break;
-
     // Get an inbound packet.
     auto packet = data_container_.get_inbound_packet();
     if (packet)

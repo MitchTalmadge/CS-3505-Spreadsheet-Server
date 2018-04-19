@@ -5,6 +5,7 @@
 #include <vector>
 #include <model/spreadsheet.h>
 #include <controller/data_container.h>
+#include <boost/thread/thread.hpp>
 
 /**
  * Controller for all the available and loaded spreadsheets.
@@ -19,15 +20,15 @@ class spreadsheet_controller {
   static const std::string FILE_DIR_PATH;
 
   /**
-   * Whether the instance is currently alive. (Has not been shut down).
-   */
-  static bool instance_alive_;
-
-  /**
    * The number of ticks left until all spreadsheets should be saved.
    * Initialized to 3 minutes worth of ticks.
    */
   int save_countdown_ = 18000;
+
+  /**
+   * The worker thread that runs the spreadsheet controller work loop.
+   */
+  boost::thread* worker_thread;
 
   /**
    * Contains all spreadsheets which are active, meaning they have been loaded by a client.
@@ -91,11 +92,6 @@ class spreadsheet_controller {
    * @return The singleton instance of this controller.
    */
   static spreadsheet_controller &get_instance();
-
-  /**
-   * Shuts down and disposes of this singleton.
-   */
-  static void shut_down();
 
   /**
    * Deleted copy constructor since this is a singleton.

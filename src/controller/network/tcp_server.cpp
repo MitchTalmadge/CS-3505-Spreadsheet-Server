@@ -9,6 +9,7 @@ which handles setting up the network/model components for connected clients.
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <iostream>
+#include <boost/chrono.hpp>
 
 /*
 Create a new TCP Server. Here we set the port number and can handle any other setup required.
@@ -63,10 +64,16 @@ bool tcp_server::startup() {
     return false;
   }
 
+  // Make the listening socket non-blocking to allow for clean shut down.
+  if (!network_controller::set_socket_non_blocking(server_fd)) {
+    std::cout << "Failed to set listening socket to non-blocking." << std::endl;
+    return false;
+  }
+
   std::cout << "Set up socket to listen for new connections." << std::endl;
 
   // Start a thread to handle continuously checking for new connections.
-  worker_thread = boost::thread(&tcp_server::server_work,
+  worker_thread = new boost::thread(&tcp_server::server_work,
                                 this); // this is the implicit first argument for any member function.
 
   return true;
@@ -87,6 +94,9 @@ void tcp_server::server_work() {
       std::cout << "New connection received." << std::endl;
       main_controller_.handle_client(new_socket);
     }
+
+    // Briefly sleep to prevent this from choking machine resources.
+    boost::this_thread::sleep_for(boost::chrono::milliseconds{10});
   }
 }
 
@@ -94,11 +104,13 @@ void tcp_server::server_work() {
 Shut down the tcp_server, that is, the listening socket. Then forward the shutdown to the main
 controller.
  */
-void tcp_server::shut_down() {
+tcp_server::~tcp_server() {
+  // Interrupt the server work loop - this will interrupt next time it sleeps.
+  worker_thread->interrupt();
+  delete worker_thread;
+
   // Shutdown our socket.
-  shutdown(this->server_fd, SHUT_RDWR);
-
-  main_controller_.shut_down();
-
-  // TODO: tell main controller to shut down.
+  close(server_fd);
 }
+
+

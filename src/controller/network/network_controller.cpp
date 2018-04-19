@@ -64,6 +64,15 @@ void network_controller::socket_work_loop(int socket_id) {
 
           break;
         }
+      case inbound_packet::DISCONNECT: {
+	std::cout << "Disconnecting client on socket " <<  socket_id << std::endl;
+	
+	// Shut down the socket.
+	close(socket_id);
+
+	// Return which will end this thread.
+	return;
+      }
         default: {
           data_container_.new_inbound_packet(*packet);
           break;
@@ -90,16 +99,53 @@ void network_controller::socket_work_loop(int socket_id) {
       write(socket_id, msg, strlen(msg) * sizeof(char));
     }
 
-    // Briefly sleep to prevent this from choking machine resources.
-    boost::this_thread::sleep_for(boost::chrono::milliseconds{10});
+    try {
+      // Briefly sleep to prevent this from choking machine resources.
+      boost::this_thread::sleep_for(boost::chrono::milliseconds{10});
+    } catch (boost::thread_interrupted interruption) {
+      	std::cout << "Shutting down client on socket " <<  socket_id << std::endl;
+	
+	// Shut down the socket.
+	close(socket_id);
+
+	// Return which will end this thread.
+	return;
+    }
   }
 }
 
 /*
-Helper to set the socket associated with the provided socket id to non-blocking
-to allow our work loop to work correctly.
+When a new client connects, determine whether to create a new queue for a new
+spreadsheet, then setup a loop listening on the new socket for communications.
  */
-bool set_socket_non_blocking(int socket_id) {
+void network_controller::start_work(int socket_id) {
+  bool set_non_blocking = network_controller::set_socket_non_blocking(socket_id);
+
+  // If something went wrong, close the socket.
+  if (!set_non_blocking) {
+    std::cout << "Error in setting up socket. Closing connection..." << std::endl;
+    shutdown(socket_id, SHUT_RDWR);
+  }
+
+  // Start a thread that can listen in on the given socket.
+  boost::thread* work_thread = new boost::thread(&network_controller::socket_work_loop, this, socket_id);
+
+  // Add thread to list of active threads.
+  worker_threads_.push_back(work_thread);
+}
+
+/*
+Clean up and shut down.
+ */
+network_controller::~network_controller() {
+  // Interrupt and delete all our threads.
+  for (auto &thread : worker_threads_) {
+    thread->interrupt();
+    delete thread;
+  }
+}
+
+bool network_controller::set_socket_non_blocking(int socket_id) {
   // Get current socket flags.
   int flags = fcntl(socket_id, F_GETFL, 0);
 
@@ -109,28 +155,4 @@ bool set_socket_non_blocking(int socket_id) {
   // Now set the socket to non-blocking.
   flags = flags | O_NONBLOCK;
   return (fcntl(socket_id, F_SETFL, flags) == 0) ? true : false;
-}
-
-/*
-When a new client connects, determine whether to create a new queue for a new
-spreadsheet, then setup a loop listening on the new socket for communications.
- */
-void network_controller::start_work(int socket_id) {
-  bool set_non_blocking = set_socket_non_blocking(socket_id);
-
-  // If something went wrong, close the socket.
-  if (!set_non_blocking) {
-    std::cout << "Error in setting up socket. Closing connection..." << std::endl;
-    shutdown(socket_id, SHUT_RDWR);
-  }
-
-  // Start a thread that can listen in on the given socket.
-  boost::thread work_thread(&network_controller::socket_work_loop, this, socket_id);
-}
-
-/*
-Clean up and shut down.
- */
-void network_controller::shut_down() {
-  // TODO: shutdown each socket?
 }

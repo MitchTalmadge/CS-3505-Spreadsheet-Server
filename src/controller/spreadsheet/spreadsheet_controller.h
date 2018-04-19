@@ -38,7 +38,7 @@ class spreadsheet_controller {
   /**
    * Map from spreadsheet to associated sockets.
    */
-  std::map<std::string, std::vector<int> > spreadsheets_to_sockets_;
+  std::map<std::string, std::vector<int>> spreadsheets_to_sockets_;
 
   /**
    * Map from sockets to associated spreadsheet.

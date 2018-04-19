@@ -10,7 +10,7 @@ std::string outbound_full_state_packet::get_raw_message() {
 
   // Append all cell contents.
   for (auto &&item : cell_contents_) {
-    response + item.first + ":" + item.second + "\n";
+    response += item.first + ":" + item.second + "\n";
   }
 
   // Remove last newline.

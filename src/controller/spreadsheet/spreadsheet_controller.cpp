@@ -15,6 +15,8 @@
 
 const std::string spreadsheet_controller::FILE_DIR_PATH = "saves";
 
+bool spreadsheet_controller::instance_alive_ = true;
+
 spreadsheet_controller::spreadsheet_controller() {
 
   // Load all existing spreadsheets.

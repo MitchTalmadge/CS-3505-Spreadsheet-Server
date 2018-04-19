@@ -21,7 +21,7 @@ class spreadsheet_controller {
   /**
    * Whether the instance is currently alive. (Has not been shut down).
    */
-  static bool instance_alive_ = true;
+  static bool instance_alive_;
 
   /**
    * The number of ticks left until all spreadsheets should be saved.

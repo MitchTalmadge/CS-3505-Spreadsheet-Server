@@ -131,41 +131,41 @@ void spreadsheet::unfocus_cell(int socket_id) {
   focused_cells_.erase(socket_id);
 }
 
-void spreadsheet::undo() {
+boost::optional<std::pair<std::string, std::string> > spreadsheet::undo() {
   // If history exists - history is maintained for current server session of this spreadsheet.
   if (!undo_history_.empty()) {
     cell_history undo = undo_history_.top();
 
-    bool is_revert = undo.is_revert;
-    std::string cell_name = undo.cell_name;
-    std::string contents = undo.contents;
-
     // Set contents ourselves and DON'T place current contents on undo stack - undos are destructive.
-    cell_contents_[spreadsheet_controller::normalize_cell_name(cell_name)] = contents;
+    cell_contents_[spreadsheet_controller::normalize_cell_name(undo.cell_name)] = undo.contents;
 
     // If the undo is not undoing a revert, we need to pop from the corresponding revert stack
     // to maintain consistency.
-    if (!is_revert) {
-      revert_history_[cell_name].pop();
+    if (!undo.is_revert) {
+      revert_history_[undo.cell_name].pop();
     }
 
     // Remove element from undo stack.
     undo_history_.pop();
+
+    return std::make_pair(undo.cell_name, undo.contents);
   }
+
+  return boost::none;
 }
 
-void spreadsheet::revert(const std::string &cell_name) {
+boost::optional<std::pair<std::string, std::string> > spreadsheet::revert(const std::string &cell_name) {
   // Check if a revert history exists for this cell.
   if (!revert_history_[cell_name].empty()) {
     // Get the contents we should revert to.
     std::string revert_contents = revert_history_[cell_name].top();
 
     // Get the current contents to save to the UNDO stack.
-    std::string current = get_cell_contents(cell_name);
+    std::string current_contents = get_cell_contents(cell_name);
 
     cell_history current_history;
     current_history.cell_name = cell_name;
-    current_history.contents = current;
+    current_history.contents = current_contents;
     current_history.is_revert = true;
 
     // Set new contents.
@@ -173,7 +173,11 @@ void spreadsheet::revert(const std::string &cell_name) {
 
     // Push the current contents to undo stack.
     undo_history_.push(current_history);
+
+    return std::make_pair(cell_name, revert_contents);
   }
+
+  return boost::none;
 }
 bool spreadsheet::is_loaded() const {
   return loaded_;

@@ -10,6 +10,7 @@
 #include <model/packet/outbound/outbound_unfocus_packet.h>
 #include <boost/filesystem.hpp>
 #include <model/packet/inbound/inbound_load_packet.h>
+#include <model/packet/inbound/inbound_revert_packet.h>
 
 const std::string spreadsheet_controller::FILE_DIR_PATH = "saves";
 
@@ -116,12 +117,33 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet, const 
       data_container_.new_outbound_packet(spreadsheet_name,
                                           *new outbound_focus_packet(focus_packet.get_cell_name(),
                                                                      std::to_string(focus_packet.get_socket_id())));
+      break;
     }
     case inbound_packet::UNFOCUS: {
       sheet.unfocus_cell(packet.get_socket_id());
 
       data_container_.new_outbound_packet(spreadsheet_name,
                                           *new outbound_unfocus_packet(std::to_string(packet.get_socket_id())));
+      break;
+    }
+    case inbound_packet::UNDO: {
+      auto result = sheet.undo();
+
+      // Check if undo had any effect.
+      if (result)
+        data_container_.new_outbound_packet(spreadsheet_name,
+                                            *new outbound_change_packet(result.get().first, result.get().second));
+      break;
+    }
+    case inbound_packet::REVERT: {
+      auto revert_packet = dynamic_cast<inbound_revert_packet &>(packet);
+      auto result = sheet.revert(revert_packet.get_cell_name());
+
+      // Check if revert had any effect.
+      if (result)
+        data_container_.new_outbound_packet(spreadsheet_name,
+                                            *new outbound_change_packet(result.get().first, result.get().second));
+      break;
     }
     default: {
       break;

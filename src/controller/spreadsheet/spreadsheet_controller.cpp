@@ -175,8 +175,11 @@ void spreadsheet_controller::send_packet_to_all_sockets(const std::string &sprea
                                                         outbound_packet &packet) const {
 
   // Send to all sockets mapped to the given spreadsheet.
-  for (auto socket_id : spreadsheets_to_sockets_[spreadsheet_name]) {
-    data_container_.new_outbound_packet(socket_id, packet);
+  auto iter = spreadsheets_to_sockets_.find(spreadsheet_name);
+  if(iter != spreadsheets_to_sockets_.end()) {
+    for (auto socket_id : iter->second) {
+      data_container_.new_outbound_packet(socket_id, packet);
+    }
   }
 }
 

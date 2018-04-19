@@ -70,7 +70,8 @@ void data_container::new_outbound_packet(std::string spreadsheet, outbound_packe
   // Forward packet to all connected sockets for that spreadsheet.
   std::vector<int> sockets = spreadsheet_to_sockets[spreadsheet];
   for (auto client = sockets.begin(); client != sockets.end(); ++client) {
-    outbound_messages[(*client)].push(&packet);
+    auto &queue = outbound_messages[(*client)];
+    queue.push(&packet);
   }
 }
 

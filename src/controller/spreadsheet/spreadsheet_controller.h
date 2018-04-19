@@ -19,6 +19,11 @@ class spreadsheet_controller {
   static const std::string FILE_DIR_PATH;
 
   /**
+   * Whether the instance is currently alive. (Has not been shut down).
+   */
+  static bool instance_alive_ = true;
+
+  /**
    * The number of ticks left until all spreadsheets should be saved.
    * Initialized to 3 minutes worth of ticks.
    */

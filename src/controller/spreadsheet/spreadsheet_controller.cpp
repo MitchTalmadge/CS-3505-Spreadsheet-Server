@@ -33,6 +33,8 @@ spreadsheet_controller::spreadsheet_controller() {
 }
 
 spreadsheet_controller::~spreadsheet_controller() {
+  instance_alive_ = false;
+
   // Save all spreadsheets.
   get_instance().save_all_spreadsheets();
 
@@ -53,27 +55,32 @@ void spreadsheet_controller::shut_down() {
 
 void spreadsheet_controller::work() {
 
-  // Iterate over all active spreadsheets
-  for (auto &entry : active_spreadsheets_) {
-    // Check for inbound messages.
-    auto packet = data_container_.get_inbound_packet(entry.first);
-    if (packet) {
-      // Parse inbound message.
-      parse_inbound_packet(*packet, entry.first, *entry.second);
+  while (true) {
+    if (!instance_alive_)
+      break;
+
+    // Iterate over all active spreadsheets
+    for (auto &entry : active_spreadsheets_) {
+      // Check for inbound messages.
+      auto packet = data_container_.get_inbound_packet(entry.first);
+      if (packet) {
+        // Parse inbound message.
+        parse_inbound_packet(*packet, entry.first, *entry.second);
+      }
     }
+
+    // Check if we should save.
+    if (save_countdown_ <= 0) {
+      // Reset counter.
+      save_countdown_ = 18000;
+
+      // Save all spreadsheets.
+      save_all_spreadsheets();
+    }
+
+    // Briefly sleep to prevent this from choking machine resources.
+    boost::this_thread::sleep_for(boost::chrono::milliseconds{10});
   }
-
-  // Check if we should save.
-  if (save_countdown_ <= 0) {
-    // Reset counter.
-    save_countdown_ = 18000;
-
-    // Save all spreadsheets.
-    save_all_spreadsheets();
-  }
-
-  // Briefly sleep to prevent this from choking machine resources.
-  boost::this_thread::sleep_for(boost::chrono::milliseconds{10});
 }
 
 void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet, const std::string &spreadsheet_name,

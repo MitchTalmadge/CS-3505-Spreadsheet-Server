@@ -4,7 +4,7 @@
 
 TEST(spreadsheet, load_from_file) {
   // Load spreadsheet.
-  spreadsheet sheet("test/static/save_file_1.sprd");
+  spreadsheet sheet("test/resources/save_file_1.sprd");
 
   // Check contents.
   EXPECT_EQ("10", sheet.get_cell_contents("A1"));
@@ -24,11 +24,11 @@ TEST(spreadsheet, save_to_file) {
   sheet.set_cell_contents("D5", "hello world!");
 
   // Save it.
-  sheet.save_to_file("bin/test/static/save_file_1_out.sprd");
+  sheet.save_to_file("test/resources/save_file_1_out.sprd");
 
   // Read files.
-  std::ifstream original("test/static/save_file_1.sprd");
-  std::ifstream saved("bin/test/static/save_file_1_out.sprd");
+  std::ifstream original("test/resources/save_file_1.sprd");
+  std::ifstream saved("test/resources/save_file_1_out.sprd");
 
   // Compare contents.
   EXPECT_EQ(std::string(std::istreambuf_iterator<char>(original), std::istreambuf_iterator<char>()),

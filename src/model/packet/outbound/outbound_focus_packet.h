@@ -18,6 +18,8 @@ class outbound_focus_packet : public outbound_packet {
 
   outbound_focus_packet(const std::string &cell_name, const std::string &unique_id);
 
+  outbound_packet *clone() const override;
+
   outbound_packet_type get_packet_type() override;
 
   std::string get_raw_message() override;

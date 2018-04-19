@@ -14,6 +14,8 @@ class outbound_full_state_packet : public outbound_packet {
 
   explicit outbound_full_state_packet(const std::map<std::string, std::string> &cell_contents);
 
+  outbound_packet *clone() const override;
+
   outbound_packet_type get_packet_type() override;
 
   std::string get_raw_message() override;

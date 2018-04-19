@@ -11,6 +11,8 @@ Coordinate model/client activity, specifically:
 #include <iostream>
 #include <boost/regex.hpp>
 #include <model/packet/inbound/inbound_packet_factory.h>
+#include <model/packet/inbound/inbound_packet.h>
+#include <model/packet/inbound/inbound_load_packet.h>
 #include <model/packet/outbound/outbound_connect_accepted_packet.h>
 
 main_controller &main_controller::get_instance() {
@@ -44,7 +46,6 @@ Handle a message arriving from a client. Specifically:
 - Forward edits into the corresponding spreadsheets inbound queue.
  */
 void main_controller::message_callback(int socket_src, std::string message) {
-
   auto packet = inbound_packet_factory::from_raw_message(socket_src, message);
 
   // Check if packet was parsed.
@@ -64,13 +65,22 @@ void main_controller::message_callback(int socket_src, std::string message) {
       // Respond to the client.
       data_container_.new_outbound_packet(socket_src, *new outbound_connect_accepted_packet(spreadsheets));
 
-      // Dispose of packet.
       delete packet;
-
+      
       break;
+    }
+    case inbound_packet::LOAD: {
+      auto load_packet = dynamic_cast<inbound_load_packet *>(packet);
+      std::cout << "Client on socket " << socket_src << " load on " << load_packet->get_spreadsheet_name() << std::endl;
+
+      // Register the client with the given spreadsheet.
+      data_container_.new_client(socket_src, load_packet->get_spreadsheet_name());
+
+      // Drop into default to handle packet.
     }
     default: {
       data_container_.new_inbound_packet(*packet);
+
       break;
     }
   }

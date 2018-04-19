@@ -9,20 +9,40 @@ able to access shared data.
 #include "data_container.h"
 #include <iostream>
 
+
 data_container &data_container::get_instance() {
   static data_container instance; // Initialized on first-use.
   return instance;
 }
 
-void data_container::new_inbound_packet(inbound_packet &packet) {
+void data_container::new_client(int socket_id, std::string spreadsheet) {
+  // Update the mappings according to the new client.
+  std::lock_guard<std::mutex> lock_spreadsheet(spreadsheet_to_sockets_mutex);
+  std::lock_guard<std::mutex> lock_sockets(sockets_to_spreadsheet_mutex);
+  
+  spreadsheet_to_sockets[spreadsheet].push_back(socket_id);
+  sockets_to_spreadsheet[socket_id] = spreadsheet;
+}
 
+void data_container::new_inbound_packet(inbound_packet &packet) {
+  std::lock_guard<std::mutex> lock_sockets(sockets_to_spreadsheet_mutex);
+  std::lock_guard<std::mutex> lock_spreadsheet_in(inbound_messages_mutex);
+
+  // Place packet onto queue for given spreadsheet.
+  inbound_messages[sockets_to_spreadsheet[packet.get_socket_id()]].push(&packet);
 }
 
 /*
 Allow the model to get a message for the given string spreadsheet.
  */
 inbound_packet *data_container::get_inbound_packet(std::string spreadsheet) {
-  return nullptr;
+  std::lock_guard<std::mutex> lock(inbound_messages_mutex);
+
+  // Grab and remove top packet.
+  inbound_packet* packet_in = inbound_messages[spreadsheet].front();
+  inbound_messages[spreadsheet].pop();
+
+  return packet_in;
 }
 
 /*
@@ -41,7 +61,14 @@ Send a new message to all the attached sockets for the given spreadsheet.
 Called by the spreadsheet models.
  */
 void data_container::new_outbound_packet(std::string spreadsheet, outbound_packet &packet) {
-  // TODO
+  std::lock_guard<std::mutex> lock_spreadsheets(spreadsheet_to_sockets_mutex);
+  std::lock_guard<std::mutex> lock_outbound(outbound_messages_mutex);
+
+  // Forward packet to all connected sockets for that spreadsheet.
+  std::vector<int> sockets = spreadsheet_to_sockets[spreadsheet];
+  for(auto client = sockets.begin(); client != sockets.end(); ++client) {
+    outbound_messages[(*client)].push(&packet);
+  }
 }
 
 /*

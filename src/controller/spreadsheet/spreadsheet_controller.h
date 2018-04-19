@@ -16,7 +16,7 @@ class spreadsheet_controller {
   /**
    * The path to the directory where save files will be located.
    */
-  static const std::string FILE_DIR_PATH = "saves";
+  static const std::string FILE_DIR_PATH;
 
   /**
    * Contains all spreadsheets which are active, meaning they have been loaded by a client.

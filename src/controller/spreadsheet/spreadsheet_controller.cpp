@@ -9,6 +9,8 @@
 #include <model/packet/outbound/outbound_focus_packet.h>
 #include <model/packet/outbound/outbound_unfocus_packet.h>
 
+const std::string FILE_DIR_PATH = "saves";
+
 spreadsheet_controller::spreadsheet_controller() {
 
   // Start work thread.

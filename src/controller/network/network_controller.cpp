@@ -11,6 +11,9 @@ clients.
 #include <netinet/in.h>
 #include <boost/regex.hpp>
 #include <boost/chrono.hpp>
+#include <model/packet/inbound/inbound_packet_factory.h>
+#include <model/packet/outbound/outbound_ping_response_packet.h>
+#include <iostream>
 
 /*
 Create a new network controller. Set up any variables as necessary.
@@ -30,7 +33,7 @@ but will NOT block until one arrives. This allows it to fall through and check i
 there is a message to be sent out. We use a sleep to keep this from overworking the 
 server.
  */
-void network_controller::socket_work_loop(int socket_id, std::function<void(int, std::string)> callback) {
+void network_controller::socket_work_loop(int socket_id) {
   std::cout << "Listening on socket " << socket_id << std::endl;
 
   char buffer[1024] = {0};
@@ -42,8 +45,30 @@ void network_controller::socket_work_loop(int socket_id, std::function<void(int,
       std::cout << "Message from client: " << std::endl;
       std::cout << buffer << std::endl;
 
-      // Send messages to the main_controller who decides where to send them next.
-      callback(socket_id, buffer);
+      // Parse the message as an inbound packet.
+      auto packet = inbound_packet_factory::from_raw_message(socket_id, buffer);
+
+      // Check if packet was parsed.
+      if (!packet) {
+        return;
+      }
+
+      // Handle parsed packet.
+      switch (packet->get_packet_type()) {
+
+        case inbound_packet::PING: {
+          data_container_.new_outbound_packet(packet->get_socket_id(), *new outbound_ping_response_packet());
+
+          // Dispose of packet.
+          delete packet;
+
+          break;
+        }
+        default: {
+          data_container_.new_inbound_packet(*packet);
+          break;
+        }
+      }
 
       // Clear the buffer.
       memset(buffer, 0, 1024);
@@ -90,7 +115,7 @@ bool set_socket_non_blocking(int socket_id) {
 When a new client connects, determine whether to create a new queue for a new
 spreadsheet, then setup a loop listening on the new socket for communications.
  */
-void network_controller::start_work(int socket_id, std::function<void(int, std::string)> callback) {
+void network_controller::start_work(int socket_id) {
   bool set_non_blocking = set_socket_non_blocking(socket_id);
 
   // If something went wrong, close the socket.
@@ -100,7 +125,7 @@ void network_controller::start_work(int socket_id, std::function<void(int, std::
   }
 
   // Start a thread that can listen in on the given socket.
-  boost::thread work_thread(&network_controller::socket_work_loop, this, socket_id, callback);
+  boost::thread work_thread(&network_controller::socket_work_loop, this, socket_id);
 }
 
 /*

@@ -11,8 +11,7 @@ Coordinate model/client activity, specifically:
 #include <iostream>
 #include <boost/regex.hpp>
 #include <model/packet/inbound/inbound_packet_factory.h>
-#include <model/packet/inbound/inbound_load_packet.h>
-#include <model/packet/outbound/outbound_connect_accepted_packet.h>
+#include <model/packet/outbound/outbound_ping_response_packet.h>
 
 main_controller &main_controller::get_instance() {
   static main_controller instance;
@@ -33,8 +32,7 @@ who will control the interactions with it.
  */
 void main_controller::handle_client(int socket_id) {
   // Forward the new socket to the network controller who sets up a communication loop.
-  network_controller_.start_work(socket_id, std::bind(&main_controller::message_callback, this, std::placeholders::_1,
-                                                      std::placeholders::_2));
+  network_controller_.start_work(socket_id);
 }
 
 /*
@@ -55,23 +53,16 @@ void main_controller::message_callback(int socket_src, std::string message) {
   // Handle parsed packet.
   switch (packet->get_packet_type()) {
 
-    case inbound_packet::REGISTER: {
-      std::cout << "Registering client on socket ID " << socket_src << std::endl;
-
-      // Get all existing spreadsheets.
-      auto spreadsheets = spreadsheet_controller_.get_spreadsheet_names();
-
-      // Respond to the client.
-      data_container_.new_outbound_packet(socket_src, *new outbound_connect_accepted_packet(spreadsheets));
-
-      delete packet;
-
+    case inbound_packet::PING: {
+      data_container_.new_outbound_packet(packet->get_socket_id(), *new outbound_ping_response_packet());
       break;
     }
     default: {
       data_container_.new_inbound_packet(*packet);
-
-      break;
+      return;
     }
   }
+
+  // Dispose of packet.
+  delete packet;
 }

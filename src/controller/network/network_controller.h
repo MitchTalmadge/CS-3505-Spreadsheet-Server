@@ -17,46 +17,46 @@ clients.
 
 class network_controller {
 
-private:
-    // Data container is where outgoing messages will be stored.
-    data_container &data_container_ = data_container::get_instance();
+ private:
+  // Data container is where outgoing messages will be stored.
+  data_container &data_container_ = data_container::get_instance();
 
-    // Work loop for the network controller, where it listens in on a socket for incoming
-    // messages.
-    void socket_work_loop(int socket_id, std::function<void(int, std::string)> callback);
+  // Work loop for the network controller, where it listens in on a socket for incoming
+  // messages.
+  void socket_work_loop(int socket_id);
 
-    /**
-     * Private constructor for singleton pattern.
-     */
-    network_controller() = default;
+  /**
+   * Private constructor for singleton pattern.
+   */
+  network_controller() = default;
 
-    /**
-     * Private destructor for singleton pattern.
-     */
-    ~network_controller() = default;
+  /**
+   * Private destructor for singleton pattern.
+   */
+  ~network_controller() = default;
 
-public:
+ public:
 
-    /**
-     * @return The singleton instance of this controller.
-     */
-    static network_controller &get_instance();
+  /**
+   * @return The singleton instance of this controller.
+   */
+  static network_controller &get_instance();
 
-    /**
-     * Deleted copy constructor since this is a singleton.
-     */
-    network_controller(network_controller const &) = delete;
+  /**
+   * Deleted copy constructor since this is a singleton.
+   */
+  network_controller(network_controller const &) = delete;
 
-    /**
-     * Deleted assignment operator since this is a singleton.
-     */
-    void operator=(network_controller const &)  = delete;
+  /**
+   * Deleted assignment operator since this is a singleton.
+   */
+  void operator=(network_controller const &)  = delete;
 
-    // Create a work loop for the provided socket.
-    void start_work(int socket_id, std::function<void(int, std::string)> callback);
+  // Create a work loop for the provided socket.
+  void start_work(int socket_id);
 
-    // Shut down self and components.
-    void shut_down();
+  // Shut down self and components.
+  void shut_down();
 };
 
 #endif

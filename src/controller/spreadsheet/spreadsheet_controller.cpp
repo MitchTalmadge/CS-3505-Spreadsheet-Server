@@ -12,6 +12,7 @@
 #include <model/packet/inbound/inbound_load_packet.h>
 #include <model/packet/inbound/inbound_revert_packet.h>
 #include <iostream>
+#include <model/packet/outbound/outbound_connect_accepted_packet.h>
 
 const std::string spreadsheet_controller::FILE_DIR_PATH = "saves";
 
@@ -88,6 +89,14 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet) {
 
   // Handle parsed packet.
   switch (packet.get_packet_type()) {
+    case inbound_packet::REGISTER: {
+      std::cout << "Registering client on socket ID " << packet.get_socket_id() << std::endl;
+
+      // Respond to the client.
+      data_container_.new_outbound_packet(packet.get_socket_id(), *new outbound_connect_accepted_packet(get_spreadsheet_names()));
+
+      break;
+    }
     case inbound_packet::EDIT: {
       auto edit_packet = dynamic_cast<inbound_edit_packet &>(packet);
 

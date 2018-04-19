@@ -7,12 +7,9 @@ list(FILTER SOURCES EXCLUDE REGEX ".*/main\\.(h|cpp)")
 include_directories(test)
 file(GLOB_RECURSE TEST_SOURCES "test/*.cpp")
 
+# Copy test resources
+file(COPY ${CMAKE_SOURCE_DIR}/test/resources DESTINATION ${CMAKE_BINARY_DIR}/test/)
+
 # Define executable.
 add_executable(server_test ${SOURCES} ${TEST_SOURCES})
 add_dependencies(server_test server)
-
-# Copy test resources
-add_custom_command(
-        TARGET server_test POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/test/resources $<TARGET_FILE_DIR:server_test>
-)

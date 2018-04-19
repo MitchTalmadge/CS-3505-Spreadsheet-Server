@@ -11,6 +11,7 @@
 #include <boost/filesystem.hpp>
 #include <model/packet/inbound/inbound_load_packet.h>
 #include <model/packet/inbound/inbound_revert_packet.h>
+#include <iostream>
 
 const std::string spreadsheet_controller::FILE_DIR_PATH = "saves";
 
@@ -99,10 +100,12 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet, const 
       auto item = active_spreadsheets_.find(load_packet.get_spreadsheet_name());
       if (item != active_spreadsheets_.end()) {
         // Spreadsheet found.
+        std::cout << "Loading existing spreadsheet: " + item->first << std::endl;
         data_container_.new_outbound_packet(packet.get_socket_id(),
-                                            *new outbound_full_state_packet((*item).second->get_non_empty_cells()));
+                                            *new outbound_full_state_packet(item->second->get_non_empty_cells()));
       } else {
         // Create new spreadsheet.
+        std::cout << "Creating new spreadsheet: " + load_packet.get_spreadsheet_name() << std::endl;
         active_spreadsheets_[load_packet.get_spreadsheet_name()] = new spreadsheet;
         data_container_.new_outbound_packet(packet.get_socket_id(),
                                             *new outbound_full_state_packet(active_spreadsheets_[load_packet.get_spreadsheet_name()]->get_non_empty_cells()));

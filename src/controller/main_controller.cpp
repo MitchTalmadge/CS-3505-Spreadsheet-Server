@@ -56,7 +56,7 @@ void main_controller::message_callback(int socket_src, std::string message) {
   switch (packet->get_packet_type()) {
 
     case inbound_packet::REGISTER: {
-      std::cout << "Client registered on socket " << socket_src << std::endl;
+      std::cout << "Registering client on socket ID " << socket_src << std::endl;
 
       // Get all existing spreadsheets.
       auto spreadsheets = spreadsheet_controller_.get_spreadsheet_names();
@@ -70,8 +70,6 @@ void main_controller::message_callback(int socket_src, std::string message) {
     }
     case inbound_packet::LOAD: {
       auto load_packet = dynamic_cast<inbound_load_packet *>(packet);
-      std::cout << "Client on socket " << socket_src << " load on " << load_packet->get_spreadsheet_name() << std::endl;
-
       // Register the client with the given spreadsheet.
       data_container_.new_client(socket_src, load_packet->get_spreadsheet_name());
 

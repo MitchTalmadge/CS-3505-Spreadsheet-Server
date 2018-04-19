@@ -1,5 +1,3 @@
-//
-// Created by mitch on 4/17/2018.
-//
-
 #include "outbound_packet.h"
+
+const std::string outbound_packet::EOT = std::string(1, '\3');

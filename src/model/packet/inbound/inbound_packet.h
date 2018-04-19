@@ -8,25 +8,47 @@
  */
 class inbound_packet {
 
-    /**
-     * The ID of the socket that sent the packet.
-     */
-    int socket_id_;
+ protected:
 
-    /**
-     * The raw, un-modified contents of the packet including an EOT terminator. (\3)
-     */
-    std::string raw_contents_;
+  /**
+   * The ID of the socket that sent the packet.
+   */
+  const int socket_id_;
 
-public:
+  /**
+   * The raw, un-modified message that composes this packet. Includes an EOT terminator (\3).
+   */
+  const std::string raw_message_;
 
-    inbound_packet(int socket_id_, const std::string &raw_contents_);
+  inbound_packet(int socket_id, const std::string &raw_message);
 
-    int get_socket_id_() const;
+ public:
 
-    const std::string &get_raw_contents_() const;
+  /**
+   * Represents the type of the packet, to avoid costly casting checks.
+   */
+  enum inbound_packet_type {
+    REGISTER,
+    DISCONNECT,
+    LOAD,
+    PING,
+    PING_RESPONSE,
+    EDIT,
+    FOCUS,
+    UNFOCUS,
+    UNDO,
+    REVERT
+  };
+
+  /**
+   * @return The type of the packet.
+   */
+  virtual inbound_packet_type get_packet_type() const = 0;
+
+  int get_socket_id() const;
+
+  const std::string &get_raw_message() const;
 
 };
-
 
 #endif //PIGRAMMERS_SPREADSHEET_SERVER_INBOUND_PACKET_H

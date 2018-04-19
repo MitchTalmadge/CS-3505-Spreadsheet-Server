@@ -17,19 +17,19 @@ std::string spreadsheet::get_cell_contents(const std::string &cell_name) {
 }
 
 void spreadsheet::set_cell_contents(const std::string &cell_name, const std::string &contents) {
-  // Before we write the new value in, save the old value to the undo stack for this spreadsheet.
-  std::string old_value = get_cell_contents(cell_name);
-  
-  cell_value old_cell;
+  // Before we write the new contents in, save the old contents to the undo stack for this spreadsheet.
+  std::string old_history = get_cell_contents(cell_name);
+
+  cell_history old_cell;
   old_cell.cell_name = cell_name;
-  old_cell.value = old_value;
+  old_cell.contents = old_history;
   old_cell.is_revert = false;
 
-  // Push value onto the undo history.
+  // Push contents onto the undo history.
   undo_history_.push(old_cell);
 
-  // Push old value onto this cell's revert.
-  revert_history_[cell_name].push(old_value);
+  // Push old contents onto this cell's revert.
+  revert_history_[cell_name].push(old_history);
 
     cell_contents_[spreadsheet_controller::normalize_cell_name(cell_name)] = contents;
 }
@@ -45,14 +45,14 @@ void spreadsheet::unfocus_cell(int socket_id) {
 void spreadsheet::undo() {
   // If history exists - history is maintained for current server session of this spreadsheet.
   if (!undo_history_.empty()) {
-    cell_value undo = undo_history_.top();
+    cell_history undo = undo_history_.top();
 
     bool is_revert = undo.is_revert;
     std::string cell_name = undo.cell_name;
-    std::string value = undo.value;
+    std::string contents = undo.contents;
 
-    // Set value ourselves and DON'T place current value on undo stack - undos are destructive.
-    cell_contents_[spreadsheet_controller::normalize_cell_name(cell_name)] = value;
+    // Set contents ourselves and DON'T place current contents on undo stack - undos are destructive.
+    cell_contents_[spreadsheet_controller::normalize_cell_name(cell_name)] = contents;
 
     // If the undo is not undoing a revert, we need to pop from the corresponding revert stack
     // to maintain consistency.
@@ -68,21 +68,22 @@ void spreadsheet::undo() {
 void spreadsheet::revert(const std::string &cell_name) {
   // Check if a revert history exists for this cell.
   if (!revert_history_[cell_name].empty()) {
-    // Get the value we should revert to.
-    std::string revert_value = revert_history_[cell_name].top();
-    
-    // Get the current value to save to the UNDO stack.
+    // Get the contents we should revert to.
+    std::string revert_contents = revert_history_[cell_name].top();
+
+    // Get the current contents to save to the UNDO stack.
     std::string current = get_cell_contents(cell_name);
 
-    cell_value current_value;
-    current_value.cell_name = cell_name;
-    current_value.value = current;
-    current_value.is_revert = true;
+    cell_history current_history;
+    current_history.cell_name = cell_name;
+    current_history.contents = current;
+    current_history.is_revert = true;
 
-    // Set new value.
-    cell_contents_[spreadsheet_controller::normalize_cell_name(cell_name)] = revert_value;
+    // Set new contents.
+    cell_contents_[spreadsheet_controller::normalize_cell_name(cell_name)] = revert_contents;
 
-    // Push the current value to undo stack.
-    undo_history_.push(current_value);
+    // Push the current contents to undo stack.
+    undo_history_.push(current_history);
   }
 }
+

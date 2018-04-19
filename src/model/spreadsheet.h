@@ -22,6 +22,12 @@ struct cell_history {
 class spreadsheet {
 
   /**
+   * Determines if the spreadsheet is loaded and able to be used.
+   * If reading from a file fails, this will be false. The default constructor will always have this be true.
+   */
+  bool loaded_;
+
+  /**
    * Contains the contents of each cell in the spreadsheet.
    * Maps cell names to cell contents.
    */
@@ -55,6 +61,8 @@ class spreadsheet {
    * @param file_path The path to the JSON spreadsheet file.
    */
   explicit spreadsheet(const std::string &file_path);
+
+  bool is_loaded() const;
 
   /**
    * Saves this spreadsheet to a JSON file.

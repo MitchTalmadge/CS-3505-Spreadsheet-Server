@@ -2,12 +2,45 @@
 #include <controller/spreadsheet/spreadsheet_controller.h>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
-#include <fstream>
 
-spreadsheet::spreadsheet() = default;
+spreadsheet::spreadsheet() {
+  loaded_ = true;
+}
 
 spreadsheet::spreadsheet(const std::string &file_path) {
+  // Read in file as string
+  std::ifstream input_stream(file_path);
 
+  if (!input_stream.is_open()) {
+    loaded_ = false;
+    return;
+  }
+
+  auto file_contents = std::string(std::istreambuf_iterator<char>(input_stream), std::istreambuf_iterator<char>());
+
+  // Check for header.
+  if (!boost::starts_with(file_contents, "spreadsheet|")) {
+    loaded_ = false;
+    return;
+  }
+
+  // Extract cells.
+  std::vector<std::string> split;
+  auto file_contents_minus_header = file_contents.substr(12);
+  boost::split(split, file_contents_minus_header, boost::is_any_of(":"));
+
+  // Make sure that an even number of items were retrieved, otherwise one cell does not have a matching contents.
+  if (split.size() % 2 != 0) {
+    loaded_ = false;
+    return;
+  }
+
+  // Iterate over each split item and map cells.
+  for (auto item = split.begin(); item != split.end(); ++item) {
+    cell_contents_[*item] = *(++item);
+  }
+
+  loaded_ = true;
 }
 
 void spreadsheet::save_to_file(const std::string &file_path) {
@@ -17,7 +50,7 @@ void spreadsheet::save_to_file(const std::string &file_path) {
   std::string file_name_part;
   std::string directory_part;
 
-  if(path_split_index == std::string::npos) {
+  if (path_split_index == std::string::npos) {
     file_name_part = file_path;
   } else {
     file_name_part = file_path.substr(path_split_index);
@@ -25,7 +58,7 @@ void spreadsheet::save_to_file(const std::string &file_path) {
   }
 
   // Create the directories as needed.
-  if(!directory_part.empty()) {
+  if (!directory_part.empty()) {
     boost::filesystem::create_directories(directory_part);
   }
 
@@ -34,13 +67,13 @@ void spreadsheet::save_to_file(const std::string &file_path) {
 
   for (auto &&item : cell_contents_) {
     // Skip empty cells
-    if(item.second.empty())
+    if (item.second.empty())
       continue;
 
     contents += item.first + ":" + item.second + ":";
   }
 
-  if(boost::ends_with(contents, ":"))
+  if (boost::ends_with(contents, ":"))
     contents.erase(contents.size() - 1, 1);
 
   // Write contents to file.
@@ -122,4 +155,7 @@ void spreadsheet::revert(const std::string &cell_name) {
     // Push the current contents to undo stack.
     undo_history_.push(current_history);
   }
+}
+bool spreadsheet::is_loaded() const {
+  return loaded_;
 }

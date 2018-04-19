@@ -5,6 +5,7 @@
 TEST(spreadsheet, load_from_file) {
   // Load spreadsheet.
   spreadsheet sheet("test/resources/save_file_1.sprd");
+  EXPECT_TRUE(sheet.is_loaded());
 
   // Check contents.
   EXPECT_EQ("10", sheet.get_cell_contents("A1"));

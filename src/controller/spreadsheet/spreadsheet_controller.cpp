@@ -11,13 +11,13 @@
 #include <boost/filesystem.hpp>
 #include <model/packet/inbound/inbound_load_packet.h>
 
-const std::string FILE_DIR_PATH = "saves";
+const std::string spreadsheet_controller::FILE_DIR_PATH = "saves";
 
 spreadsheet_controller::spreadsheet_controller() {
 
   // Load all existing spreadsheets.
   boost::filesystem::directory_iterator end;
-  for (boost::filesystem::directory_iterator item(spreadsheet_controller::FILE_DIR_PATH); item != end; ++item) {
+  for (boost::filesystem::directory_iterator item(FILE_DIR_PATH); item != end; ++item) {
     spreadsheet *sheet = new spreadsheet(item->path().string());
     if (sheet->is_loaded()) {
       active_spreadsheets_[item->path().stem().string()] = sheet;
@@ -130,7 +130,7 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet, const 
 
 void spreadsheet_controller::save_all_spreadsheets() const {
   for (auto &&item : active_spreadsheets_) {
-    item.second->save_to_file(spreadsheet_controller::FILE_DIR_PATH + "/" + item.first + ".sprd");
+    item.second->save_to_file(FILE_DIR_PATH + "/" + item.first + ".sprd");
   }
 }
 

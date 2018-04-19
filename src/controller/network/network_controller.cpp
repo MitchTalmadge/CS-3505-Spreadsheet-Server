@@ -54,16 +54,13 @@ void network_controller::socket_work_loop(int socket_id, std::function<void(int,
 
     // If a message is there to be sent, send it!
     if (packet) {
-      std::cout << "Sending packet type " << packet->get_packet_type() << std::endl;
-      std::cout << "With raw message: " << packet->get_raw_message() << std::endl;
-
       std::string raw_message = packet->get_raw_message();
       const char *msg = raw_message.c_str();
 
       // Dispose of packet.
       delete packet;
 
-      std::cout << "Message to send to client: " << msg << std::endl;
+      std::cout << "Sending message to client: " << msg << std::endl;
 
       write(socket_id, msg, strlen(msg) * sizeof(char));
     }

@@ -68,13 +68,6 @@ void main_controller::message_callback(int socket_src, std::string message) {
 
       break;
     }
-    case inbound_packet::LOAD: {
-      auto load_packet = dynamic_cast<inbound_load_packet *>(packet);
-      // Register the client with the given spreadsheet.
-      data_container_.new_client(socket_src, load_packet->get_spreadsheet_name());
-
-      // Drop into default to handle packet.
-    }
     default: {
       data_container_.new_inbound_packet(*packet);
 

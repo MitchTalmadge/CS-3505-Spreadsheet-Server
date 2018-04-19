@@ -61,15 +61,9 @@ void spreadsheet_controller::work() {
     if (!instance_alive_)
       break;
 
-    // Iterate over all active spreadsheets
-    for (auto &entry : active_spreadsheets_) {
-      // Check for inbound messages.
-      auto packet = data_container_.get_inbound_packet(entry.first);
-      if (packet) {
-        // Parse inbound message.
-        parse_inbound_packet(*packet, entry.first, *entry.second);
-      }
-    }
+    // Get an inbound packet.
+    auto packet = data_container_.get_inbound_packet();
+    parse_inbound_packet(*packet);
 
     // Check if we should save.
     if (save_countdown_ <= 0) {
@@ -85,8 +79,10 @@ void spreadsheet_controller::work() {
   }
 }
 
-void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet, const std::string &spreadsheet_name,
-                                                  spreadsheet &sheet) {
+void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet) {
+
+  // Attempt to find a related spreadsheet to this packet.
+  auto sheet_pair = active_spreadsheets_.find(sockets_to_spreadsheets_[packet.get_socket_id()]);
 
   // Handle parsed packet.
   switch (packet.get_packet_type()) {
@@ -94,12 +90,11 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet, const 
       auto edit_packet = dynamic_cast<inbound_edit_packet &>(packet);
 
       // Attempt to assign contents
-      sheet.set_cell_contents(edit_packet.get_cell_name(), edit_packet.get_cell_contents());
+      sheet_pair->second->set_cell_contents(edit_packet.get_cell_name(), edit_packet.get_cell_contents());
 
       // Relay change to all clients
-      data_container_.new_outbound_packet(spreadsheet_name,
-                                          *new outbound_change_packet(edit_packet.get_cell_name(),
-                                                                      edit_packet.get_cell_contents()));
+      send_packet_to_all_sockets(sheet_pair->first, *new outbound_change_packet(edit_packet.get_cell_name(),
+                                                                                edit_packet.get_cell_contents()));
       break;
     }
     case inbound_packet::LOAD: {
@@ -120,41 +115,51 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet, const 
                                             *new outbound_full_state_packet(active_spreadsheets_[load_packet.get_spreadsheet_name()]->get_non_empty_cells()));
       }
 
+      // Assign socket to spreadsheet and vice-versa
+      sockets_to_spreadsheets_[packet.get_socket_id()] = load_packet.get_spreadsheet_name();
+      spreadsheets_to_sockets_[load_packet.get_spreadsheet_name()].push_back(packet.get_socket_id());
+
       break;
     }
     case inbound_packet::FOCUS: {
       auto focus_packet = dynamic_cast<inbound_focus_packet &>(packet);
-      sheet.focus_cell(focus_packet.get_socket_id(), focus_packet.get_cell_name());
 
-      data_container_.new_outbound_packet(spreadsheet_name,
-                                          *new outbound_focus_packet(focus_packet.get_cell_name(),
+      // Focus on the cell.
+      sheet_pair->second->focus_cell(focus_packet.get_socket_id(), focus_packet.get_cell_name());
+
+      send_packet_to_all_sockets(sheet_pair->first,
+                                 *new outbound_focus_packet(focus_packet.get_cell_name(),
                                                                      std::to_string(focus_packet.get_socket_id())));
       break;
     }
     case inbound_packet::UNFOCUS: {
-      sheet.unfocus_cell(packet.get_socket_id());
+      // Unfocus the cell.
+      sheet_pair->second->unfocus_cell(packet.get_socket_id());
 
-      data_container_.new_outbound_packet(spreadsheet_name,
-                                          *new outbound_unfocus_packet(std::to_string(packet.get_socket_id())));
+      send_packet_to_all_sockets(sheet_pair->first,
+                                 *new outbound_unfocus_packet(std::to_string(packet.get_socket_id())));
       break;
     }
     case inbound_packet::UNDO: {
-      auto result = sheet.undo();
+      // Undo the cell changes
+      auto result = sheet_pair->second->undo();
 
       // Check if undo had any effect.
       if (result)
-        data_container_.new_outbound_packet(spreadsheet_name,
-                                            *new outbound_change_packet(result.get().first, result.get().second));
+        send_packet_to_all_sockets(sheet_pair->first,
+                                   *new outbound_change_packet(result.get().first, result.get().second));
       break;
     }
     case inbound_packet::REVERT: {
       auto revert_packet = dynamic_cast<inbound_revert_packet &>(packet);
-      auto result = sheet.revert(revert_packet.get_cell_name());
+
+      // Revert the changes on the cell.
+      auto result = sheet_pair->second->revert(revert_packet.get_cell_name());
 
       // Check if revert had any effect.
       if (result)
-        data_container_.new_outbound_packet(spreadsheet_name,
-                                            *new outbound_change_packet(result.get().first, result.get().second));
+        send_packet_to_all_sockets(sheet_pair->first,
+                                   *new outbound_change_packet(result.get().first, result.get().second));
       break;
     }
     default: {
@@ -164,6 +169,15 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet, const 
 
   // Dispose of packet.
   delete &packet;
+}
+
+void spreadsheet_controller::send_packet_to_all_sockets(const std::string &spreadsheet_name,
+                                                        outbound_packet &packet) const {
+
+  // Send to all sockets mapped to the given spreadsheet.
+  for (auto socket_id : spreadsheets_to_sockets_[spreadsheet_name]) {
+    data_container_.new_outbound_packet(socket_id, packet);
+  }
 }
 
 void spreadsheet_controller::save_all_spreadsheets() const {

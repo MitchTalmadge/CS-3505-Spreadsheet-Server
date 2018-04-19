@@ -64,7 +64,8 @@ void spreadsheet_controller::work() {
 
     // Get an inbound packet.
     auto packet = data_container_.get_inbound_packet();
-    parse_inbound_packet(*packet);
+    if (packet)
+      parse_inbound_packet(*packet);
 
     // Check if we should save.
     if (save_countdown_ <= 0) {

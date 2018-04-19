@@ -86,7 +86,10 @@ void spreadsheet::save_to_file(const std::string &file_path) {
 }
 
 std::string spreadsheet::get_cell_contents(const std::string &cell_name) const {
-  return cell_contents_[spreadsheet_controller::normalize_cell_name(cell_name)];
+  auto iter = cell_contents_.find(cell_name);
+  if (iter != cell_contents_.end())
+    return iter->second;
+  return "";
 }
 
 void spreadsheet::set_cell_contents(const std::string &cell_name, const std::string &contents) {

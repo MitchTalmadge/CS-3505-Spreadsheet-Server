@@ -57,7 +57,8 @@ void network_controller::socket_work_loop(int socket_id, std::function<void(int,
       std::cout << "Sending packet type " << packet->get_packet_type() << std::endl;
       std::cout << "With raw message: " << packet->get_raw_message() << std::endl;
 
-      const char *msg = packet->get_raw_message().c_str();
+      std::string raw_message = packet->get_raw_message();
+      const char *msg = raw_message.c_str();
 
       // Dispose of packet.
       delete packet;

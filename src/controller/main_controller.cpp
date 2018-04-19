@@ -65,6 +65,8 @@ void main_controller::message_callback(int socket_src, std::string message) {
       // Respond to the client.
       data_container_.new_outbound_packet(socket_src, *new outbound_connect_accepted_packet(spreadsheets));
 
+      delete packet;
+      
       break;
     }
     case inbound_packet::LOAD: {
@@ -82,7 +84,4 @@ void main_controller::message_callback(int socket_src, std::string message) {
       break;
     }
   }
-
-  // Dispose of packet.
-  delete packet;
 }

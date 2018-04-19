@@ -20,6 +20,7 @@ bool spreadsheet_controller::instance_alive_ = true;
 spreadsheet_controller::spreadsheet_controller() {
 
   // Load all existing spreadsheets.
+  boost::filesystem::create_directories(FILE_DIR_PATH);
   boost::filesystem::directory_iterator end;
   for (boost::filesystem::directory_iterator item(FILE_DIR_PATH); item != end; ++item) {
     spreadsheet *sheet = new spreadsheet(item->path().string());
@@ -129,7 +130,7 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet) {
 
       send_packet_to_all_sockets(sheet_pair->first,
                                  *new outbound_focus_packet(focus_packet.get_cell_name(),
-                                                                     std::to_string(focus_packet.get_socket_id())));
+                                                            std::to_string(focus_packet.get_socket_id())));
       break;
     }
     case inbound_packet::UNFOCUS: {
@@ -176,7 +177,7 @@ void spreadsheet_controller::send_packet_to_all_sockets(const std::string &sprea
 
   // Send to all sockets mapped to the given spreadsheet.
   auto iter = spreadsheets_to_sockets_.find(spreadsheet_name);
-  if(iter != spreadsheets_to_sockets_.end()) {
+  if (iter != spreadsheets_to_sockets_.end()) {
     for (auto socket_id : iter->second) {
       data_container_.new_outbound_packet(socket_id, packet);
     }

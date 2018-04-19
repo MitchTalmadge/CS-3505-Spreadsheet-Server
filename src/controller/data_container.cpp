@@ -28,10 +28,14 @@ inbound_packet *data_container::get_inbound_packet() {
   std::lock_guard<std::mutex> lock(inbound_packets_mutex_);
 
   // Grab and remove top packet.
-  inbound_packet *packet_in = inbound_packets_.front();
-  inbound_packets_.pop();
+  if (!inbound_packets_.empty()) {
+    inbound_packet *packet_in = inbound_packets_.front();
+    inbound_packets_.pop();
+    return packet_in;
+  } else {
+    return nullptr;
+  }
 
-  return packet_in;
 }
 
 /*

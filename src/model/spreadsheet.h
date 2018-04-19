@@ -22,11 +22,6 @@ struct cell_history {
 class spreadsheet {
 
   /**
-   * Determines if the spreadsheet has been changed at all since last opened/saved.
-   */
-  bool changed_ = false;
-
-  /**
    * Contains the contents of each cell in the spreadsheet.
    * Maps cell names to cell contents.
    */

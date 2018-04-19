@@ -1,6 +1,7 @@
 #include "spreadsheet.h"
 #include <controller/spreadsheet/spreadsheet_controller.h>
-#include <algorithm>
+#include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 
 spreadsheet::spreadsheet() = default;
 
@@ -9,11 +10,46 @@ spreadsheet::spreadsheet(const std::string &file_path) {
 }
 
 void spreadsheet::save_to_file(const std::string &file_path) {
+  // Extract the filename and directories.
+  unsigned int path_split_index = file_path.find_last_of('/');
 
+  std::string file_name_part;
+  std::string directory_part;
+
+  if(path_split_index == std::string::npos) {
+    file_name_part = file_path;
+  } else {
+    file_name_part = file_path.substr(path_split_index);
+    directory_part = file_path.substr(0, path_split_index);
+  }
+
+  // Create the directories as needed.
+  if(!directory_part.empty()) {
+    boost::filesystem::create_directories(directory_part);
+  }
+
+  // Create file contents.
+  std::string contents = "spreadsheet|";
+
+  for (auto &&item : cell_contents_) {
+    // Skip empty cells
+    if(item.second.empty())
+      continue;
+
+    contents += item.first + ":" + item.second + ":";
+  }
+
+  if(boost::ends_with(contents, ":"))
+    contents.erase(contents.size() - 1, 1);
+
+  // Write contents to file.
+  std::ofstream output_stream(file_path);
+  output_stream << contents;
+  output_stream.close();
 }
 
 std::string spreadsheet::get_cell_contents(const std::string &cell_name) {
-    return cell_contents_[spreadsheet_controller::normalize_cell_name(cell_name)];
+  return cell_contents_[spreadsheet_controller::normalize_cell_name(cell_name)];
 }
 
 void spreadsheet::set_cell_contents(const std::string &cell_name, const std::string &contents) {
@@ -31,15 +67,15 @@ void spreadsheet::set_cell_contents(const std::string &cell_name, const std::str
   // Push old contents onto this cell's revert.
   revert_history_[cell_name].push(old_history);
 
-    cell_contents_[spreadsheet_controller::normalize_cell_name(cell_name)] = contents;
+  cell_contents_[spreadsheet_controller::normalize_cell_name(cell_name)] = contents;
 }
 
 void spreadsheet::focus_cell(int socket_id, const std::string &cell_name) {
-    focused_cells_[socket_id] = cell_name;
+  focused_cells_[socket_id] = cell_name;
 }
 
 void spreadsheet::unfocus_cell(int socket_id) {
-    focused_cells_.erase(socket_id);
+  focused_cells_.erase(socket_id);
 }
 
 void spreadsheet::undo() {

@@ -59,7 +59,7 @@ void main_controller::message_callback(int socket_src, std::string message) {
       std::cout << "Client registered on socket " << socket_src << std::endl;
 
       // Get all existing spreadsheets.
-      auto spreadsheets = spreadsheet_controller_.get_spreadsheets();
+      auto spreadsheets = spreadsheet_controller_.get_spreadsheet_names();
 
       // Respond to the client.
       data_container_.new_outbound_packet(socket_src, *new outbound_connect_accepted_packet(spreadsheets));

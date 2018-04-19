@@ -85,7 +85,7 @@ void spreadsheet::save_to_file(const std::string &file_path) {
   output_stream.close();
 }
 
-std::string spreadsheet::get_cell_contents(const std::string &cell_name) {
+std::string spreadsheet::get_cell_contents(const std::string &cell_name) const {
   return cell_contents_[spreadsheet_controller::normalize_cell_name(cell_name)];
 }
 
@@ -105,6 +105,19 @@ void spreadsheet::set_cell_contents(const std::string &cell_name, const std::str
   revert_history_[cell_name].push(old_history);
 
   cell_contents_[spreadsheet_controller::normalize_cell_name(cell_name)] = contents;
+}
+
+std::map<std::string, std::string> spreadsheet::get_non_empty_cells() const {
+  std::map<std::string, std::string> map;
+
+  for (auto &&item : cell_contents_) {
+    if (item.second.empty())
+      continue;
+
+    map[item.first] = item.second;
+  }
+
+  return map;
 }
 
 void spreadsheet::focus_cell(int socket_id, const std::string &cell_name) {

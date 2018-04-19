@@ -22,7 +22,7 @@ class spreadsheet_controller {
    * Contains all spreadsheets which are active, meaning they have been loaded by a client.
    * Maps spreadsheet file names to spreadsheet instances.
    */
-  std::map<const std::string, spreadsheet *> active_spreadsheets_;
+  std::map<const std::string, spreadsheet> active_spreadsheets_;
 
   /**
    * The data container that interfaces between the network controller and spreadsheet controller.
@@ -60,20 +60,6 @@ class spreadsheet_controller {
   static spreadsheet_controller &get_instance();
 
   /**
-   * @return Valid connect_accepted message for the current state of the server.
-   */
-  std::vector<std::string> get_spreadsheets();
-
-  /**
-   * Handle the opening of a new spreadsheet, adding to the list
-   * of active models or creating a new spreadsheet entirely as necessary.
-   *
-   * @param spreadsheet Name of spreadsheet that client wants to load.
-   * @return The full_state message for the given spreadsheet.
-   */
-  std::string get_spreadsheet(std::string spreadsheet);
-
-  /**
    * Deleted copy constructor since this is a singleton.
    */
   spreadsheet_controller(spreadsheet_controller const &) = delete;
@@ -104,11 +90,9 @@ class spreadsheet_controller {
   static std::string normalize_cell_name(std::string cellName);
 
   /**
-   * Determines if the given string is a double.
-   * @param str The string.
-   * @return True if the string is a double, false otherwise.
+   * @return The names of all existing spreadsheets.
    */
-  static bool is_double(const std::string &str);
+  std::vector<std::string> get_spreadsheet_names() const;
 
 };
 

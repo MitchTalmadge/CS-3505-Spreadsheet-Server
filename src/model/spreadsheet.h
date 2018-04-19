@@ -77,7 +77,7 @@ class spreadsheet {
    * @param cell_name The name of the cell.
    * @return The contents of the cell.
    */
-  std::string get_cell_contents(const std::string &cell_name);
+  std::string get_cell_contents(const std::string &cell_name) const;
 
   /**
    * Sets the contents of a specific cell.
@@ -85,6 +85,11 @@ class spreadsheet {
    * @param contents The contents of the cell.
    */
   void set_cell_contents(const std::string &cell_name, const std::string &contents);
+
+  /**
+   * @return A map containing cell names mapped to contents for all cells which have non-empty contents.
+   */
+  std::map<std::string, std::string> get_non_empty_cells() const;
 
   /**
    * Marks a client as having focused on a particular cell.

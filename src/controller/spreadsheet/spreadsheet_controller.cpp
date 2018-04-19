@@ -8,10 +8,21 @@
 #include <model/packet/inbound/inbound_focus_packet.h>
 #include <model/packet/outbound/outbound_focus_packet.h>
 #include <model/packet/outbound/outbound_unfocus_packet.h>
+#include <boost/filesystem.hpp>
+#include <model/packet/inbound/inbound_load_packet.h>
 
 const std::string FILE_DIR_PATH = "saves";
 
 spreadsheet_controller::spreadsheet_controller() {
+
+  // Load all existing spreadsheets.
+  boost::filesystem::directory_iterator end;
+  for (boost::filesystem::directory_iterator item(spreadsheet_controller::FILE_DIR_PATH); item != end; ++item) {
+    spreadsheet sheet(item->path().string());
+    if (sheet.is_loaded()) {
+      active_spreadsheets_[item->path().filename().string()] = sheet;
+    }
+  }
 
   // Start work thread.
   boost::thread work_thread(&spreadsheet_controller::work, this);
@@ -32,7 +43,7 @@ void spreadsheet_controller::work() {
     auto packet = data_container_.get_inbound_packet(entry.first);
     if (packet) {
       // Parse inbound message.
-      parse_inbound_packet(*packet, entry.first, *(entry.second));
+      parse_inbound_packet(*packet, entry.first, entry.second);
     }
   }
 
@@ -58,9 +69,11 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet, const 
       break;
     }
     case inbound_packet::LOAD: {
-      // TODO: full state
+      auto load_packet = dynamic_cast<inbound_load_packet &>(packet);
+
+      // If a spreadsheet is not loaded, it will be created automatically via the operator[] accessor of the map.
       data_container_.new_outbound_packet(packet.get_socket_id(),
-                                          *new outbound_full_state_packet(std::map<std::string, std::string>()));
+                                          *new outbound_full_state_packet(active_spreadsheets_[load_packet.get_spreadsheet_name()].get_non_empty_cells()));
       break;
     }
     case inbound_packet::FOCUS: {
@@ -102,17 +115,12 @@ std::string spreadsheet_controller::normalize_cell_name(std::string cellName) {
   return cellName;
 }
 
-bool spreadsheet_controller::is_double(const std::string &str) {
-  try {
-    // Attempt conversion
-    std::stod(str);
-    return true;
-  } catch (...) {
-    return false;
-  }
-}
+std::vector<std::string> spreadsheet_controller::get_spreadsheet_names() const {
+  std::vector<std::string> names;
 
-std::vector<std::string> spreadsheet_controller::get_spreadsheets() {
-  // TODO: List all existing spreadsheet names.
-  return std::vector<std::string>();
+  for (auto &&item : active_spreadsheets_) {
+    names.push_back(item.first);
+  }
+
+  return names;
 }

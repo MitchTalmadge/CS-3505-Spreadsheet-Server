@@ -11,7 +11,6 @@ Coordinate model/client activity, specifically:
 #include <iostream>
 #include <boost/regex.hpp>
 #include <model/packet/inbound/inbound_packet_factory.h>
-#include <model/packet/inbound/inbound_packet.h>
 #include <model/packet/inbound/inbound_load_packet.h>
 #include <model/packet/outbound/outbound_connect_accepted_packet.h>
 
@@ -25,7 +24,7 @@ Clean up the main controller. Specifically, tell the network controller
 and models to shut down.
  */
 void main_controller::shut_down() {
-  // TODO: Add shut down.
+  spreadsheet_controller::shut_down();
 }
 
 /*
@@ -66,7 +65,7 @@ void main_controller::message_callback(int socket_src, std::string message) {
       data_container_.new_outbound_packet(socket_src, *new outbound_connect_accepted_packet(spreadsheets));
 
       delete packet;
-      
+
       break;
     }
     case inbound_packet::LOAD: {

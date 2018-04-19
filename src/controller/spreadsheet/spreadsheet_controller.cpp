@@ -32,7 +32,7 @@ spreadsheet_controller::spreadsheet_controller() {
 
 spreadsheet_controller::~spreadsheet_controller() {
   // Save all spreadsheets.
-  save_all_spreadsheets();
+  get_instance().save_all_spreadsheets();
 
   // Delete all spreadsheets.
   for (auto &&item : active_spreadsheets_) {
@@ -43,6 +43,10 @@ spreadsheet_controller::~spreadsheet_controller() {
 spreadsheet_controller &spreadsheet_controller::get_instance() {
   static spreadsheet_controller instance; // Instantiated on first-use.
   return instance;
+}
+
+void spreadsheet_controller::shut_down() {
+  delete &get_instance();
 }
 
 void spreadsheet_controller::work() {

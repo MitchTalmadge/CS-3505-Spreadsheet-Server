@@ -71,6 +71,11 @@ class spreadsheet_controller {
   static spreadsheet_controller &get_instance();
 
   /**
+   * Shuts down and disposes of this singleton.
+   */
+  static void shut_down();
+
+  /**
    * Deleted copy constructor since this is a singleton.
    */
   spreadsheet_controller(spreadsheet_controller const &) = delete;

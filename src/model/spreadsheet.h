@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include <stack>
+#include <fstream>
 
 /**
  * Simple struct to hold the value of a cell at a given time.
@@ -22,9 +23,10 @@ struct cell_history {
 class spreadsheet {
 
   /**
-   * Determines if the spreadsheet has been changed at all since last opened/saved.
+   * Determines if the spreadsheet is loaded and able to be used.
+   * If reading from a file fails, this will be false. The default constructor will always have this be true.
    */
-  bool changed_ = false;
+  bool loaded_;
 
   /**
    * Contains the contents of each cell in the spreadsheet.
@@ -61,6 +63,8 @@ class spreadsheet {
    */
   explicit spreadsheet(const std::string &file_path);
 
+  bool is_loaded() const;
+
   /**
    * Saves this spreadsheet to a JSON file.
    * After a successful save, the spreadsheet is no longer considered "changed."
@@ -73,7 +77,7 @@ class spreadsheet {
    * @param cell_name The name of the cell.
    * @return The contents of the cell.
    */
-  std::string get_cell_contents(const std::string &cell_name);
+  std::string get_cell_contents(const std::string &cell_name) const;
 
   /**
    * Sets the contents of a specific cell.
@@ -81,6 +85,11 @@ class spreadsheet {
    * @param contents The contents of the cell.
    */
   void set_cell_contents(const std::string &cell_name, const std::string &contents);
+
+  /**
+   * @return A map containing cell names mapped to contents for all cells which have non-empty contents.
+   */
+  std::map<std::string, std::string> get_non_empty_cells() const;
 
   /**
    * Marks a client as having focused on a particular cell.

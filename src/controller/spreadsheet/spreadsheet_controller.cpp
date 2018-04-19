@@ -8,18 +8,45 @@
 #include <model/packet/inbound/inbound_focus_packet.h>
 #include <model/packet/outbound/outbound_focus_packet.h>
 #include <model/packet/outbound/outbound_unfocus_packet.h>
+#include <boost/filesystem.hpp>
+#include <model/packet/inbound/inbound_load_packet.h>
+
+const std::string spreadsheet_controller::FILE_DIR_PATH = "saves";
 
 spreadsheet_controller::spreadsheet_controller() {
+
+  // Load all existing spreadsheets.
+  boost::filesystem::directory_iterator end;
+  for (boost::filesystem::directory_iterator item(FILE_DIR_PATH); item != end; ++item) {
+    spreadsheet *sheet = new spreadsheet(item->path().string());
+    if (sheet->is_loaded()) {
+      active_spreadsheets_[item->path().stem().string()] = sheet;
+    } else {
+      delete sheet;
+    }
+  }
 
   // Start work thread.
   boost::thread work_thread(&spreadsheet_controller::work, this);
 }
 
-spreadsheet_controller::~spreadsheet_controller() = default;
+spreadsheet_controller::~spreadsheet_controller() {
+  // Save all spreadsheets.
+  get_instance().save_all_spreadsheets();
+
+  // Delete all spreadsheets.
+  for (auto &&item : active_spreadsheets_) {
+    delete item.second;
+  }
+};
 
 spreadsheet_controller &spreadsheet_controller::get_instance() {
   static spreadsheet_controller instance; // Instantiated on first-use.
   return instance;
+}
+
+void spreadsheet_controller::shut_down() {
+  delete &get_instance();
 }
 
 void spreadsheet_controller::work() {
@@ -30,8 +57,17 @@ void spreadsheet_controller::work() {
     auto packet = data_container_.get_inbound_packet(entry.first);
     if (packet) {
       // Parse inbound message.
-      parse_inbound_packet(*packet, entry.first, *(entry.second));
+      parse_inbound_packet(*packet, entry.first, *entry.second);
     }
+  }
+
+  // Check if we should save.
+  if (save_countdown_ <= 0) {
+    // Reset counter.
+    save_countdown_ = 18000;
+
+    // Save all spreadsheets.
+    save_all_spreadsheets();
   }
 
   // Briefly sleep to prevent this from choking machine resources.
@@ -43,12 +79,6 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet, const 
 
   // Handle parsed packet.
   switch (packet.get_packet_type()) {
-    case inbound_packet::LOAD: {
-      // TODO: full state
-      data_container_.new_outbound_packet(packet.get_socket_id(),
-					  *new outbound_full_state_packet(std::map<std::string, std::string>()));
-      break;
-    }
     case inbound_packet::EDIT: {
       auto edit_packet = dynamic_cast<inbound_edit_packet &>(packet);
 
@@ -59,6 +89,24 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet, const 
       data_container_.new_outbound_packet(spreadsheet_name,
                                           *new outbound_change_packet(edit_packet.get_cell_name(),
                                                                       edit_packet.get_cell_contents()));
+      break;
+    }
+    case inbound_packet::LOAD: {
+      auto load_packet = dynamic_cast<inbound_load_packet &>(packet);
+
+      // Try to find an existing spreadsheet.
+      auto item = active_spreadsheets_.find(load_packet.get_spreadsheet_name());
+      if (item != active_spreadsheets_.end()) {
+        // Spreadsheet found.
+        data_container_.new_outbound_packet(packet.get_socket_id(),
+                                            *new outbound_full_state_packet((*item).second->get_non_empty_cells()));
+      } else {
+        // Create new spreadsheet.
+        active_spreadsheets_[load_packet.get_spreadsheet_name()] = new spreadsheet;
+        data_container_.new_outbound_packet(packet.get_socket_id(),
+                                            *new outbound_full_state_packet(active_spreadsheets_[load_packet.get_spreadsheet_name()]->get_non_empty_cells()));
+      }
+
       break;
     }
     case inbound_packet::FOCUS: {
@@ -84,6 +132,12 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet, const 
   delete &packet;
 }
 
+void spreadsheet_controller::save_all_spreadsheets() const {
+  for (auto &&item : active_spreadsheets_) {
+    item.second->save_to_file(FILE_DIR_PATH + "/" + item.first + ".sprd");
+  }
+}
+
 bool spreadsheet_controller::is_valid_cell_name(const std::string &cell_name) {
 
   // Define cell name regex pattern.
@@ -100,17 +154,12 @@ std::string spreadsheet_controller::normalize_cell_name(std::string cellName) {
   return cellName;
 }
 
-bool spreadsheet_controller::is_double(const std::string &str) {
-  try {
-    // Attempt conversion
-    std::stod(str);
-    return true;
-  } catch (...) {
-    return false;
-  }
-}
+std::vector<std::string> spreadsheet_controller::get_spreadsheet_names() const {
+  std::vector<std::string> names;
 
-std::vector<std::string> spreadsheet_controller::get_spreadsheets() {
-  // TODO: List all existing spreadsheet names.
-  return std::vector<std::string>();
+  for (auto &&item : active_spreadsheets_) {
+    names.push_back(item.first);
+  }
+
+  return names;
 }

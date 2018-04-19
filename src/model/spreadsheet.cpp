@@ -1,19 +1,95 @@
 #include "spreadsheet.h"
 #include <controller/spreadsheet/spreadsheet_controller.h>
-#include <algorithm>
+#include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
+#include <iostream>
 
-spreadsheet::spreadsheet() = default;
+spreadsheet::spreadsheet() {
+  loaded_ = true;
+}
 
 spreadsheet::spreadsheet(const std::string &file_path) {
+  // Read in file as string
+  std::ifstream input_stream(file_path);
 
+  if (!input_stream.is_open()) {
+    loaded_ = false;
+    return;
+  }
+
+  auto file_contents = std::string(std::istreambuf_iterator<char>(input_stream), std::istreambuf_iterator<char>());
+
+  // Check for header.
+  if (!boost::starts_with(file_contents, "spreadsheet|")) {
+    loaded_ = false;
+    return;
+  }
+
+  // Extract cells.
+  std::vector<std::string> split;
+  auto file_contents_minus_header = file_contents.substr(12);
+  boost::split(split, file_contents_minus_header, boost::is_any_of(":"));
+
+  // Make sure that an even number of items were retrieved, otherwise one cell does not have a matching contents.
+  if (split.size() % 2 != 0) {
+    loaded_ = false;
+    return;
+  }
+
+  // Iterate over each split item and map cells.
+  for (auto item = split.begin(); item != split.end(); ++item) {
+    auto &key = *item;
+    auto &value = *++item;
+    cell_contents_[key] = value;
+  }
+
+  loaded_ = true;
 }
 
 void spreadsheet::save_to_file(const std::string &file_path) {
+  // Extract the filename and directories.
+  unsigned int path_split_index = file_path.find_last_of('/');
 
+  std::string file_name_part;
+  std::string directory_part;
+
+  if (path_split_index == std::string::npos) {
+    file_name_part = file_path;
+  } else {
+    file_name_part = file_path.substr(path_split_index);
+    directory_part = file_path.substr(0, path_split_index);
+  }
+
+  // Create the directories as needed.
+  if (!directory_part.empty()) {
+    boost::filesystem::create_directories(directory_part);
+  }
+
+  // Create file contents.
+  std::string contents = "spreadsheet|";
+
+  for (auto &&item : cell_contents_) {
+    // Skip empty cells
+    if (item.second.empty())
+      continue;
+
+    contents += item.first + ":" + item.second + ":";
+  }
+
+  if (boost::ends_with(contents, ":"))
+    contents.erase(contents.size() - 1, 1);
+
+  // Write contents to file.
+  std::ofstream output_stream(file_path);
+  output_stream << contents;
+  output_stream.close();
 }
 
-std::string spreadsheet::get_cell_contents(const std::string &cell_name) {
-    return cell_contents_[spreadsheet_controller::normalize_cell_name(cell_name)];
+std::string spreadsheet::get_cell_contents(const std::string &cell_name) const {
+  auto iter = cell_contents_.find(cell_name);
+  if (iter != cell_contents_.end())
+    return iter->second;
+  return "";
 }
 
 void spreadsheet::set_cell_contents(const std::string &cell_name, const std::string &contents) {
@@ -31,15 +107,28 @@ void spreadsheet::set_cell_contents(const std::string &cell_name, const std::str
   // Push old contents onto this cell's revert.
   revert_history_[cell_name].push(old_history);
 
-    cell_contents_[spreadsheet_controller::normalize_cell_name(cell_name)] = contents;
+  cell_contents_[spreadsheet_controller::normalize_cell_name(cell_name)] = contents;
+}
+
+std::map<std::string, std::string> spreadsheet::get_non_empty_cells() const {
+  std::map<std::string, std::string> map;
+
+  for (auto &&item : cell_contents_) {
+    if (item.second.empty())
+      continue;
+
+    map[item.first] = item.second;
+  }
+
+  return map;
 }
 
 void spreadsheet::focus_cell(int socket_id, const std::string &cell_name) {
-    focused_cells_[socket_id] = cell_name;
+  focused_cells_[socket_id] = cell_name;
 }
 
 void spreadsheet::unfocus_cell(int socket_id) {
-    focused_cells_.erase(socket_id);
+  focused_cells_.erase(socket_id);
 }
 
 void spreadsheet::undo() {
@@ -86,4 +175,6 @@ void spreadsheet::revert(const std::string &cell_name) {
     undo_history_.push(current_history);
   }
 }
-
+bool spreadsheet::is_loaded() const {
+  return loaded_;
+}

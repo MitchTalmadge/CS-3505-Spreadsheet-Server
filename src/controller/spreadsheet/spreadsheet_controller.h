@@ -11,6 +11,19 @@
  */
 class spreadsheet_controller {
 
+ private:
+
+  /**
+   * The path to the directory where save files will be located.
+   */
+  static const std::string FILE_DIR_PATH;
+
+  /**
+   * The number of ticks left until all spreadsheets should be saved.
+   * Initialized to 3 minutes worth of ticks.
+   */
+  int save_countdown_ = 18000;
+
   /**
    * Contains all spreadsheets which are active, meaning they have been loaded by a client.
    * Maps spreadsheet file names to spreadsheet instances.
@@ -45,6 +58,11 @@ class spreadsheet_controller {
    */
   void parse_inbound_packet(inbound_packet &packet, const std::string &spreadsheet_name, spreadsheet &sheet);
 
+  /**
+   * Saves all active spreadsheets one at a time.
+   */
+  void save_all_spreadsheets() const;
+
  public:
 
   /**
@@ -53,18 +71,9 @@ class spreadsheet_controller {
   static spreadsheet_controller &get_instance();
 
   /**
-   * @return Valid connect_accepted message for the current state of the server.
+   * Shuts down and disposes of this singleton.
    */
-  std::vector<std::string> get_spreadsheets();
-
-  /**
-   * Handle the opening of a new spreadsheet, adding to the list
-   * of active models or creating a new spreadsheet entirely as necessary.
-   *
-   * @param spreadsheet Name of spreadsheet that client wants to load.
-   * @return The map of cell contents for the given spreadsheet.
-   */
-  std::map<std::string, std::string> get_spreadsheet(std::string spreadsheet);
+  static void shut_down();
 
   /**
    * Deleted copy constructor since this is a singleton.
@@ -97,11 +106,9 @@ class spreadsheet_controller {
   static std::string normalize_cell_name(std::string cellName);
 
   /**
-   * Determines if the given string is a double.
-   * @param str The string.
-   * @return True if the string is a double, false otherwise.
+   * @return The names of all existing spreadsheets.
    */
-  static bool is_double(const std::string &str);
+  std::vector<std::string> get_spreadsheet_names() const;
 
 };
 

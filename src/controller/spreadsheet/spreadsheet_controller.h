@@ -21,7 +21,7 @@ class spreadsheet_controller {
   /**
    * Whether the instance is currently alive. (Has not been shut down).
    */
-  static bool instance_alive_ = true;
+  static bool instance_alive_;
 
   /**
    * The number of ticks left until all spreadsheets should be saved.
@@ -34,6 +34,16 @@ class spreadsheet_controller {
    * Maps spreadsheet file names to spreadsheet instances.
    */
   std::map<const std::string, spreadsheet *> active_spreadsheets_;
+
+  /**
+   * Map from spreadsheet to associated sockets.
+   */
+  std::map<std::string, std::vector<int> > spreadsheets_to_sockets_;
+
+  /**
+   * Map from sockets to associated spreadsheet.
+   */
+  std::map<int, std::string> sockets_to_spreadsheets_;
 
   /**
    * The data container that interfaces between the network controller and spreadsheet controller.
@@ -61,7 +71,14 @@ class spreadsheet_controller {
    * @param spreadsheet_name The spreadsheet file name.
    * @param sheet The spreadsheet instance.
    */
-  void parse_inbound_packet(inbound_packet &packet, const std::string &spreadsheet_name, spreadsheet &sheet);
+  void parse_inbound_packet(inbound_packet &packet);
+
+  /**
+   * Sends an outbound packet to all the sockets mapped to a given spreadsheet.
+   * @param spreadsheet_name The name of the spreadsheet for which to send packets to all sockets.
+   * @param packet The packet to send.
+   */
+  void send_packet_to_all_sockets(const std::string &spreadsheet_name, outbound_packet &packet) const;
 
   /**
    * Saves all active spreadsheets one at a time.

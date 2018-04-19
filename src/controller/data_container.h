@@ -23,28 +23,16 @@ class data_container {
 private:
 
   /**
-   * Map from spreadsheet to associated sockets.
-   */
-  std::map<std::string, std::vector<int> > spreadsheet_to_sockets;
-  std::mutex spreadsheet_to_sockets_mutex;
-
-  /**
-   * Map from sockets to associated spreadsheet.
-   */
-  std::map<int, std::string> sockets_to_spreadsheet;
-  std::mutex sockets_to_spreadsheet_mutex;
-
-  /**
    * Map from spreadsheet name to incoming message queue.
    */
-  std::map<std::string, std::queue<inbound_packet *> > inbound_messages;
-  std::mutex inbound_messages_mutex;
+  std::queue<inbound_packet *> inbound_packets_;
+  std::mutex inbound_packets_mutex_;
 
   /**
    * Map from socket_id_ to outgoing message queue.
    */
-    std::map<int, std::queue<outbound_packet *> > outbound_messages;
-    std::mutex outbound_messages_mutex;
+    std::map<int, std::queue<outbound_packet *> > outbound_packets_;
+    std::mutex outbound_packets_mutex_;
 
     /**
      * Private constructor for singleton pattern.
@@ -74,17 +62,12 @@ public:
     void operator=(data_container const &)  = delete;
 
     /**
-     * Alert the data container of a new socket associated with the given spreadsheet.
+     * Get a message from the inbound queue. Called by the spreadsheet controller.
      */
-    void new_client(int socket_id, std::string spreadsheet);
+    inbound_packet * get_inbound_packet();
 
     /**
-     * Get a message from the inbound queue for the given spreadsheet. Called by the model.
-     */
-    inbound_packet * get_inbound_packet(std::string spreadsheet);
-
-    /**
-     * Send new message to inbound message.
+     * Adds a new packet to the inbound packet queue, to be retrieved one-at-a-time later.
      */
     void new_inbound_packet(inbound_packet &packet);
 
@@ -98,10 +81,6 @@ public:
      */
     void new_outbound_packet(int socket_id, outbound_packet &packet);
 
-    /**
-     * Send new message to outbound queue for all sockets in the provided spreadsheet.
-     */
-    void new_outbound_packet(std::string spreadsheet_name, outbound_packet &packet);
 };
 
 #endif

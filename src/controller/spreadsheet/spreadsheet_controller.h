@@ -62,9 +62,9 @@ class spreadsheet_controller {
    * of active models or creating a new spreadsheet entirely as necessary.
    *
    * @param spreadsheet Name of spreadsheet that client wants to load.
-   * @return The full_state message for the given spreadsheet.
+   * @return The map of cell contents for the given spreadsheet.
    */
-  std::string get_spreadsheet(std::string spreadsheet);
+  std::map<std::string, std::string> get_spreadsheet(std::string spreadsheet);
 
   /**
    * Deleted copy constructor since this is a singleton.

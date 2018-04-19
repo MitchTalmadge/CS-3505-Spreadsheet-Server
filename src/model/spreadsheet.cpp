@@ -86,3 +86,4 @@ void spreadsheet::revert(const std::string &cell_name) {
     undo_history_.push(current_history);
   }
 }
+

@@ -43,6 +43,12 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet, const 
 
   // Handle parsed packet.
   switch (packet.get_packet_type()) {
+    case inbound_packet::LOAD: {
+      // TODO: full state
+      data_container_.new_outbound_packet(packet.get_socket_id(),
+					  *new outbound_full_state_packet(std::map<std::string, std::string>()));
+      break;
+    }
     case inbound_packet::EDIT: {
       auto edit_packet = dynamic_cast<inbound_edit_packet &>(packet);
 
@@ -53,12 +59,6 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet, const 
       data_container_.new_outbound_packet(spreadsheet_name,
                                           *new outbound_change_packet(edit_packet.get_cell_name(),
                                                                       edit_packet.get_cell_contents()));
-      break;
-    }
-    case inbound_packet::LOAD: {
-      // TODO: full state
-      data_container_.new_outbound_packet(packet.get_socket_id(),
-                                          *new outbound_full_state_packet(std::map<std::string, std::string>()));
       break;
     }
     case inbound_packet::FOCUS: {

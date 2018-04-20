@@ -39,7 +39,7 @@ class spreadsheet_controller {
   /**
    * Map from spreadsheet to associated sockets.
    */
-  std::map<std::string, std::vector<int>> spreadsheets_to_sockets_;
+  std::map<std::string, std::set<int>> spreadsheets_to_sockets_;
 
   /**
    * Map from sockets to associated spreadsheet.
@@ -79,7 +79,7 @@ class spreadsheet_controller {
    * @param spreadsheet_name The name of the spreadsheet for which to send packets to all sockets.
    * @param packet The packet to send.
    */
-  void send_packet_to_all_sockets(const std::string &spreadsheet_name, outbound_packet &packet) const;
+  void send_packet_to_all_sockets(const std::string &spreadsheet_name, outbound_packet &packet);
 
   /**
    * Saves all active spreadsheets one at a time.

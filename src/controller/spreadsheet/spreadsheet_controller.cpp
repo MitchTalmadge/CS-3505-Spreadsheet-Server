@@ -122,7 +122,7 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet) {
 
       // Assign socket to spreadsheet and vice-versa
       sockets_to_spreadsheets_[packet.get_socket_id()] = load_packet.get_spreadsheet_name();
-      spreadsheets_to_sockets_[load_packet.get_spreadsheet_name()].push_back(packet.get_socket_id());
+      spreadsheets_to_sockets_[load_packet.get_spreadsheet_name()].insert(packet.get_socket_id());
 
       break;
     }
@@ -177,14 +177,26 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet) {
 }
 
 void spreadsheet_controller::send_packet_to_all_sockets(const std::string &spreadsheet_name,
-                                                        outbound_packet &packet) const {
+                                                        outbound_packet &packet) {
 
   // Send to all sockets mapped to the given spreadsheet.
   auto iter = spreadsheets_to_sockets_.find(spreadsheet_name);
   if (iter != spreadsheets_to_sockets_.end()) {
+
+    std::vector<int> to_remove;
+
     for (auto socket_id : iter->second) {
       // Clone the packet into each socket's outbound queue.
-      data_container_.new_outbound_packet(socket_id, *packet.clone());
+      bool still_connected = data_container_.new_outbound_packet(socket_id, *packet.clone());
+
+      if (!still_connected) {
+	to_remove.push_back(socket_id);
+      }
+    }
+
+    // Remove disconnected sockets.
+    for (auto socket_id : to_remove) {
+      iter->second.erase(socket_id);
     }
   }
 

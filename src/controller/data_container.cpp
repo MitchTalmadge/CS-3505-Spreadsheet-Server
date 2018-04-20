@@ -14,16 +14,30 @@ data_container &data_container::get_instance() {
   return instance;
 }
 
+void data_container::remove_socket(int socket_id) {
+  std::lock_guard<std::mutex> lock_outbound(outbound_packets_mutex_);
+  std::lock_guard<std::mutex> lock_disconnected(disconnected_clients_mutex_);
+  
+  disconnected_clients_.insert(socket_id);
+
+  // Free up memory used by that socket.
+  std::queue<outbound_packet *>& packets = outbound_packets_[socket_id];
+    
+  while(!packets.empty()) {
+    outbound_packet* packet = packets.front();
+    packets.pop();
+    delete packet;
+  }
+
+  // Remove the outbound queue.
+  outbound_packets_.erase(socket_id);
+}
+
 void data_container::new_inbound_packet(inbound_packet &packet) {
   std::lock_guard<std::mutex> lock(inbound_packets_mutex_);
 
   // Place packet onto queue for given spreadsheet.
   inbound_packets_.push(&packet);
-}
-
-template <class key, class packet_type>
-void clear_queue_map(std::map<key, std::queue<packet_type *>> &packet_queues) {
-
 }
 
 data_container::~data_container() {
@@ -67,11 +81,20 @@ inbound_packet *data_container::get_inbound_packet() {
 Send a new message to the specified socket.
 Called by the main controller during registration.
  */
-void data_container::new_outbound_packet(int socket_id, outbound_packet &packet) {
-  std::lock_guard<std::mutex> lock(outbound_packets_mutex_);
+bool data_container::new_outbound_packet(int socket_id, outbound_packet &packet) {
+  std::lock_guard<std::mutex> lock_outbound(outbound_packets_mutex_);
+  std::lock_guard<std::mutex> lock_disconnected(disconnected_clients_mutex_);
+
+  // If the asked for socket has closed, tell spreadsheet_controller.
+  auto disconnect_it = disconnected_clients_.find(socket_id);
+  if (disconnect_it != disconnected_clients_.end()) {
+    disconnected_clients_.erase(socket_id);
+    return false;
+  }
 
   auto &queue = outbound_packets_[socket_id];
   queue.push(&packet);
+  return true;
 }
 
 /*

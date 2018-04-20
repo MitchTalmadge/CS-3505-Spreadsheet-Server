@@ -11,6 +11,7 @@ able to access shared data.
 
 #include <queue>
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 #include <mutex>
@@ -35,6 +36,12 @@ private:
     std::mutex outbound_packets_mutex_;
 
     /**
+     * Know who disconnected so spreadsheet_controller can learn of it.
+     */
+    std::set<int> disconnected_clients_;
+    std::mutex disconnected_clients_mutex_;
+
+    /**
      * Private constructor for singleton pattern.
      */
     data_container() = default;
@@ -50,6 +57,11 @@ public:
      * @return The singleton instance of this container.
      */
     static data_container &get_instance();
+
+    /**
+     * @param socket_id Client socket id to remove from queue maps.
+     */
+    void remove_socket(int socket_id);
 
     /**
      * Deleted copy constructor since this is a singleton.
@@ -78,8 +90,10 @@ public:
 
     /**
      * Send new message to outbound queue for given socket.
+     * @return if queued successfully. False indicates the socket is no longer
+     * active and can be removed.
      */
-    void new_outbound_packet(int socket_id, outbound_packet &packet);
+    bool new_outbound_packet(int socket_id, outbound_packet &packet);
 
 };
 

@@ -88,6 +88,9 @@ void network_controller::socket_work_loop(int socket_id) {
 	// Shut down the socket.
 	close(socket_id);
 
+	// Clean up resources for this socket.
+	data_container_.remove_socket(socket_id);
+
 	// Return which will end this thread.
 	return;
       }
@@ -131,6 +134,9 @@ void network_controller::socket_work_loop(int socket_id) {
 
       // Close their socket.
       close(socket_id);
+
+      // Clean up resources for this socket.
+      data_container_.remove_socket(socket_id);
       
       // Return which will end this thread.
       return;

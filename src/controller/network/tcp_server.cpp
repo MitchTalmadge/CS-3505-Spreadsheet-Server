@@ -17,6 +17,8 @@ Create a new TCP Server. Here we set the port number and can handle any other se
 tcp_server::tcp_server() {
   // Set our port according to the communication protocol.
   this->port = 2112;
+
+  this->worker_thread = nullptr;
 }
 
 /*
@@ -106,8 +108,10 @@ controller.
  */
 tcp_server::~tcp_server() {
   // Interrupt the server work loop - this will interrupt next time it sleeps.
-  worker_thread->interrupt();
-  delete worker_thread;
+  if (worker_thread != nullptr) {
+    worker_thread->interrupt();
+    delete worker_thread;
+  }
 
   // Shutdown our socket.
   close(server_fd);

@@ -37,6 +37,7 @@ spreadsheet_controller::spreadsheet_controller() {
 spreadsheet_controller::~spreadsheet_controller() {
   // Interrupt the worker thread.
   worker_thread->interrupt();
+  delete worker_thread;
 
   // Save all spreadsheets.
   save_all_spreadsheets();

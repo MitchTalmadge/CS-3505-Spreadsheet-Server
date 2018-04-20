@@ -21,8 +21,29 @@ void data_container::new_inbound_packet(inbound_packet &packet) {
   inbound_packets_.push(&packet);
 }
 
+template <class key, class packet_type>
+void clear_queue_map(std::map<key, std::queue<packet_type *>> &packet_queues) {
+
+}
+
 data_container::~data_container() {
-  // Free up inbound and outbound data queue memory.
+  // Free all packets in outbound packet queues.
+  for (auto it = outbound_packets_.begin(); it != outbound_packets_.end(); ++it) {
+    std::queue<outbound_packet *>& packets = it->second;
+    
+    while(!packets.empty()) {
+      outbound_packet* packet = packets.front();
+      packets.pop();
+      delete packet;
+    }
+  }
+  
+  // Clear out the inbound packet queue.
+  while (!inbound_packets_.empty()) {
+    inbound_packet* packet = inbound_packets_.front();
+    inbound_packets_.pop();
+    delete packet;
+  }
 }
 
 /*

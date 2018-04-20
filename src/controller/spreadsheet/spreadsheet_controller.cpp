@@ -234,12 +234,14 @@ void spreadsheet_controller::send_packet_to_all_sockets(const std::string &sprea
 }
 
 void spreadsheet_controller::save_all_spreadsheets() const {
+  std::cout << "Saving All Spreadsheets..." << std::endl;
   for (auto &&item : active_spreadsheets_) {
     save_spreadsheet(*item.second, item.first);
   }
 }
 
 void spreadsheet_controller::save_spreadsheet(spreadsheet &sheet, const std::string &spreadsheet_name) const {
+  std::cout << "Saving Spreadsheet: " << spreadsheet_name << std::endl;
   sheet.save_to_file(FILE_DIR_PATH + "/" + spreadsheet_name + ".sprd");
 }
 

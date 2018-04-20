@@ -18,11 +18,20 @@ clients.
 class network_controller {
 
  private:
-  // Data container is where outgoing messages will be stored.
+  /**
+   * Data container is where outgoing messages will be stored.
+   */
   data_container &data_container_ = data_container::get_instance();
 
-  // Work loop for the network controller, where it listens in on a socket for incoming
-  // messages.
+  /**
+   * Maintain list of worker threads to allow shutting down.
+   */
+  std::vector<boost::thread*> worker_threads_;
+
+  /** 
+   * Work loop for the network controller, where it listens in on a socket for incoming
+   * messages.
+   */
   void socket_work_loop(int socket_id);
 
   /**
@@ -33,9 +42,16 @@ class network_controller {
   /**
    * Private destructor for singleton pattern.
    */
-  ~network_controller() = default;
+  ~network_controller();
 
  public:
+
+  /**
+   * Make the given socket non blocking.
+   * @param socket_id File descriptor of socket.
+   * @return true if successful, false otherwise.
+   */
+  static bool set_socket_non_blocking(int socket_id);
 
   /**
    * @return The singleton instance of this controller.
@@ -52,11 +68,11 @@ class network_controller {
    */
   void operator=(network_controller const &)  = delete;
 
-  // Create a work loop for the provided socket.
+  /**
+   * Create a work loop for the provided socket.
+   */
   void start_work(int socket_id);
 
-  // Shut down self and components.
-  void shut_down();
 };
 
 #endif

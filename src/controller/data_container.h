@@ -42,7 +42,7 @@ private:
     /**
      * Private destructor for singleton pattern.
      */
-    ~data_container() = default;
+    ~data_container();
 
 public:
 

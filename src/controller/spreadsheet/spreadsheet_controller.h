@@ -33,7 +33,7 @@ class spreadsheet_controller {
   /**
    * The names of all spreadsheets which may be loaded.
    */
-  std::set<const std::string> available_spreadsheets_;
+  std::set<std::string> available_spreadsheets_;
 
   /**
    * Contains all spreadsheets which are active, meaning they have been loaded by a client.

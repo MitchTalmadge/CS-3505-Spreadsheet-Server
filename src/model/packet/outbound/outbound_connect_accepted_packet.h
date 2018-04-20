@@ -9,11 +9,11 @@ class outbound_connect_accepted_packet : public outbound_packet {
   /**
    * Contains the names of all existing spreadsheets that may be loaded by a client.
    */
-  const std::set<const std::string> spreadsheet_names_;
+  const std::set<std::string> spreadsheet_names_;
 
  public:
 
-  explicit outbound_connect_accepted_packet(const std::set<const std::string> &spreadsheet_names);
+  explicit outbound_connect_accepted_packet(const std::set<std::string> &spreadsheet_names);
 
   outbound_packet *clone() const override;
 
@@ -21,7 +21,7 @@ class outbound_connect_accepted_packet : public outbound_packet {
 
   std::string get_raw_message() override;
 
-  const std::set<const std::string> &get_spreadsheet_names() const;
+  const std::set<std::string> &get_spreadsheet_names() const;
 
 };
 

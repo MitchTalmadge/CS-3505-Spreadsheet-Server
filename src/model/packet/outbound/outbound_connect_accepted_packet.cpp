@@ -1,7 +1,7 @@
 #include <boost/algorithm/string.hpp>
 #include "outbound_connect_accepted_packet.h"
 
-outbound_connect_accepted_packet::outbound_connect_accepted_packet(const std::set<const std::string> &spreadsheet_names)
+outbound_connect_accepted_packet::outbound_connect_accepted_packet(const std::set<std::string> &spreadsheet_names)
     : spreadsheet_names_(spreadsheet_names) {}
 
 outbound_packet *outbound_connect_accepted_packet::clone() const {
@@ -27,6 +27,6 @@ std::string outbound_connect_accepted_packet::get_raw_message() {
   return response + EOT;
 }
 
-const std::set<const std::string> &outbound_connect_accepted_packet::get_spreadsheet_names() const {
+const std::set<std::string> &outbound_connect_accepted_packet::get_spreadsheet_names() const {
   return spreadsheet_names_;
 }

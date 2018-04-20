@@ -10,7 +10,8 @@ spreadsheet::spreadsheet() {
 
 spreadsheet::spreadsheet(const std::string &file_path) {
   // Read in file as string
-  std::ifstream input_stream(file_path);
+  auto abs_file_path = boost::filesystem::absolute(boost::filesystem::path(file_path)).string();
+  std::ifstream input_stream(abs_file_path);
 
   if (!input_stream.is_open()) {
     loaded_ = false;
@@ -80,7 +81,8 @@ void spreadsheet::save_to_file(const std::string &file_path) {
     contents.erase(contents.size() - 1, 1);
 
   // Write contents to file.
-  std::ofstream output_stream(file_path);
+  auto abs_file_path = boost::filesystem::absolute(boost::filesystem::path(file_path)).string();
+  std::ofstream output_stream(abs_file_path);
   output_stream << contents;
   output_stream.close();
 }

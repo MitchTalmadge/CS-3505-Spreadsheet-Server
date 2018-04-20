@@ -59,7 +59,14 @@ public:
     static data_container &get_instance();
 
     /**
-     * @param socket_id Client socket id to remove from queue maps.
+     * Marks a socket ID as having been connected.
+     * @param socket_id The ID of the registered socket.
+     */
+    void register_socket(int socket_id);
+
+    /**
+     * Marks a socket ID as having been disconnected.
+     * @param socket_id The ID of the disconnected socket.
      */
     void remove_socket(int socket_id);
 

@@ -73,29 +73,30 @@ void network_controller::socket_work_loop(int socket_id) {
 
           break;
         }
-      case inbound_packet::PING_RESPONSE: {
-	// Client has responded to our most recent Ping. Reset the ping_timeout_timer.
-	ping_timeout_timer = network_controller::ping_timeout;
+        case inbound_packet::PING_RESPONSE: {
+          // Client has responded to our most recent Ping. Reset the ping_timeout_timer.
+          ping_timeout_timer = network_controller::ping_timeout;
 
-	// Dispose of packet as it has been handled.
-	delete packet;
-	
-	break;
-      }
-      case inbound_packet::DISCONNECT: {
-	std::cout << "Disconnecting client on socket " <<  socket_id << std::endl;
-	
-	// Shut down the socket.
-	close(socket_id);
+          // Dispose of packet.
+          delete packet;
 
-	// Clean up resources for this socket.
-	data_container_.remove_socket(socket_id);
+          break;
+        }
+        case inbound_packet::DISCONNECT: {
+          std::cout << "Disconnecting client on socket " << socket_id << std::endl;
 
-	delete packet;
+          // Shut down the socket.
+          close(socket_id);
 
-	// Return which will end this thread.
-	return;
-      }
+          // Clean up resources for this socket.
+          data_container_.remove_socket(socket_id);
+
+          // Dispose of packet.
+          delete packet;
+
+          // Return which will end this thread.
+          return;
+        }
         default: {
           data_container_.new_inbound_packet(*packet);
           break;
@@ -143,7 +144,7 @@ void network_controller::socket_work_loop(int socket_id) {
 
       // Clean up resources for this socket.
       data_container_.remove_socket(socket_id);
-      
+
       // Return which will end this thread.
       return;
     }
@@ -155,13 +156,13 @@ void network_controller::socket_work_loop(int socket_id) {
       ping_timer -= 10;
       ping_timeout_timer -= 10;
     } catch (boost::thread_interrupted interruption) {
-      	std::cout << "Shutting down client on socket " <<  socket_id << std::endl;
-	
-	// Shut down the socket.
-	close(socket_id);
+      std::cout << "Shutting down client on socket " << socket_id << std::endl;
 
-	// Return which will end this thread.
-	return;
+      // Shut down the socket.
+      close(socket_id);
+
+      // Return which will end this thread.
+      return;
     }
   }
 }
@@ -180,7 +181,7 @@ void network_controller::start_work(int socket_id) {
   }
 
   // Start a thread that can listen in on the given socket.
-  boost::thread* work_thread = new boost::thread(&network_controller::socket_work_loop, this, socket_id);
+  boost::thread *work_thread = new boost::thread(&network_controller::socket_work_loop, this, socket_id);
 
   // Add thread to list of active threads.
   worker_threads_.push_back(work_thread);

@@ -14,17 +14,24 @@ data_container &data_container::get_instance() {
   return instance;
 }
 
+void data_container::register_socket(int socket_id) {
+  std::lock_guard<std::mutex> lock(disconnected_clients_mutex_);
+
+  // This socket is no longer disconnected.
+  disconnected_clients_.erase(socket_id);
+}
+
 void data_container::remove_socket(int socket_id) {
   std::lock_guard<std::mutex> lock_outbound(outbound_packets_mutex_);
   std::lock_guard<std::mutex> lock_disconnected(disconnected_clients_mutex_);
-  
+
   disconnected_clients_.insert(socket_id);
 
   // Free up memory used by that socket.
-  std::queue<outbound_packet *>& packets = outbound_packets_[socket_id];
-    
-  while(!packets.empty()) {
-    outbound_packet* packet = packets.front();
+  std::queue<outbound_packet *> &packets = outbound_packets_[socket_id];
+
+  while (!packets.empty()) {
+    outbound_packet *packet = packets.front();
     packets.pop();
     delete packet;
   }
@@ -43,18 +50,18 @@ void data_container::new_inbound_packet(inbound_packet &packet) {
 data_container::~data_container() {
   // Free all packets in outbound packet queues.
   for (auto it = outbound_packets_.begin(); it != outbound_packets_.end(); ++it) {
-    std::queue<outbound_packet *>& packets = it->second;
-    
-    while(!packets.empty()) {
-      outbound_packet* packet = packets.front();
+    std::queue<outbound_packet *> &packets = it->second;
+
+    while (!packets.empty()) {
+      outbound_packet *packet = packets.front();
       packets.pop();
       delete packet;
     }
   }
-  
+
   // Clear out the inbound packet queue.
   while (!inbound_packets_.empty()) {
-    inbound_packet* packet = inbound_packets_.front();
+    inbound_packet *packet = inbound_packets_.front();
     inbound_packets_.pop();
     delete packet;
   }

@@ -85,6 +85,9 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet) {
     case inbound_packet::REGISTER: {
       std::cout << "Registering client on socket ID " << packet.get_socket_id() << std::endl;
 
+      // Register the socket.
+      data_container_.register_socket(packet.get_socket_id());
+
       // Respond to the client.
       data_container_.new_outbound_packet(packet.get_socket_id(),
                                           *new outbound_connect_accepted_packet(get_spreadsheet_names()));

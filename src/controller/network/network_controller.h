@@ -18,6 +18,17 @@ clients.
 class network_controller {
 
  private:
+
+  /**
+   * Milliseconds between pings.
+   */
+  static const int ping_time = 10000;
+
+  /**
+   * Milliseconds for timeout if no response from connected client.
+   */
+  static const int ping_timeout = 60000;
+
   /**
    * Data container is where outgoing messages will be stored.
    */

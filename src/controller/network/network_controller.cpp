@@ -13,6 +13,7 @@ clients.
 #include <boost/chrono.hpp>
 #include <model/packet/inbound/inbound_packet_factory.h>
 #include <model/packet/outbound/outbound_ping_response_packet.h>
+#include <model/packet/outbound/outbound_ping_packet.h>
 #include <iostream>
 
 /*
@@ -35,6 +36,14 @@ server.
  */
 void network_controller::socket_work_loop(int socket_id) {
   std::cout << "Listening on socket " << socket_id << std::endl;
+
+  // Ping timer counts down from 10000 milliseconds and can be checked to trigger
+  // a ping send.
+  int ping_timer = network_controller::ping_time;
+
+  // Ping timeout timer counts down from 60000 milliseconds and can be checked to 
+  // trigger a ping send.
+  int ping_timeout_timer = network_controller::ping_timeout;
 
   char buffer[1024] = {0};
   while (true) {
@@ -64,6 +73,15 @@ void network_controller::socket_work_loop(int socket_id) {
 
           break;
         }
+      case inbound_packet::PING_RESPONSE: {
+	// Client has responded to our most recent Ping. Reset the ping_timeout_timer.
+	ping_timeout_timer = network_controller::ping_timeout;
+
+	// Dispose of packet as it has been handled.
+	delete packet;
+	
+	break;
+      }
       case inbound_packet::DISCONNECT: {
 	std::cout << "Disconnecting client on socket " <<  socket_id << std::endl;
 	
@@ -99,9 +117,31 @@ void network_controller::socket_work_loop(int socket_id) {
       write(socket_id, msg, strlen(msg) * sizeof(char));
     }
 
+    // Check if either timer has gone off and handle accordingly.
+    if (ping_timer < 0) {
+      // Create and send a ping packet.
+      data_container_.new_outbound_packet(socket_id, *new outbound_ping_packet());
+
+      // Reset the ping timer.
+      ping_timer = network_controller::ping_time;
+    }
+    if (ping_timeout_timer < 0) {
+      // Client hasn't responded in 60 seconds, so we disconnect them.
+      std::cout << "Disconnecting client on socket " << socket_id << " due to ping timeout." << std::endl;
+
+      // Close their socket.
+      close(socket_id);
+      
+      // Return which will end this thread.
+      return;
+    }
+
     try {
       // Briefly sleep to prevent this from choking machine resources.
       boost::this_thread::sleep_for(boost::chrono::milliseconds{10});
+
+      ping_timer -= 10;
+      ping_timeout_timer -= 10;
     } catch (boost::thread_interrupted interruption) {
       	std::cout << "Shutting down client on socket " <<  socket_id << std::endl;
 	

@@ -52,6 +52,11 @@ public:
     static data_container &get_instance();
 
     /**
+     * @param socket_id Client socket id to remove from queue maps.
+     */
+    void remove_socket(int socket_id);
+
+    /**
      * Deleted copy constructor since this is a singleton.
      */
     data_container(data_container const &) = delete;
@@ -78,8 +83,10 @@ public:
 
     /**
      * Send new message to outbound queue for given socket.
+     * @return if queued successfully. False indicates the socket is no longer
+     * active and can be removed.
      */
-    void new_outbound_packet(int socket_id, outbound_packet &packet);
+    bool new_outbound_packet(int socket_id, outbound_packet &packet);
 
 };
 

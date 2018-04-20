@@ -1,6 +1,5 @@
 #include "spreadsheet_controller.h"
 #include <boost/regex.hpp>
-#include <boost/thread/thread.hpp>
 #include <boost/algorithm/string.hpp>
 #include <model/packet/inbound/inbound_edit_packet.h>
 #include <model/packet/outbound/outbound_change_packet.h>
@@ -13,21 +12,17 @@
 #include <model/packet/inbound/inbound_revert_packet.h>
 #include <iostream>
 #include <model/packet/outbound/outbound_connect_accepted_packet.h>
+#include <model/packet/outbound/outbound_file_load_error_packet.h>
 
 const std::string spreadsheet_controller::FILE_DIR_PATH = "saves";
 
 spreadsheet_controller::spreadsheet_controller() {
 
-  // Load all existing spreadsheets.
+  // Find all existing spreadsheets.
   boost::filesystem::create_directories(FILE_DIR_PATH);
   boost::filesystem::directory_iterator end;
   for (boost::filesystem::directory_iterator item(FILE_DIR_PATH); item != end; ++item) {
-    spreadsheet *sheet = new spreadsheet(item->path().string());
-    if (sheet->is_loaded()) {
-      active_spreadsheets_[item->path().stem().string()] = sheet;
-    } else {
-      delete sheet;
-    }
+    available_spreadsheets_.insert(item->path().stem().string());
   }
 
   // Start work thread.
@@ -70,8 +65,13 @@ void spreadsheet_controller::work() {
       save_all_spreadsheets();
     }
 
-    // Briefly sleep to prevent this from choking machine resources.
-    boost::this_thread::sleep_for(boost::chrono::milliseconds{10});
+    try {
+      // Briefly sleep to prevent this from choking machine resources.
+      boost::this_thread::sleep_for(boost::chrono::milliseconds{10});
+    } catch (boost::thread_interrupted interruption) {
+      // Thread interrupted.
+      break;
+    }
   }
 }
 
@@ -90,7 +90,7 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet) {
 
       // Respond to the client.
       data_container_.new_outbound_packet(packet.get_socket_id(),
-                                          *new outbound_connect_accepted_packet(get_spreadsheet_names()));
+                                          *new outbound_connect_accepted_packet(available_spreadsheets_));
 
       break;
     }
@@ -109,16 +109,42 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet) {
       auto load_packet = dynamic_cast<inbound_load_packet &>(packet);
 
       // Try to find an existing spreadsheet.
-      auto item = active_spreadsheets_.find(load_packet.get_spreadsheet_name());
-      if (item != active_spreadsheets_.end()) {
-        // Spreadsheet found.
-        std::cout << "Loading existing spreadsheet: " + item->first << std::endl;
-        data_container_.new_outbound_packet(packet.get_socket_id(),
-                                            *new outbound_full_state_packet(item->second->get_non_empty_cells()));
+      auto item = available_spreadsheets_.find(load_packet.get_spreadsheet_name());
+      if (item != available_spreadsheets_.end()) {
+        // Spreadsheet is available for loading. Check if it has already been loaded.
+        auto item2 = active_spreadsheets_.find(load_packet.get_spreadsheet_name());
+        if (item2 != active_spreadsheets_.end()) {
+          // Spreadsheet is already loaded.
+          std::cout << "Loading spreadsheet from memory: " + load_packet.get_spreadsheet_name() << std::endl;
+          data_container_.new_outbound_packet(packet.get_socket_id(),
+                                              *new outbound_full_state_packet(item2->second->get_non_empty_cells()));
+        } else {
+          // Spreadsheet must be loaded from file.
+          std::cout << "Loading spreadsheet from file: " + load_packet.get_spreadsheet_name() << std::endl;
+
+          auto sheet = new spreadsheet(FILE_DIR_PATH + "/" + load_packet.get_spreadsheet_name() + ".sprd");
+          if (sheet->is_loaded()) {
+            std::cout << "Load was successful." << std::endl;
+            active_spreadsheets_[load_packet.get_spreadsheet_name()] = sheet;
+            data_container_.new_outbound_packet(packet.get_socket_id(),
+                                                *new outbound_full_state_packet(sheet->get_non_empty_cells()));
+          } else {
+            std::cout << "Load failed." << std::endl;
+            delete sheet;
+            data_container_.new_outbound_packet(packet.get_socket_id(),
+                                                *new outbound_file_load_error_packet());
+          }
+        }
       } else {
         // Create new spreadsheet.
         std::cout << "Creating new spreadsheet: " + load_packet.get_spreadsheet_name() << std::endl;
+
         active_spreadsheets_[load_packet.get_spreadsheet_name()] = new spreadsheet;
+        available_spreadsheets_.insert(load_packet.get_spreadsheet_name());
+
+        // Save the new spreadsheet.
+        save_spreadsheet(*active_spreadsheets_[load_packet.get_spreadsheet_name()], load_packet.get_spreadsheet_name());
+
         data_container_.new_outbound_packet(packet.get_socket_id(),
                                             *new outbound_full_state_packet(active_spreadsheets_[load_packet.get_spreadsheet_name()]->get_non_empty_cells()));
       }
@@ -193,7 +219,7 @@ void spreadsheet_controller::send_packet_to_all_sockets(const std::string &sprea
       bool still_connected = data_container_.new_outbound_packet(socket_id, *packet.clone());
 
       if (!still_connected) {
-	to_remove.push_back(socket_id);
+        to_remove.push_back(socket_id);
       }
     }
 
@@ -209,8 +235,12 @@ void spreadsheet_controller::send_packet_to_all_sockets(const std::string &sprea
 
 void spreadsheet_controller::save_all_spreadsheets() const {
   for (auto &&item : active_spreadsheets_) {
-    item.second->save_to_file(FILE_DIR_PATH + "/" + item.first + ".sprd");
+    save_spreadsheet(*item.second, item.first);
   }
+}
+
+void spreadsheet_controller::save_spreadsheet(spreadsheet &sheet, const std::string &spreadsheet_name) const {
+  sheet.save_to_file(FILE_DIR_PATH + "/" + spreadsheet_name + ".sprd");
 }
 
 bool spreadsheet_controller::is_valid_cell_name(const std::string &cell_name) {
@@ -227,14 +257,4 @@ bool spreadsheet_controller::is_valid_cell_name(const std::string &cell_name) {
 std::string spreadsheet_controller::normalize_cell_name(std::string cellName) {
   std::transform(cellName.begin(), cellName.end(), cellName.begin(), ::toupper);
   return cellName;
-}
-
-std::vector<std::string> spreadsheet_controller::get_spreadsheet_names() const {
-  std::vector<std::string> names;
-
-  for (auto &&item : active_spreadsheets_) {
-    names.push_back(item.first);
-  }
-
-  return names;
 }

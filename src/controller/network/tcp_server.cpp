@@ -97,8 +97,13 @@ void tcp_server::server_work() {
       main_controller_.handle_client(new_socket);
     }
 
-    // Briefly sleep to prevent this from choking machine resources.
-    boost::this_thread::sleep_for(boost::chrono::milliseconds{10});
+    try {
+      // Briefly sleep to prevent this from choking machine resources.
+      boost::this_thread::sleep_for(boost::chrono::milliseconds{10});
+    } catch (boost::thread_interrupted interruption) {
+      // Thread interrupted.
+      break;
+    }
   }
 }
 

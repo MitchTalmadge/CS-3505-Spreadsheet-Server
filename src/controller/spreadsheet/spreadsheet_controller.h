@@ -31,6 +31,11 @@ class spreadsheet_controller {
   boost::thread* worker_thread;
 
   /**
+   * The names of all spreadsheets which may be loaded.
+   */
+  std::set<const std::string> available_spreadsheets_;
+
+  /**
    * Contains all spreadsheets which are active, meaning they have been loaded by a client.
    * Maps spreadsheet file names to spreadsheet instances.
    */
@@ -85,6 +90,13 @@ class spreadsheet_controller {
    * Saves all active spreadsheets one at a time.
    */
   void save_all_spreadsheets() const;
+
+  /**
+   * Saves a single spreadsheet.
+   * @param sheet The sheet to save.
+   * @param spreadsheet_name The name of the spreadsheet.
+   */
+  void save_spreadsheet(spreadsheet &sheet, const std::string &spreadsheet_name) const;
 
  public:
 

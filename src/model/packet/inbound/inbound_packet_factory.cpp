@@ -53,7 +53,7 @@ inbound_packet *inbound_packet_factory::from_raw_message(int socket_id,
     if (!spreadsheet_controller::is_valid_cell_name(split.front()))
       return nullptr;
 
-    return new inbound_edit_packet(socket_id, raw_message, split.front(), split.back());
+    return new inbound_edit_packet(socket_id, raw_message, spreadsheet_controller::normalize_cell_name(split.front()), split.back());
   } else if (boost::starts_with(raw_message, "focus ")) {
     // Extract contents
     std::string contents = raw_message.substr(6, raw_message.size() - 1 - 6);
@@ -62,7 +62,7 @@ inbound_packet *inbound_packet_factory::from_raw_message(int socket_id,
     if (!spreadsheet_controller::is_valid_cell_name(contents))
       return nullptr;
 
-    return new inbound_focus_packet(socket_id, raw_message, contents);
+    return new inbound_focus_packet(socket_id, raw_message, spreadsheet_controller::normalize_cell_name(contents));
   } else if (boost::starts_with(raw_message, "unfocus ")) {
     return new inbound_unfocus_packet(socket_id, raw_message);
   } else if (boost::starts_with(raw_message, "undo ")) {
@@ -75,7 +75,7 @@ inbound_packet *inbound_packet_factory::from_raw_message(int socket_id,
     if (!spreadsheet_controller::is_valid_cell_name(contents))
       return nullptr;
 
-    return new inbound_revert_packet(socket_id, raw_message, contents);
+    return new inbound_revert_packet(socket_id, raw_message, spreadsheet_controller::normalize_cell_name(contents));
   }
 
   return nullptr;

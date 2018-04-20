@@ -13,6 +13,8 @@ class outbound_unfocus_packet : public outbound_packet {
 
   explicit outbound_unfocus_packet(const std::string &unique_id);
 
+  outbound_packet *clone() const override;
+
   outbound_packet_type get_packet_type() override;
 
   std::string get_raw_message() override;

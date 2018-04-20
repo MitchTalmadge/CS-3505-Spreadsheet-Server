@@ -20,6 +20,12 @@ class outbound_packet {
  public:
 
   /**
+   * Clones this packet.
+   * @return The new, cloned packet.
+   */
+  virtual outbound_packet * clone() const = 0;
+
+  /**
    * Represents the type of the packet, to avoid costly casting checks.
    */
   enum outbound_packet_type {

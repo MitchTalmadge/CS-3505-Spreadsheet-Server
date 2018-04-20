@@ -107,7 +107,7 @@ void spreadsheet::set_cell_contents(const std::string &cell_name, const std::str
   // Push old contents onto this cell's revert.
   revert_history_[cell_name].push(old_history);
 
-  cell_contents_[spreadsheet_controller::normalize_cell_name(cell_name)] = contents;
+  cell_contents_[cell_name] = contents;
 }
 
 std::map<std::string, std::string> spreadsheet::get_non_empty_cells() const {

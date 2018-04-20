@@ -3,6 +3,10 @@
 outbound_change_packet::outbound_change_packet(const std::string &cell_name, const std::string &cell_contents)
     : cell_name_(cell_name), cell_contents_(cell_contents) {}
 
+outbound_packet *outbound_change_packet::clone() const {
+  return new outbound_change_packet(cell_name_, cell_contents_);
+}
+
 outbound_packet::outbound_packet_type outbound_change_packet::get_packet_type() {
   return CHANGE;
 }

@@ -86,7 +86,8 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet) {
       std::cout << "Registering client on socket ID " << packet.get_socket_id() << std::endl;
 
       // Respond to the client.
-      data_container_.new_outbound_packet(packet.get_socket_id(), *new outbound_connect_accepted_packet(get_spreadsheet_names()));
+      data_container_.new_outbound_packet(packet.get_socket_id(),
+                                          *new outbound_connect_accepted_packet(get_spreadsheet_names()));
 
       break;
     }
@@ -182,9 +183,13 @@ void spreadsheet_controller::send_packet_to_all_sockets(const std::string &sprea
   auto iter = spreadsheets_to_sockets_.find(spreadsheet_name);
   if (iter != spreadsheets_to_sockets_.end()) {
     for (auto socket_id : iter->second) {
-      data_container_.new_outbound_packet(socket_id, packet);
+      // Clone the packet into each socket's outbound queue.
+      data_container_.new_outbound_packet(socket_id, *packet.clone());
     }
   }
+
+  // Dispose of the original packet.
+  delete &packet;
 }
 
 void spreadsheet_controller::save_all_spreadsheets() const {

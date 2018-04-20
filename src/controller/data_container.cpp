@@ -15,8 +15,21 @@ data_container &data_container::get_instance() {
 }
 
 void data_container::remove_socket(int socket_id) {
-  std::lock_guard<std::mutex> lock(outbound_packets_mutex_);
+  std::lock_guard<std::mutex> lock_outbound(outbound_packets_mutex_);
+  std::lock_guard<std::mutex> lock_disconnected(disconnected_clients_mutex_);
   
+  disconnected_clients_.insert(socket_id);
+
+  // Free up memory used by that socket.
+  std::queue<outbound_packet *>& packets = outbound_packets_[socket_id];
+    
+  while(!packets.empty()) {
+    outbound_packet* packet = packets.front();
+    packets.pop();
+    delete packet;
+  }
+
+  // Remove the outbound queue.
   outbound_packets_.erase(socket_id);
 }
 
@@ -25,11 +38,6 @@ void data_container::new_inbound_packet(inbound_packet &packet) {
 
   // Place packet onto queue for given spreadsheet.
   inbound_packets_.push(&packet);
-}
-
-template <class key, class packet_type>
-void clear_queue_map(std::map<key, std::queue<packet_type *>> &packet_queues) {
-
 }
 
 data_container::~data_container() {
@@ -74,16 +82,19 @@ Send a new message to the specified socket.
 Called by the main controller during registration.
  */
 bool data_container::new_outbound_packet(int socket_id, outbound_packet &packet) {
-  std::lock_guard<std::mutex> lock(outbound_packets_mutex_);
+  std::lock_guard<std::mutex> lock_outbound(outbound_packets_mutex_);
+  std::lock_guard<std::mutex> lock_disconnected(disconnected_clients_mutex_);
 
-  // Use find so we don't allocate unnessecary space for queues.
-  auto queue = outbound_packets_.find(socket_id);
-  if (queue != outbound_packets_.end()) {
-    queue->second.push(&packet);
-    return true;
-  } else {
+  // If the asked for socket has closed, tell spreadsheet_controller.
+  auto disconnect_it = disconnected_clients_.find(socket_id);
+  if (disconnect_it != disconnected_clients_.end()) {
+    disconnected_clients_.erase(socket_id);
     return false;
   }
+
+  auto &queue = outbound_packets_[socket_id];
+  queue.push(&packet);
+  return true;
 }
 
 /*
@@ -92,18 +103,14 @@ Allow for socket to grab an outbound message to be sent to client.
 outbound_packet *data_container::get_outbound_packet(int socket_id) {
   std::lock_guard<std::mutex> lock(outbound_packets_mutex_);
 
-  auto queue = outbound_packets_.find(socket_id);
+  auto &queue = outbound_packets_[socket_id];
 
-  if (queue != outbound_packets_.end()) {
+  if (queue.empty()) {
     return nullptr;
   }
 
-  if (queue->second.empty()) {
-    return nullptr;
-  } else {
-    auto packet = queue->second.front();
-    queue->second.pop();
-    
-    return packet;
-  }
+  auto packet = queue.front();
+  queue.pop();
+
+  return packet;
 }

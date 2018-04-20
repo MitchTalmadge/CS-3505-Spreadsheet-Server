@@ -91,6 +91,8 @@ void network_controller::socket_work_loop(int socket_id) {
 	// Clean up resources for this socket.
 	data_container_.remove_socket(socket_id);
 
+	delete packet;
+
 	// Return which will end this thread.
 	return;
       }
@@ -122,8 +124,12 @@ void network_controller::socket_work_loop(int socket_id) {
 
     // Check if either timer has gone off and handle accordingly.
     if (ping_timer < 0) {
+      std::cout << "Sending ping." << std::endl;
+
       // Create and send a ping packet.
-      data_container_.new_outbound_packet(socket_id, *new outbound_ping_packet());
+      bool sent = data_container_.new_outbound_packet(socket_id, *new outbound_ping_packet());
+
+      std::cout << sent << std::endl;
 
       // Reset the ping timer.
       ping_timer = network_controller::ping_time;

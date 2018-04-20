@@ -11,6 +11,7 @@ able to access shared data.
 
 #include <queue>
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 #include <mutex>
@@ -33,6 +34,12 @@ private:
    */
     std::map<int, std::queue<outbound_packet *> > outbound_packets_;
     std::mutex outbound_packets_mutex_;
+
+    /**
+     * Know who disconnected so spreadsheet_controller can learn of it.
+     */
+    std::set<int> disconnected_clients_;
+    std::mutex disconnected_clients_mutex_;
 
     /**
      * Private constructor for singleton pattern.

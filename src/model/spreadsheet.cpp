@@ -15,6 +15,7 @@ spreadsheet::spreadsheet(const std::string &file_path) {
   std::ifstream input_stream(abs_file_path);
 
   if (!input_stream.is_open()) {
+    std::cout << "Could not load spreadsheet file: File could not be opened for reading." << std::endl;
     loaded_ = false;
     return;
   }
@@ -23,6 +24,7 @@ spreadsheet::spreadsheet(const std::string &file_path) {
 
   // Check for header.
   if (!boost::starts_with(file_contents, "spreadsheet|")) {
+    std::cout << "Could not load spreadsheet file: File header was missing or incorrect." << std::endl;
     loaded_ = false;
     return;
   }
@@ -34,6 +36,7 @@ spreadsheet::spreadsheet(const std::string &file_path) {
 
   // Make sure that an even number of items were retrieved, otherwise one cell does not have a matching contents.
   if (split.size() % 2 != 0) {
+    std::cout << "Could not load spreadsheet file: Cell contents are corrupted." << std::endl;
     loaded_ = false;
     return;
   }

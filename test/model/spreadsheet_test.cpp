@@ -15,6 +15,12 @@ TEST(spreadsheet, load_from_file) {
   EXPECT_EQ("", sheet.get_cell_contents("A2")); // Random empty cell.
 }
 
+TEST(spreadsheet, load_from_file__empty) {
+  // Load spreadsheet.
+  spreadsheet sheet("test/resources/save_file_2.sprd");
+  EXPECT_TRUE(sheet.is_loaded());
+}
+
 TEST(spreadsheet, save_to_file) {
   // Make a spreadsheet.
   spreadsheet sheet;
@@ -30,6 +36,22 @@ TEST(spreadsheet, save_to_file) {
   // Read files.
   std::ifstream original("test/resources/save_file_1.sprd");
   std::ifstream saved("test/resources/save_file_1_out.sprd");
+
+  // Compare contents.
+  EXPECT_EQ(std::string(std::istreambuf_iterator<char>(original), std::istreambuf_iterator<char>()),
+            std::string(std::istreambuf_iterator<char>(saved), std::istreambuf_iterator<char>()));
+}
+
+TEST(spreadsheet, save_to_file__empty) {
+  // Make a spreadsheet.
+  spreadsheet sheet;
+
+  // Save it.
+  sheet.save_to_file("test/resources/save_file_2_out.sprd");
+
+  // Read files.
+  std::ifstream original("test/resources/save_file_2.sprd");
+  std::ifstream saved("test/resources/save_file_2_out.sprd");
 
   // Compare contents.
   EXPECT_EQ(std::string(std::istreambuf_iterator<char>(original), std::istreambuf_iterator<char>()),

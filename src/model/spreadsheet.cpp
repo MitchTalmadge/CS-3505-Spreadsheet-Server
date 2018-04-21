@@ -34,6 +34,12 @@ spreadsheet::spreadsheet(const std::string &file_path) {
   auto file_contents_minus_header = file_contents.substr(12);
   boost::split(split, file_contents_minus_header, boost::is_any_of(":"));
 
+  // Check if there were no contents.
+  if (split.size() == 1 && split.front().empty()) {
+    loaded_ = true;
+    return;
+  }
+
   // Make sure that an even number of items were retrieved, otherwise one cell does not have a matching contents.
   if (split.size() % 2 != 0) {
     std::cout << "Could not load spreadsheet file: Cell contents are corrupted." << std::endl;

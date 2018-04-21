@@ -87,6 +87,13 @@ class spreadsheet_controller {
   void send_packet_to_all_sockets(const std::string &spreadsheet_name, outbound_packet &packet);
 
   /**
+   * Sends an outbound packet to a specific socket.
+   * @param socket_id The socket to send the packet to.
+   * @param packet The packet to send.
+   */
+  void send_packet_to_socket(int socket_id, outbound_packet &packet);
+
+  /**
    * Saves all active spreadsheets one at a time.
    */
   void save_all_spreadsheets() const;

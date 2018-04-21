@@ -89,7 +89,7 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet) {
       data_container_.register_socket(packet.get_socket_id());
 
       // Respond to the client.
-      data_container_.new_outbound_packet(packet.get_socket_id(),
+      send_packet_to_socket(packet.get_socket_id(),
                                           *new outbound_connect_accepted_packet(available_spreadsheets_));
 
       break;
@@ -116,7 +116,7 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet) {
         if (item2 != active_spreadsheets_.end()) {
           // Spreadsheet is already loaded.
           std::cout << "Loading spreadsheet from memory: " + load_packet.get_spreadsheet_name() << std::endl;
-          data_container_.new_outbound_packet(packet.get_socket_id(),
+          send_packet_to_socket(packet.get_socket_id(),
                                               *new outbound_full_state_packet(item2->second->get_non_empty_cells()));
         } else {
           // Spreadsheet must be loaded from file.
@@ -126,12 +126,12 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet) {
           if (sheet->is_loaded()) {
             std::cout << "Load was successful." << std::endl;
             active_spreadsheets_[load_packet.get_spreadsheet_name()] = sheet;
-            data_container_.new_outbound_packet(packet.get_socket_id(),
+            send_packet_to_socket(packet.get_socket_id(),
                                                 *new outbound_full_state_packet(sheet->get_non_empty_cells()));
           } else {
             std::cout << "Load failed." << std::endl;
             delete sheet;
-            data_container_.new_outbound_packet(packet.get_socket_id(),
+            send_packet_to_socket(packet.get_socket_id(),
                                                 *new outbound_file_load_error_packet());
           }
         }
@@ -145,7 +145,7 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet) {
         // Save the new spreadsheet.
         save_spreadsheet(*active_spreadsheets_[load_packet.get_spreadsheet_name()], load_packet.get_spreadsheet_name());
 
-        data_container_.new_outbound_packet(packet.get_socket_id(),
+        send_packet_to_socket(packet.get_socket_id(),
                                             *new outbound_full_state_packet(active_spreadsheets_[load_packet.get_spreadsheet_name()]->get_non_empty_cells()));
       }
 
@@ -211,26 +211,26 @@ void spreadsheet_controller::send_packet_to_all_sockets(const std::string &sprea
   // Send to all sockets mapped to the given spreadsheet.
   auto iter = spreadsheets_to_sockets_.find(spreadsheet_name);
   if (iter != spreadsheets_to_sockets_.end()) {
-
-    std::vector<int> to_remove;
-
     for (auto socket_id : iter->second) {
-      // Clone the packet into each socket's outbound queue.
-      bool still_connected = data_container_.new_outbound_packet(socket_id, *packet.clone());
-
-      if (!still_connected) {
-        to_remove.push_back(socket_id);
-      }
-    }
-
-    // Remove disconnected sockets.
-    for (auto socket_id : to_remove) {
-      iter->second.erase(socket_id);
+      // Clone the packet for each socket.
+      send_packet_to_socket(socket_id, *packet.clone());
     }
   }
 
   // Dispose of the original packet.
   delete &packet;
+}
+
+void spreadsheet_controller::send_packet_to_socket(int socket_id, outbound_packet &packet) {
+  // Send packet.
+  bool still_connected = data_container_.new_outbound_packet(socket_id, packet);
+
+  // Check if connection was lost. (Client disconnected).
+  if (!still_connected) {
+    // Remove the socket mappings.
+    spreadsheets_to_sockets_[sockets_to_spreadsheets_[socket_id]].erase(socket_id);
+    sockets_to_spreadsheets_.erase(socket_id);
+  }
 }
 
 void spreadsheet_controller::save_all_spreadsheets() const {

@@ -90,7 +90,7 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet) {
 
       // Respond to the client.
       send_packet_to_socket(packet.get_socket_id(),
-                                          *new outbound_connect_accepted_packet(available_spreadsheets_));
+                            *new outbound_connect_accepted_packet(available_spreadsheets_));
 
       break;
     }
@@ -117,7 +117,7 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet) {
           // Spreadsheet is already loaded.
           std::cout << "Loading spreadsheet from memory: " + load_packet.get_spreadsheet_name() << std::endl;
           send_packet_to_socket(packet.get_socket_id(),
-                                              *new outbound_full_state_packet(item2->second->get_non_empty_cells()));
+                                *new outbound_full_state_packet(item2->second->get_non_empty_cells()));
         } else {
           // Spreadsheet must be loaded from file.
           std::cout << "Loading spreadsheet from file: " + load_packet.get_spreadsheet_name() << std::endl;
@@ -127,12 +127,12 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet) {
             std::cout << "Load was successful." << std::endl;
             active_spreadsheets_[load_packet.get_spreadsheet_name()] = sheet;
             send_packet_to_socket(packet.get_socket_id(),
-                                                *new outbound_full_state_packet(sheet->get_non_empty_cells()));
+                                  *new outbound_full_state_packet(sheet->get_non_empty_cells()));
           } else {
             std::cout << "Load failed." << std::endl;
             delete sheet;
             send_packet_to_socket(packet.get_socket_id(),
-                                                *new outbound_file_load_error_packet());
+                                  *new outbound_file_load_error_packet());
           }
         }
       } else {
@@ -146,7 +146,12 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet) {
         save_spreadsheet(*active_spreadsheets_[load_packet.get_spreadsheet_name()], load_packet.get_spreadsheet_name());
 
         send_packet_to_socket(packet.get_socket_id(),
-                                            *new outbound_full_state_packet(active_spreadsheets_[load_packet.get_spreadsheet_name()]->get_non_empty_cells()));
+                              *new outbound_full_state_packet(active_spreadsheets_[load_packet.get_spreadsheet_name()]->get_non_empty_cells()));
+      }
+
+      // Clear the socket from the maps in case the socket is already accessing another sheet.
+      if (!sockets_to_spreadsheets_[packet.get_socket_id()].empty()) {
+        spreadsheets_to_sockets_[sockets_to_spreadsheets_[packet.get_socket_id()]].erase(packet.get_socket_id());
       }
 
       // Assign socket to spreadsheet and vice-versa

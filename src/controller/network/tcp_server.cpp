@@ -67,7 +67,7 @@ bool tcp_server::startup() {
   }
 
   // Make the listening socket non-blocking to allow for clean shut down.
-  if (!network_controller::set_socket_non_blocking(server_fd)) {
+  if (!network_controller::set_socket_block_state(server_fd, false)) {
     std::cout << "Failed to set listening socket to non-blocking." << std::endl;
     return false;
   }

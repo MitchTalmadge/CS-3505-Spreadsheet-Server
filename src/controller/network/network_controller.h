@@ -48,7 +48,7 @@ class network_controller {
   /**
    * Private constructor for singleton pattern.
    */
-  network_controller() = default;
+  network_controller();
 
   /**
    * Private destructor for singleton pattern.
@@ -58,11 +58,13 @@ class network_controller {
  public:
 
   /**
-   * Make the given socket non blocking.
+   * Set the blocking settings of the socket.
+   *
    * @param socket_id File descriptor of socket.
+   * @param blocking Whether the socket should be set to blocking.
    * @return true if successful, false otherwise.
    */
-  static bool set_socket_non_blocking(int socket_id);
+  static bool set_socket_block_state(int socket_id, bool blocking);
 
   /**
    * @return The singleton instance of this controller.

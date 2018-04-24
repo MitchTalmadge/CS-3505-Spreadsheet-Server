@@ -94,8 +94,7 @@ void network_controller::socket_work_loop(int socket_id) {
       for (int index = 0; index < split.size()-1; ++index) {
 	std::string message = split[index] + network_controller::EOT;
 
-	std::cout << "Message from client: " << std::endl;
-	std::cout << message << std::endl;
+	std::cout << "Message from client: " << message << std::endl;
 
 	// Parse the message as an inbound packet.
 	auto packet = inbound_packet_factory::from_raw_message(socket_id, message);

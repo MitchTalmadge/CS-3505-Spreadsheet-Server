@@ -1,0 +1,15 @@
+# Add source code.
+include_directories(src)
+file(GLOB_RECURSE SOURCES "src/*.cpp")
+list(FILTER SOURCES EXCLUDE REGEX ".*/main\\.(h|cpp)")
+
+# Add test code.
+include_directories(test)
+file(GLOB_RECURSE TEST_SOURCES "test/*.cpp")
+
+# Copy test resources
+file(COPY ${CMAKE_SOURCE_DIR}/test/resources DESTINATION ${CMAKE_BINARY_DIR}/test/)
+
+# Define executable.
+add_executable(server_test ${SOURCES} ${TEST_SOURCES})
+add_dependencies(server_test server)

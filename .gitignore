@@ -1,0 +1,7 @@
+.idea
+*.iml
+*.ipw
+.vs
+*.log
+cmake-build-debug
+bin

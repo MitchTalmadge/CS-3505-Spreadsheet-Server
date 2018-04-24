@@ -17,6 +17,7 @@ clients.
 #include <model/packet/outbound/outbound_ping_response_packet.h>
 #include <model/packet/outbound/outbound_ping_packet.h>
 #include <model/packet/outbound/outbound_disconnect_packet.h>
+#include <model/packet/inbound/inbound_unfocus_packet.h>
 #include <iostream>
 
 const std::string network_controller::EOT = std::string(1, '\3');
@@ -132,6 +133,9 @@ void network_controller::socket_work_loop(int socket_id) {
 
 	  // Clean up resources for this socket.
 	  data_container_.remove_socket(socket_id);
+
+	  // Create an unfocus message for this socket, to unfocus whatever it was looking at in other still connected clients.
+	  data_container_.new_inbound_packet(*new inbound_unfocus_packet(socket_id, "unfocus " + network_controller::EOT));
 
 	  // Dispose of packet.
 	  delete packet;

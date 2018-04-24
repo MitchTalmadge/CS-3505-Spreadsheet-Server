@@ -54,7 +54,7 @@ void disconnect_socket(int socket_id) {
     std::cout << "Socket was not set to blocking. Disconnect message not sent. Socket closing." << std::endl;
   }
 
-  write(socket_id, msg, strlen(msg) * sizeof(char));
+  send(socket_id, msg, strlen(msg) * sizeof(char), MSG_NOSIGNAL);
 
   // Shut down the socket.
   close(socket_id);
@@ -93,8 +93,6 @@ void network_controller::socket_work_loop(int socket_id) {
       // Note, we only go to length - 1, since we don't want anything that doesn't end in EOT.
       for (int index = 0; index < split.size()-1; ++index) {
 	std::string message = split[index] + network_controller::EOT;
-
-	std::cout << "Message from client: " << message << std::endl;
 
 	// Parse the message as an inbound packet.
 	auto packet = inbound_packet_factory::from_raw_message(socket_id, message);
@@ -163,15 +161,11 @@ void network_controller::socket_work_loop(int socket_id) {
       // Dispose of packet.
       delete packet;
 
-      std::cout << "Sending message to client: " << msg << std::endl;
-
-      write(socket_id, msg, strlen(msg) * sizeof(char));
+      send(socket_id, msg, strlen(msg) * sizeof(char), MSG_NOSIGNAL);
     }
 
     // Check if either timer has gone off and handle accordingly.
     if (ping_timer < 0) {
-      std::cout << "Sending ping." << std::endl;
-
       // Create and send a ping packet.
       data_container_.new_outbound_packet(socket_id, *new outbound_ping_packet());
 

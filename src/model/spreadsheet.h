@@ -93,6 +93,11 @@ class spreadsheet {
   std::map<std::string, std::string> get_non_empty_cells() const;
 
   /**
+   * @return A map containing socket ids mapped to the cell that client is focusing.
+   */
+  std::map<int, std::string> get_focused_cells() const;
+
+  /**
    * Marks a client as having focused on a particular cell.
    * @param socket_id The ID of the socket representing the client that is focusing on a cell.
    * @param cell_name The name of the cell to focus on.

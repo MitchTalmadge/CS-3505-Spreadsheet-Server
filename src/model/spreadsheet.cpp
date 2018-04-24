@@ -136,6 +136,16 @@ std::map<std::string, std::string> spreadsheet::get_non_empty_cells() const {
   return map;
 }
 
+std::map<int, std::string> spreadsheet::get_focused_cells() const {
+  std::map<int, std::string> map;
+
+  for (auto &&item : focused_cells_) {
+    map[item.first] = item.second;
+  }
+
+  return map;
+}
+
 void spreadsheet::focus_cell(int socket_id, const std::string &cell_name) {
   focused_cells_[socket_id] = cell_name;
 }

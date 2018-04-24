@@ -118,6 +118,14 @@ void spreadsheet_controller::parse_inbound_packet(inbound_packet &packet) {
           std::cout << "Loading spreadsheet from memory: " + load_packet.get_spreadsheet_name() << std::endl;
           send_packet_to_socket(packet.get_socket_id(),
                                 *new outbound_full_state_packet(item2->second->get_non_empty_cells()));
+
+	  // Only case where other users would be focused is if its already loaded. Send focus messages for all focused clients.
+	  std::map<int, std::string> focus_cell = item2->second->get_focused_cells();
+	  for (auto focus_it = focus_cell.begin(); focus_it != focus_cell.end(); ++focus_it) {
+	    send_packet_to_socket(packet.get_socket_id(),
+				  *new outbound_focus_packet(focus_it->second, std::to_string(focus_it->first)));
+	  }
+	  
         } else {
           // Spreadsheet must be loaded from file.
           std::cout << "Loading spreadsheet from file: " + load_packet.get_spreadsheet_name() << std::endl;

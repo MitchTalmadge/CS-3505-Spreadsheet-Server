@@ -68,7 +68,7 @@ void spreadsheet_controller::work() {
     try {
       // Briefly sleep to prevent this from choking machine resources.
       boost::this_thread::sleep_for(boost::chrono::milliseconds{10});
-      save_countdown_ -= 10;
+      save_countdown_ -= 1;
     } catch (boost::thread_interrupted interruption) {
       // Thread interrupted.
       break;

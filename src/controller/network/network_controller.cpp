@@ -12,11 +12,14 @@ clients.
 #include <netinet/in.h>
 #include <boost/regex.hpp>
 #include <boost/chrono.hpp>
+#include <boost/algorithm/string.hpp>
 #include <model/packet/inbound/inbound_packet_factory.h>
 #include <model/packet/outbound/outbound_ping_response_packet.h>
 #include <model/packet/outbound/outbound_ping_packet.h>
 #include <model/packet/outbound/outbound_disconnect_packet.h>
 #include <iostream>
+
+const std::string network_controller::EOT = std::string(1, '\3');
 
 network_controller::network_controller() {
   // Ignore SIG_PIPE signals so we don't die when someone disconnects.
@@ -83,58 +86,65 @@ void network_controller::socket_work_loop(int socket_id) {
     read(socket_id, &buffer, 1024);
 
     if (strlen(buffer) != 0) {
-      std::cout << "Message from client: " << std::endl;
-      std::cout << buffer << std::endl;
+      std::vector<std::string> split;
+      boost::split(split, buffer, boost::is_any_of(network_controller::EOT));
 
-      // Parse the message as an inbound packet.
-      auto packet = inbound_packet_factory::from_raw_message(socket_id, buffer);
+      // Note, we only go to length - 1, since we don't want anything that doesn't end in EOT.
+      for (int index = 0; index < split.size()-1; ++index) {
+	std::string message = split[index] + network_controller::EOT;
 
-      // Check if packet was parsed.
-      if (!packet) {
-	return;
+	std::cout << "Message from client: " << std::endl;
+	std::cout << message << std::endl;
+
+	// Parse the message as an inbound packet.
+	auto packet = inbound_packet_factory::from_raw_message(socket_id, message);
+
+	// Check if packet was parsed.
+	if (!packet) {
+	  return;
+	}
+
+	// Handle parsed packet.
+	switch (packet->get_packet_type()) {
+
+	case inbound_packet::PING: {
+	  data_container_.new_outbound_packet(packet->get_socket_id(), *new outbound_ping_response_packet());
+
+	  // Dispose of packet.
+	  delete packet;
+
+	  break;
+	}
+	case inbound_packet::PING_RESPONSE: {
+	  // Client has responded to our most recent Ping. Reset the ping_timeout_timer.
+	  ping_timeout_timer = network_controller::ping_timeout;
+
+	  // Dispose of packet.
+	  delete packet;
+
+	  break;
+	}
+	case inbound_packet::DISCONNECT: {
+	  std::cout << "Disconnecting client on socket " << socket_id << std::endl;
+
+	  // Shut down the socket.
+	  close(socket_id);
+
+	  // Clean up resources for this socket.
+	  data_container_.remove_socket(socket_id);
+
+	  // Dispose of packet.
+	  delete packet;
+
+	  // Return which will end this thread.
+	  return;
+	}
+	default: {
+	  data_container_.new_inbound_packet(*packet);
+	  break;
+	}
+	}
       }
-
-      // Handle parsed packet.
-      switch (packet->get_packet_type()) {
-
-      case inbound_packet::PING: {
-	data_container_.new_outbound_packet(packet->get_socket_id(), *new outbound_ping_response_packet());
-
-	// Dispose of packet.
-	delete packet;
-
-	break;
-      }
-      case inbound_packet::PING_RESPONSE: {
-	// Client has responded to our most recent Ping. Reset the ping_timeout_timer.
-	ping_timeout_timer = network_controller::ping_timeout;
-
-	// Dispose of packet.
-	delete packet;
-
-	break;
-      }
-      case inbound_packet::DISCONNECT: {
-	std::cout << "Disconnecting client on socket " << socket_id << std::endl;
-
-	// Shut down the socket.
-	close(socket_id);
-
-	// Clean up resources for this socket.
-	data_container_.remove_socket(socket_id);
-
-	// Dispose of packet.
-	delete packet;
-
-	// Return which will end this thread.
-	return;
-      }
-      default: {
-	data_container_.new_inbound_packet(*packet);
-	break;
-      }
-      }
-
       // Clear the buffer.
       memset(buffer, 0, 1024);
     }

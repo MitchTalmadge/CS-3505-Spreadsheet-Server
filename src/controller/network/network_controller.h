@@ -20,6 +20,11 @@ class network_controller {
  private:
 
   /**
+   * End of Text terminator.
+   */
+  static const std::string EOT;
+
+  /**
    * Milliseconds between pings.
    */
   static const int ping_time = 10000;

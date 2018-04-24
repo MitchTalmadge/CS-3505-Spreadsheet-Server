@@ -101,7 +101,7 @@ void network_controller::socket_work_loop(int socket_id) {
 
 	// Check if packet was parsed.
 	if (!packet) {
-	  return;
+	  continue;
 	}
 
 	// Handle parsed packet.
